@@ -6,8 +6,20 @@
 
     let { children } = $props();
 
-    // On ne veut pas de footer sur l'éditeur
-    let showFooter = $derived(!$page.url.pathname.startsWith('/editor'));
+    // Routes système connues
+    const knownRoutes = ['/', '/login', '/signup', '/editor', '/onboarding'];
+
+    // Détecte si c'est une page slug (/{slug})
+    const isSlugPage = $derived(
+        !knownRoutes.includes($page.url.pathname) &&
+        !$page.url.pathname.startsWith('/api/') &&
+        $page.url.pathname.split('/').filter(Boolean).length === 1
+    );
+
+    // Pas de header sur les pages slug uniquement
+    // Pas de footer sur l'éditeur ni sur les pages slug
+    let showHeader = $derived(!isSlugPage);
+    let showFooter = $derived(!$page.url.pathname.startsWith('/editor') && !isSlugPage);
 </script>
 
 <svelte:head>
@@ -15,8 +27,10 @@
 </svelte:head>
 
 <div class="min-h-screen flex flex-col">
-    <Header />
-    
+    {#if showHeader}
+        <Header />
+    {/if}
+
     <main class="flex-grow">
         {@render children()}
     </main>

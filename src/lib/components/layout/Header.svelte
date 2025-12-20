@@ -4,6 +4,7 @@
     import logo from "$lib/assets/images/logos/logo.png";
     import { Button } from "$lib/components/ui";
     import { signOut } from "$lib/auth/client";
+    import FloatingBar from "./FloatingBar.svelte";
 
     async function handleSignOut() {
         await signOut();
@@ -12,11 +13,8 @@
     }
 </script>
 
-<header class="sticky top-4 z-40 w-full px-4 pointer-events-none mb-4 mt-4">
-    <div
-        class="max-w-2xl mx-auto bg-background/70 backdrop-blur-xl border border-border rounded-sm px-4 py-2 shadow-sm pointer-events-auto"
-    >
-        <div class="flex items-center justify-between h-12">
+<FloatingBar position="top">
+    <div class="flex items-center justify-between h-12">
             <div
                 class="flex items-center gap-2 hover:opacity-70 transition-opacity cursor-pointer pl-2"
                 onclick={() => goto("/")}
@@ -56,5 +54,4 @@
                 {/if}
             </nav>
         </div>
-    </div>
-</header>
+</FloatingBar>

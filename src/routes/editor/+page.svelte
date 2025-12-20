@@ -1,13 +1,21 @@
 <script lang="ts">
-    import { Button, Input } from "$lib/components/ui";
+    import { Input } from "$lib/components/ui";
     import { Container } from "$lib/components/layout";
     import GridEditor from "$lib/components/editor/GridEditor.svelte";
+    import EditorToolbar from "$lib/components/editor/EditorToolbar.svelte";
+    import AddLinkDialog from "$lib/components/editor/AddLinkDialog.svelte";
     import type { Block } from "$lib/types/models";
-    import { onMount } from "svelte";
+    import { HistoryManager } from "$lib/stores/history.svelte";
+    import { nanoid } from "nanoid";
 
     let { data } = $props();
 
     let layout = $state<Block[]>(data.page.layout || []);
+    let history: HistoryManager = new HistoryManager(layout);
+    let canUndo = $derived(history?.canUndo ?? false);
+    let canRedo = $derived(history?.canRedo ?? false);
+    let isUndoRedoing = false;
+    let showAddLinkDialog = $state(false);
 
     let title = $state(data.page.settings.title);
     let slug = $state(data.page.slug);
@@ -19,10 +27,60 @@
 
     let autoSaveTimeout: ReturnType<typeof setTimeout>;
 
-    // Auto-save when layout changes
+    function updateLayout(newBlocks: Block[]) {
+        layout = newBlocks;
+        if (!isUndoRedoing) {
+            history?.push(newBlocks);
+        }
+    }
+
+    function addBlock(type: 'text' | 'link' | 'image', data: any = {}) {
+        const newBlock: Block = {
+            id: nanoid(),
+            type,
+            x: 0,
+            y: layout.length > 0 ? Math.max(...layout.map((b) => b.y + b.h)) : 0,
+            w: type === 'text' ? 6 : 4,
+            h: type === 'text' ? 3 : 2,
+            data
+        };
+        updateLayout([...layout, newBlock]);
+    }
+
+    function handleAddLink(url: string, title: string, iconSvg?: string, iconHex?: string) {
+        addBlock('link', { url, title, iconSvg, iconHex });
+    }
+
+    function handleUndo() {
+        const previousState = history?.undo();
+        if (previousState) {
+            isUndoRedoing = true;
+            layout = previousState;
+            setTimeout(() => {
+                isUndoRedoing = false;
+            }, 0);
+        }
+    }
+
+    function handleRedo() {
+        const nextState = history?.redo();
+        if (nextState) {
+            isUndoRedoing = true;
+            layout = nextState;
+            setTimeout(() => {
+                isUndoRedoing = false;
+            }, 0);
+        }
+    }
+
+    // Auto-save when layout, title, or slug changes
     $effect(() => {
         // Skip initial run
-        if (layout === data.page.layout) return;
+        const hasLayoutChanged = layout !== data.page.layout;
+        const hasTitleChanged = title !== data.page.settings.title;
+        const hasSlugChanged = slug !== data.page.slug;
+
+        if (!hasLayoutChanged && !hasTitleChanged && !hasSlugChanged) return;
 
         clearTimeout(autoSaveTimeout);
         autoSaveTimeout = setTimeout(() => {
@@ -31,20 +89,37 @@
     });
 
     async function autoSave() {
-        autoSaving = true;
-        try {
-            await fetch(`/api/pages/${data.page.id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    layout,
-                }),
-            });
-            lastSaved = new Date();
-        } catch (e) {
-            console.error("Auto-save failed:", e);
-        } finally {
-            autoSaving = false;
+        // Validate slug before saving
+        if (slug && slug.length >= 3 && /^[a-z0-9-]+$/.test(slug)) {
+            autoSaving = true;
+            try {
+                const response = await fetch(`/api/pages/${data.page.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        slug,
+                        settings: {
+                            ...data.page.settings,
+                            title,
+                        },
+                        layout,
+                    }),
+                });
+
+                if (response.ok) {
+                    // Update local data on success
+                    data.page.slug = slug;
+                    data.page.settings.title = title;
+                    lastSaved = new Date();
+                    slugError = "";
+                } else if (response.status === 409) {
+                    slugError = "This username is already taken";
+                }
+            } catch (e) {
+                console.error("Auto-save failed:", e);
+            } finally {
+                autoSaving = false;
+            }
         }
     }
 
@@ -117,39 +192,10 @@
     }
 </script>
 
-<Container class="py-12">
-    <div class="max-w-4xl mx-auto space-y-8">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-4xl font-bold text-text">Page Editor</h1>
-                {#if autoSaving}
-                    <p class="text-xs text-muted mt-1">Saving...</p>
-                {:else if lastSaved}
-                    <p class="text-xs text-muted mt-1">
-                        Saved {lastSaved.toLocaleTimeString()}
-                    </p>
-                {/if}
-            </div>
-            <div class="flex gap-2">
-                <Button
-                    variant="secondary"
-                    onclick={handleSave}
-                    disabled={saving}
-                >
-                    {saving ? "Saving..." : "Save"}
-                </Button>
-                {#if published}
-                    <a href="/{slug}" target="_blank">
-                        <Button variant="secondary">View Page</Button>
-                    </a>
-                {/if}
-                <Button onclick={handlePublish} disabled={saving}>
-                    {published ? "Unpublish" : "Publish"}
-                </Button>
-            </div>
-        </div>
-
-        <div class="space-y-4">
+<Container class="py-4">
+    <div class="max-w-4xl mx-auto space-y-4">
+        <!-- Page settings -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium text-text mb-2"
                     >Page Title</label
@@ -162,9 +208,14 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-text mb-2"
-                    >Username (URL)</label
-                >
+                <div class="flex items-center justify-between mb-2">
+                    <label class="text-sm font-medium text-text"
+                        >Username (URL)</label
+                    >
+                    <span class="text-xs text-muted">
+                        Lowercase letters, numbers, and hyphens only
+                    </span>
+                </div>
                 <div class="flex items-center gap-2">
                     <span class="text-sm text-muted whitespace-nowrap"
                         >squar.me/</span
@@ -183,17 +234,36 @@
                         class="flex-1"
                     />
                 </div>
-                <p class="text-xs text-muted mt-1">
-                    Lowercase letters, numbers, and hyphens only
-                </p>
+                {#if slugError}
+                    <p class="text-xs text-destructive mt-1">{slugError}</p>
+                {/if}
             </div>
-
-            <GridEditor
-                blocks={layout}
-                onUpdate={(newBlocks) => {
-                    layout = newBlocks;
-                }}
-            />
         </div>
+
+        <GridEditor
+            blocks={layout}
+            onUpdate={updateLayout}
+        />
     </div>
 </Container>
+
+<AddLinkDialog
+    bind:open={showAddLinkDialog}
+    onClose={() => (showAddLinkDialog = false)}
+    onAdd={handleAddLink}
+/>
+
+<EditorToolbar
+    onAddText={() => addBlock('text')}
+    onAddLink={() => (showAddLinkDialog = true)}
+    onAddImage={() => addBlock('image')}
+    onUndo={handleUndo}
+    onRedo={handleRedo}
+    onPublish={handlePublish}
+    {canUndo}
+    {canRedo}
+    {saving}
+    {autoSaving}
+    {published}
+    viewUrl={published ? `/${slug}` : undefined}
+/>

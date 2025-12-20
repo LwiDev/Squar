@@ -5,7 +5,14 @@
 	let { data }: { data: PageData } = $props();
 
 	const GRID_COLS = 12;
-	const GRID_ROWS = 20;
+
+	// Calculate grid rows dynamically based on content
+	const maxRow = $derived(
+		data.page.layout.length > 0
+			? Math.max(...data.page.layout.map(b => b.y + b.h))
+			: 0
+	);
+	const GRID_ROWS = $derived(Math.max(1, maxRow));
 
 	const theme = data.page.settings.theme;
 </script>
@@ -27,11 +34,11 @@
 </svelte:head>
 
 <div
-	class="min-h-screen w-full p-4 md:p-8"
+	class="w-full p-4"
 	style="background: {theme.background}; color: {theme.text};"
 >
 	<div class="max-w-6xl mx-auto">
-		<header class="mb-8 text-center">
+		<header class="mb-4 text-center">
 			<h1 class="text-4xl md:text-5xl font-bold mb-2" style="color: {theme.text};">
 				{data.page.settings.title}
 			</h1>

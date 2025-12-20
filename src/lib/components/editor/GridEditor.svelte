@@ -2,8 +2,7 @@
 	import type { Block } from '$lib/types/models';
 	import GridBlock from './GridBlock.svelte';
 	import { nanoid } from 'nanoid';
-	import { Plus, Type, Link as LinkIcon, Image as ImageIcon, Undo2, Redo2 } from 'lucide-svelte';
-	import { Button } from '$lib/components/ui';
+	import { Plus } from 'lucide-svelte';
 	import { HistoryManager } from '$lib/stores/history.svelte';
 	import { onMount } from 'svelte';
 
@@ -39,7 +38,14 @@
 	});
 
 	const GRID_COLS = 12;
-	const GRID_ROWS = 20;
+
+	// Calculate grid rows dynamically based on content, with a minimum for editing space
+	const maxRow = $derived(
+		blocks.length > 0
+			? Math.max(...blocks.map(b => b.y + b.h))
+			: 0
+	);
+	const GRID_ROWS = $derived(Math.max(10, maxRow + 2));
 
 	// Check if two blocks overlap
 	function blocksOverlap(block1: Block, block2: Block): boolean {
@@ -121,47 +127,7 @@
 	}
 </script>
 
-<div class="space-y-4">
-	<!-- Toolbar -->
-	<div class="flex items-center justify-between gap-2 p-4 bg-background border border-border rounded-md">
-		<div class="flex gap-2">
-			<Button size="sm" variant="secondary" onclick={() => addBlock('text')}>
-				<Type size={16} class="mr-2" />
-				Text
-			</Button>
-			<Button size="sm" variant="secondary" onclick={() => addBlock('link')}>
-				<LinkIcon size={16} class="mr-2" />
-				Link
-			</Button>
-			<Button size="sm" variant="secondary" onclick={() => addBlock('image')}>
-				<ImageIcon size={16} class="mr-2" />
-				Image
-			</Button>
-		</div>
-
-		<div class="flex gap-2">
-			<Button
-				size="sm"
-				variant="ghost"
-				onclick={handleUndo}
-				disabled={!canUndo}
-				title="Undo (Cmd+Z)"
-			>
-				<Undo2 size={16} />
-			</Button>
-			<Button
-				size="sm"
-				variant="ghost"
-				onclick={handleRedo}
-				disabled={!canRedo}
-				title="Redo (Cmd+Shift+Z)"
-			>
-				<Redo2 size={16} />
-			</Button>
-		</div>
-	</div>
-
-	<!-- Grid -->
+<!-- Grid -->
 	<div
 		data-grid
 		class="relative bg-background border border-border rounded-md p-8 min-h-[600px]"
@@ -174,7 +140,7 @@
 				<Plus size={48} class="text-muted mb-4" />
 				<h3 class="text-lg font-semibold text-text mb-2">Add your first block</h3>
 				<p class="text-sm text-muted max-w-md">
-					Click one of the buttons above to add a text, link, or image block to your page
+					Use the toolbar at the bottom to add text, links, or images to your page
 				</p>
 			</div>
 		{/if}
@@ -191,4 +157,3 @@
 			/>
 		{/each}
 	</div>
-</div>
