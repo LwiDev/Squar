@@ -56,9 +56,9 @@
 	{#if imageUrl}
 		<button
 			onclick={() => fileInput.click()}
-			class="h-full w-full group relative overflow-hidden"
+			class="h-full w-full group relative overflow-hidden bg-secondary/50"
 		>
-			<img src={imageUrl} alt="" class="h-full w-full object-cover" />
+			<img src={imageUrl} alt="" class="h-full w-full object-contain" />
 			<div
 				class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
 			>

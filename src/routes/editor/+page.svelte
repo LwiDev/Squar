@@ -47,8 +47,8 @@
         updateLayout([...layout, newBlock]);
     }
 
-    function handleAddLink(url: string, title: string, iconSvg?: string, iconHex?: string) {
-        addBlock('link', { url, title, iconSvg, iconHex });
+    function handleAddLink(url: string, title: string, iconSvg?: string, iconHex?: string, socialData?: any) {
+        addBlock('link', { url, title, iconSvg, iconHex, socialData });
     }
 
     function handleUndo() {

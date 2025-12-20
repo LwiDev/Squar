@@ -34,6 +34,38 @@
 	let dragStartPos = $state({ x: 0, y: 0 });
 	let dragStartBlock = $state({ x: 0, y: 0, w: 0, h: 0 });
 
+	// Predefined sizes
+	const presetSizes = [
+		{ w: 3, h: 2, label: 'Petit' },
+		{ w: 4, h: 2, label: 'Small' },
+		{ w: 6, h: 2, label: 'Medium' },
+		{ w: 4, h: 4, label: 'Carré' },
+		{ w: 6, h: 4, label: 'Large' },
+		{ w: 12, h: 2, label: 'Full S' },
+		{ w: 12, h: 4, label: 'Full M' }
+	];
+
+	function changeSize(w: number, h: number) {
+		onUpdate?.({ ...block, w, h });
+	}
+
+	// Find closest preset size
+	function findClosestPreset(w: number, h: number): { w: number; h: number } {
+		let closest = presetSizes[0];
+		let minDistance = Infinity;
+
+		for (const preset of presetSizes) {
+			// Calculate distance (Euclidean distance)
+			const distance = Math.sqrt(Math.pow(preset.w - w, 2) + Math.pow(preset.h - h, 2));
+			if (distance < minDistance) {
+				minDistance = distance;
+				closest = preset;
+			}
+		}
+
+		return { w: closest.w, h: closest.h };
+	}
+
 	function handleBlockUpdate(data: any) {
 		onUpdate?.({ ...block, data: { ...block.data, ...data } });
 	}
@@ -139,6 +171,19 @@
 			newH = dragStartBlock.h - shift;
 		}
 
+		// Snap to closest preset size
+		const snapped = findClosestPreset(newW, newH);
+		newW = snapped.w;
+		newH = snapped.h;
+
+		// Adjust position if size change would go out of bounds
+		if (newX + newW > gridCols) {
+			newX = gridCols - newW;
+		}
+		if (newY + newH > gridRows) {
+			newY = gridRows - newH;
+		}
+
 		if (newX !== block.x || newY !== block.y || newW !== block.w || newH !== block.h) {
 			onUpdate?.({ ...block, x: newX, y: newY, w: newW, h: newH });
 		}
@@ -181,6 +226,27 @@
 		>
 			<Trash2 size={14} />
 		</button>
+	{/if}
+
+	<!-- Size presets -->
+	{#if isSelected}
+		<div class="absolute -bottom-10 left-1/2 -translate-x-1/2 z-20 flex gap-1 bg-background/90 backdrop-blur-sm border border-border rounded-lg p-1.5 shadow-lg">
+			{#each presetSizes as size}
+				<button
+					onclick={(e) => {
+						e.stopPropagation();
+						changeSize(size.w, size.h);
+					}}
+					class="group relative p-2 rounded hover:bg-border transition-colors {block.w === size.w && block.h === size.h ? 'bg-accent/20' : ''}"
+					title={size.label}
+				>
+					<div
+						class="border-2 {block.w === size.w && block.h === size.h ? 'border-accent' : 'border-muted'} rounded"
+						style="width: {size.w * 3}px; height: {size.h * 3}px;"
+					></div>
+				</button>
+			{/each}
+		</div>
 	{/if}
 
 	<!-- Resize handles -->

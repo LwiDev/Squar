@@ -25,12 +25,11 @@
         <h1
             class="text-5xl md:text-7xl font-bold tracking-tight text-text mb-6 leading-tight"
         >
-            Your personal page.<br />
-            <span class="text-accent">Reimagined.</span>
+            Your page, your way.
         </h1>
         <p class="text-xl text-muted max-w-2xl mx-auto mb-10">
-            Squar.me is the open-source, self-hosted alternative to Bento.<br />
-            Create your grid, drag blocks, and share your world.
+            SQUAR is open-source. Design your page, drag your blocks, and make
+            it yours.
         </p>
         <div
             class="flex flex-col sm:flex-row items-center justify-center gap-4"
@@ -68,9 +67,7 @@
                 class="absolute -inset-1 bg-gradient-to-r from-accent to-purple-600 rounded-2xl blur opacity-20"
             ></div>
 
-            <Card
-                class="relative p-4 md:p-8 shadow-2xl overflow-hidden"
-            >
+            <Card class="relative p-4 md:p-8 shadow-2xl overflow-hidden">
                 <!-- Browser chrome simulation -->
                 <div
                     class="flex items-center gap-2 mb-6 border-b border-border pb-4"
@@ -157,7 +154,9 @@
     <!-- Features -->
     <Container class="py-24 border-t border-border">
         <div class="text-center mb-16">
-            <h2 class="text-3xl font-bold mb-4 text-text">Everything you need</h2>
+            <h2 class="text-3xl font-bold mb-4 text-text">
+                Everything you need
+            </h2>
             <p class="text-muted max-w-2xl mx-auto">
                 Focused on simplicity and flexibility. No bloat, just the
                 essentials to build your perfect page.
@@ -203,10 +202,13 @@
                 >
                     <Zap size={24} />
                 </div>
-                <h3 class="text-xl font-bold text-text">No Limits, No Paywalls</h3>
+                <h3 class="text-xl font-bold text-text">
+                    No Limits, No Paywalls
+                </h3>
                 <p class="text-muted leading-relaxed">
-                    Everything is free. No premium plans, no hidden costs, and no 
-                    artificial limits on your creativity. Just you and your space.
+                    Everything is free. No premium plans, no hidden costs, and
+                    no artificial limits on your creativity. Just you and your
+                    space.
                 </p>
             </Card>
         </div>
