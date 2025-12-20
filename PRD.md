@@ -54,7 +54,7 @@ accessible via une URL unique.
 - Stockage local sur le serveur
 
 ### Page publique
-- URL : `/u/[slug]`
+- URL : `/[slug]`
 - Rendu **SSR**
 - HTML le plus statique possible
 - SEO + OpenGraph dynamiques
@@ -64,13 +64,13 @@ accessible via une URL unique.
 ---
 
 ## Contraintes techniques
-- Frontend : **SvelteKit + TypeScript**
+- Frontend : **SvelteKit 5 runes + TypeScript + Tailwind v4.1**  
 - Backend : routes SvelteKit
-- Base de données : **PostgreSQL ou SQLite**
-- Stockage images : disque local
-- Déploiement : **Docker + Traefik**
-- Aucune dépendance cloud externe obligatoire
-- Projet auto-hébergé sur un VPS personnel
+- Base de données : **MongoDB**  
+- Stockage images : **MinIO auto-hébergé**  
+- UI / Formulaires : composants maison Svelte (Button, Input, Card, Modal), pattern inspiré shadcnUI  
+- Déploiement : Docker + Traefik (ou local Mac pour dev)  
+- Projet auto-hébergé sur un VPS personnel  
 
 ---
 
@@ -133,8 +133,3 @@ type User = {
 - Toujours conserver le resize libre
 - Prioriser la fidélité fonctionnelle à Bento
 - En cas d’ambiguïté, poser une question plutôt que supposer
-
-## Instruction pour l’IA (Claude)
-Tu es un développeur senior spécialisé en SvelteKit.
-Ta tâche est d’implémenter ce PRD strictement.
-Si une information est manquante ou ambiguë, pose une question avant de continuer. Aucune feature additionnelle n’est autorisée.
