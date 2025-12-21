@@ -1,6 +1,7 @@
 <script lang="ts">
     import { Button, Input, Card } from "$lib/components/ui";
     import { Container } from "$lib/components/layout";
+    import PageHead from "$lib/components/PageHead.svelte";
     import { signIn } from "$lib/auth/client";
     import { goto, invalidateAll } from "$app/navigation";
 
@@ -32,6 +33,11 @@
         }
     }
 </script>
+
+<PageHead
+    title="Login"
+    description="Sign in to your Squar account"
+/>
 
 <Container size="sm" class="flex items-center justify-center py-10 md:py-20">
 

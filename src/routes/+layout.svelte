@@ -7,7 +7,7 @@
     let { children } = $props();
 
     // Routes système connues
-    const knownRoutes = ['/', '/login', '/signup', '/editor', '/onboarding'];
+    const knownRoutes = ['/', '/login', '/signup', '/editor'];
 
     // Détecte si c'est une page slug (/{slug})
     const isSlugPage = $derived(
@@ -16,9 +16,9 @@
         $page.url.pathname.split('/').filter(Boolean).length === 1
     );
 
-    // Pas de header sur les pages slug uniquement
+    // Pas de header sur les pages slug et l'éditeur
     // Pas de footer sur l'éditeur ni sur les pages slug
-    let showHeader = $derived(!isSlugPage);
+    let showHeader = $derived(!isSlugPage && !$page.url.pathname.startsWith('/editor'));
     let showFooter = $derived(!$page.url.pathname.startsWith('/editor') && !isSlugPage);
 </script>
 

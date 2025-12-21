@@ -14,7 +14,8 @@
 	);
 	const GRID_ROWS = $derived(Math.max(1, maxRow));
 
-	const theme = data.page.settings.theme;
+	// Default to light if theme is missing or object (legacy)
+	const themeName = $derived(typeof data.page.settings.theme === 'string' ? data.page.settings.theme : 'light');
 </script>
 
 <svelte:head>
@@ -33,17 +34,14 @@
 	{/if}
 </svelte:head>
 
-<div
-	class="w-full p-4"
-	style="background: {theme.background}; color: {theme.text};"
->
+<div class="min-h-screen w-full p-4 theme-{themeName} bg-background text-text transition-colors">
 	<div class="max-w-6xl mx-auto">
 		<header class="mb-4 text-center">
-			<h1 class="text-4xl md:text-5xl font-bold mb-2" style="color: {theme.text};">
+			<h1 class="text-4xl md:text-5xl font-bold mb-2">
 				{data.page.settings.title}
 			</h1>
 			{#if data.page.settings.description}
-				<p class="text-lg" style="color: {theme.text}; opacity: 0.7;">
+				<p class="text-lg text-muted">
 					{data.page.settings.description}
 				</p>
 			{/if}

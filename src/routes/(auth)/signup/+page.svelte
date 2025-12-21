@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { Button, Input, Card } from '$lib/components/ui';
 	import { Container } from '$lib/components/layout';
+	import PageHead from '$lib/components/PageHead.svelte';
 	import { signUp } from '$lib/auth/client';
 	import { goto, invalidateAll } from '$app/navigation';
+	import { nanoid } from 'nanoid';
 
 	let email = $state('');
 	let password = $state('');
@@ -35,8 +37,29 @@
 				password,
 				name: email.split('@')[0]
 			});
+
+			// Create empty page for the user
+			await fetch('/api/pages', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					slug: '', // Will be set on first publish
+					settings: {
+						title: 'My Page',
+						description: '',
+						theme: {
+							background: '#ffffff',
+							text: '#111111',
+							accent: '#000000'
+						}
+					},
+					layout: [],
+					published: false
+				})
+			});
+
 			await invalidateAll();
-			goto('/onboarding');
+			goto('/editor');
 		} catch (e: any) {
 			error = e.message || 'Failed to create account';
 		} finally {
@@ -44,6 +67,11 @@
 		}
 	}
 </script>
+
+<PageHead
+	title="Sign up"
+	description="Create your free Squar account and start building your page"
+/>
 
 <Container size="sm" class="flex items-center justify-center py-10 md:py-20">
 	<Card class="w-full max-w-md p-8">

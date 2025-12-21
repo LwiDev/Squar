@@ -3,6 +3,8 @@
 	import PublicTextBlock from './PublicTextBlock.svelte';
 	import PublicLinkBlock from './PublicLinkBlock.svelte';
 	import PublicImageBlock from './PublicImageBlock.svelte';
+	import PublicHeadingBlock from './PublicHeadingBlock.svelte';
+	import PublicVideoBlock from './PublicVideoBlock.svelte';
 
 	interface Props {
 		block: Block;
@@ -23,5 +25,9 @@
 		<PublicLinkBlock {block} />
 	{:else if block.type === 'image'}
 		<PublicImageBlock {block} />
+	{:else if block.type === 'heading'}
+		<PublicHeadingBlock {block} />
+	{:else if block.type === 'video'}
+		<PublicVideoBlock {block} />
 	{/if}
 </div>

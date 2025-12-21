@@ -1,23 +1,29 @@
 <script lang="ts">
     import { Button, Card } from "$lib/components/ui";
     import { Container } from "$lib/components/layout";
+    import PageHead from "$lib/components/PageHead.svelte";
     import { goto } from "$app/navigation";
     import {
         LayoutGrid,
         Image,
         Zap,
-        Move,
         Github,
         Plus,
         Type,
         Link as LinkIcon,
         Image as ImageIcon,
         GripVertical,
+        MousePointer2,
+        Palette,
+        Share2,
+        Check,
     } from "lucide-svelte";
     import { PUBLIC_GITHUB_URL } from "$env/static/public";
 
     let heroVisible = $state(false);
     let demoVisible = $state(false);
+    let howItWorksVisible = $state(false);
+    let actuallyFreeVisible = $state(false);
     let featuresVisible = $state(false);
 
     $effect(() => {
@@ -30,17 +36,34 @@
                     if (entry.target.id === "demo" && entry.isIntersecting) {
                         demoVisible = true;
                     }
-                    if (entry.target.id === "features" && entry.isIntersecting) {
+                    if (
+                        entry.target.id === "how-it-works" &&
+                        entry.isIntersecting
+                    ) {
+                        howItWorksVisible = true;
+                    }
+                    if (
+                        entry.target.id === "actually-free" &&
+                        entry.isIntersecting
+                    ) {
+                        actuallyFreeVisible = true;
+                    }
+                    if (
+                        entry.target.id === "features" &&
+                        entry.isIntersecting
+                    ) {
                         featuresVisible = true;
                     }
                 });
             },
-            { threshold: 0.2, rootMargin: "0px 0px -100px 0px" }
+            { threshold: 0.2, rootMargin: "0px 0px -100px 0px" },
         );
 
         const sections = [
             document.querySelector("#hero"),
             document.querySelector("#demo"),
+            document.querySelector("#how-it-works"),
+            document.querySelector("#actually-free"),
             document.querySelector("#features"),
         ];
 
@@ -48,7 +71,6 @@
             if (section) observer.observe(section);
         });
 
-        // Trigger hero immediately
         setTimeout(() => {
             heroVisible = true;
         }, 100);
@@ -57,13 +79,19 @@
     });
 </script>
 
+<PageHead
+    title="Squar"
+    description="Design your page, drag your blocks, and make it yours. Open-source, always free."
+/>
+
 <svelte:head>
     <style>
         .fade-in {
             opacity: 0;
             transform: translateY(24px);
-            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-                        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            transition:
+                opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .fade-in.visible {
@@ -71,10 +99,18 @@
             transform: translateY(0);
         }
 
-        .stagger-1 { transition-delay: 0ms; }
-        .stagger-2 { transition-delay: 100ms; }
-        .stagger-3 { transition-delay: 200ms; }
-        .stagger-4 { transition-delay: 300ms; }
+        .stagger-1 {
+            transition-delay: 0ms;
+        }
+        .stagger-2 {
+            transition-delay: 100ms;
+        }
+        .stagger-3 {
+            transition-delay: 200ms;
+        }
+        .stagger-4 {
+            transition-delay: 300ms;
+        }
     </style>
 </svelte:head>
 
@@ -143,15 +179,13 @@
     <!-- UI Demo / Grid visualization -->
     <Container id="demo" size="md" class="pb-24">
         <div class="relative fade-in" class:visible={demoVisible}>
-            <!-- Decorative background blob -->
             <div
                 class="absolute -inset-1 bg-gradient-to-r from-accent to-purple-600 rounded-2xl blur opacity-20"
             ></div>
 
             <Card
-                class="relative shadow-2xl overflow-hidden bg-background border-border flex flex-col h-[500px] md:h-[600px]"
+                class="relative shadow-2xl overflow-hidden flex flex-col h-[500px] md:h-[600px]"
             >
-                <!-- Editor Toolbar Simulation -->
                 <div
                     class="h-14 border-b border-border flex items-center justify-between px-4 bg-background z-10"
                 >
@@ -200,11 +234,9 @@
                     </div>
                 </div>
 
-                <!-- Editor Canvas Simulation -->
                 <div
                     class="flex-1 bg-secondary/10 relative p-4 md:p-8 overflow-hidden"
                 >
-                    <!-- Grid Background Pattern -->
                     <div
                         class="absolute inset-0"
                         style="background-image: radial-gradient(#888888 1px, transparent 1px); background-size: 24px 24px; opacity: 0.1;"
@@ -213,9 +245,7 @@
                     <div
                         class="grid grid-cols-2 md:grid-cols-4 gap-4 h-full relative z-0"
                     >
-                        <!-- Profile Block (Selected) -->
                         <div class="col-span-2 row-span-2 relative group">
-                            <!-- Selection Border & Handles -->
                             <div
                                 class="absolute -inset-0.5 border-2 border-accent rounded-xl z-20 pointer-events-none"
                             >
@@ -239,7 +269,8 @@
                             </div>
 
                             <Card
-                                class="h-full bg-background border-0 flex flex-col justify-between p-6 relative overflow-hidden"
+                                variant="glass"
+                                class="h-full flex flex-col justify-between p-6 relative overflow-hidden"
                             >
                                 <div class="absolute top-3 left-3 opacity-50">
                                     <GripVertical size={16} />
@@ -255,7 +286,6 @@
                             </Card>
                         </div>
 
-                        <!-- Link Block -->
                         <div
                             class="col-span-1 row-span-1 relative group cursor-grab active:cursor-grabbing"
                         >
@@ -263,13 +293,13 @@
                                 class="absolute inset-0 border-2 border-transparent group-hover:border-accent/50 rounded-xl transition-colors pointer-events-none z-10"
                             ></div>
                             <Card
-                                class="h-full bg-blue-500 text-white border-0 flex items-center justify-center relative shadow-sm"
+                                variant="glass"
+                                class="h-full bg-blue-500 text-white flex items-center justify-center relative"
                             >
                                 <span class="font-bold">Twitter</span>
                             </Card>
                         </div>
 
-                        <!-- Image/Spotify Block -->
                         <div
                             class="col-span-1 row-span-2 relative group cursor-grab active:cursor-grabbing"
                         >
@@ -277,7 +307,8 @@
                                 class="absolute inset-0 border-2 border-transparent group-hover:border-accent/50 rounded-xl transition-colors pointer-events-none z-10"
                             ></div>
                             <Card
-                                class="h-full bg-zinc-900 text-white border-0 relative overflow-hidden flex flex-col justify-end p-4"
+                                variant="glass"
+                                class="h-full bg-zinc-900 text-white relative overflow-hidden flex flex-col justify-end p-4"
                             >
                                 <img
                                     src="https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=800&auto=format&fit=crop"
@@ -299,7 +330,6 @@
                             </Card>
                         </div>
 
-                        <!-- Instagram Block -->
                         <div
                             class="col-span-1 row-span-1 relative group cursor-grab active:cursor-grabbing"
                         >
@@ -307,13 +337,13 @@
                                 class="absolute inset-0 border-2 border-transparent group-hover:border-accent/50 rounded-xl transition-colors pointer-events-none z-10"
                             ></div>
                             <Card
-                                class="h-full bg-pink-500 text-white border-0 flex items-center justify-center shadow-sm"
+                                variant="glass"
+                                class="h-full bg-pink-500 text-white flex items-center justify-center"
                             >
                                 <span class="font-bold">Instagram</span>
                             </Card>
                         </div>
 
-                        <!-- Ghost/Add Block -->
                         <div
                             class="col-span-2 md:col-span-1 row-span-1 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center text-muted hover:border-accent hover:text-accent hover:bg-accent/5 transition-colors cursor-pointer gap-2"
                         >
@@ -326,9 +356,181 @@
         </div>
     </Container>
 
+    <!-- How it works -->
+    <Container id="how-it-works" class="py-24 border-t border-border">
+        <div
+            class="text-center mb-16 fade-in stagger-1"
+            class:visible={howItWorksVisible}
+        >
+            <h2 class="text-3xl font-bold mb-4 text-text">How it works</h2>
+            <p class="text-muted max-w-2xl mx-auto">
+                Three simple steps to create your perfect page.
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <Card
+                class={`text-center p-8 fade-in stagger-2 ${howItWorksVisible ? "visible" : ""}`}
+                variant="hover"
+            >
+                <div
+                    class="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center text-accent mx-auto mb-6"
+                >
+                    <MousePointer2 size={28} />
+                </div>
+                <h3 class="text-xl font-bold mb-3 text-text">
+                    Choose your blocks
+                </h3>
+                <p class="text-muted leading-relaxed">
+                    Add links, images, text, or social media blocks. Drag and
+                    drop them into place on your grid.
+                </p>
+            </Card>
+
+            <Card
+                class={`text-center p-8 fade-in stagger-3 ${howItWorksVisible ? "visible" : ""}`}
+                variant="hover"
+            >
+                <div
+                    class="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center text-accent mx-auto mb-6"
+                >
+                    <Palette size={28} />
+                </div>
+                <h3 class="text-xl font-bold mb-3 text-text">
+                    Customize your style
+                </h3>
+                <p class="text-muted leading-relaxed">
+                    Pick a theme and adjust your layout. Position your profile
+                    picture exactly where you want it.
+                </p>
+            </Card>
+
+            <Card
+                class={`text-center p-8 fade-in stagger-4 ${howItWorksVisible ? "visible" : ""}`}
+                variant="hover"
+            >
+                <div
+                    class="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center text-accent mx-auto mb-6"
+                >
+                    <Share2 size={28} />
+                </div>
+                <h3 class="text-xl font-bold mb-3 text-text">
+                    Share your link
+                </h3>
+                <p class="text-muted leading-relaxed">
+                    Publish instantly and share your unique URL. Update anytime,
+                    no limits.
+                </p>
+            </Card>
+        </div>
+    </Container>
+
+    <!-- Actually Free -->
+    <Container id="actually-free" class="py-24 border-t border-border">
+        <div
+            class="text-center mb-16 fade-in stagger-1"
+            class:visible={actuallyFreeVisible}
+        >
+            <h2 class="text-3xl font-bold mb-4 text-text">
+                Actually free. No asterisk.
+            </h2>
+            <p class="text-muted max-w-2xl mx-auto">
+                When we say free, we mean it. No hidden limits, no premium
+                tiers, no credit card required.
+            </p>
+        </div>
+
+        <div class="max-w-2xl mx-auto">
+            <Card
+                class={`p-8 fade-in stagger-2 ${actuallyFreeVisible ? "visible" : ""}`}
+            >
+                <div class="space-y-4">
+                    <div class="flex items-start gap-3">
+                        <div class="mt-1">
+                            <Check size={20} class="text-accent" />
+                        </div>
+                        <div>
+                            <p class="text-text font-medium">
+                                Unlimited blocks and links
+                            </p>
+                            <p class="text-muted text-sm mt-1">
+                                Add as many as you want, no restrictions
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="h-px bg-border"></div>
+
+                    <div class="flex items-start gap-3">
+                        <div class="mt-1">
+                            <Check size={20} class="text-accent" />
+                        </div>
+                        <div>
+                            <p class="text-text font-medium">
+                                Beautiful themes included
+                            </p>
+                            <p class="text-muted text-sm mt-1">
+                                Choose from carefully designed color palettes
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="h-px bg-border"></div>
+
+                    <div class="flex items-start gap-3">
+                        <div class="mt-1">
+                            <Check size={20} class="text-accent" />
+                        </div>
+                        <div>
+                            <p class="text-text font-medium">
+                                Profile customization
+                            </p>
+                            <p class="text-muted text-sm mt-1">
+                                Control position, size, and shape of your
+                                profile picture
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="h-px bg-border"></div>
+
+                    <div class="flex items-start gap-3">
+                        <div class="mt-1">
+                            <Check size={20} class="text-accent" />
+                        </div>
+                        <div>
+                            <p class="text-text font-medium">No watermark</p>
+                            <p class="text-muted text-sm mt-1">
+                                Your page is yours, no branding forced on you
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="h-px bg-border"></div>
+
+                    <div class="flex items-start gap-3">
+                        <div class="mt-1">
+                            <Check size={20} class="text-accent" />
+                        </div>
+                        <div>
+                            <p class="text-text font-medium">Forever free</p>
+                            <p class="text-muted text-sm mt-1">
+                                No trials, no expiration, no credit card
+                                required
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </Card>
+        </div>
+    </Container>
+
     <!-- Features -->
     <Container id="features" class="py-24 border-t border-border">
-        <div class="text-center mb-16 fade-in stagger-1" class:visible={featuresVisible}>
+        <div
+            class="text-center mb-16 fade-in stagger-1"
+            class:visible={featuresVisible}
+        >
             <h2 class="text-3xl font-bold mb-4 text-text">
                 Everything you need
             </h2>
@@ -340,7 +542,8 @@
 
         <div class="grid md:grid-cols-3 gap-10">
             <Card
-                class={`space-y-4 p-8 hover:bg-accent/5 hover:border-accent/20 transition-all duration-300 fade-in stagger-2 ${featuresVisible ? 'visible' : ''}`}
+                variant="hover"
+                class={`space-y-4 p-8 fade-in stagger-2 ${featuresVisible ? "visible" : ""}`}
             >
                 <div
                     class="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center text-accent mb-2"
@@ -355,7 +558,8 @@
             </Card>
 
             <Card
-                class={`space-y-4 p-8 hover:bg-accent/5 hover:border-accent/20 transition-all duration-300 fade-in stagger-3 ${featuresVisible ? 'visible' : ''}`}
+                variant="hover"
+                class={`space-y-4 p-8 fade-in stagger-3 ${featuresVisible ? "visible" : ""}`}
             >
                 <div
                     class="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center text-accent mb-2"
@@ -370,7 +574,8 @@
             </Card>
 
             <Card
-                class={`space-y-4 p-8 hover:bg-accent/5 hover:border-accent/20 transition-all duration-300 fade-in stagger-4 ${featuresVisible ? 'visible' : ''}`}
+                variant="hover"
+                class={`space-y-4 p-8 fade-in stagger-4 ${featuresVisible ? "visible" : ""}`}
             >
                 <div
                     class="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center text-accent mb-2"

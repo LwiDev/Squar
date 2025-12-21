@@ -3,6 +3,8 @@
 	import TextBlock from './TextBlock.svelte';
 	import LinkBlock from './LinkBlock.svelte';
 	import ImageBlock from './ImageBlock.svelte';
+	import HeadingBlock from './HeadingBlock.svelte';
+	import VideoBlock from './VideoBlock.svelte';
 	import { Trash2, GripVertical } from 'lucide-svelte';
 
 	interface Props {
@@ -296,6 +298,10 @@
 			<LinkBlock {block} onUpdate={handleBlockUpdate} />
 		{:else if block.type === 'image'}
 			<ImageBlock {block} onUpdate={handleBlockUpdate} />
+		{:else if block.type === 'heading'}
+			<HeadingBlock {block} onUpdate={handleBlockUpdate} />
+		{:else if block.type === 'video'}
+			<VideoBlock {block} onUpdate={handleBlockUpdate} />
 		{:else}
 			<div class="p-4 text-muted">Unknown block type</div>
 		{/if}

@@ -1,6 +1,6 @@
 import type { ObjectId } from 'mongodb';
 
-export type BlockType = 'text' | 'link' | 'image' | 'embed' | 'divider';
+export type BlockType = 'text' | 'link' | 'image' | 'video' | 'embed' | 'divider' | 'heading';
 
 export interface Block {
 	id: string;
@@ -15,11 +15,7 @@ export interface Block {
 export interface PageSettings {
 	title: string;
 	description?: string;
-	theme: {
-		background: string;
-		text: string;
-		accent: string;
-	};
+	theme: 'light' | 'cream' | 'dark' | 'slate' | 'midnight';
 	seo?: {
 		metaTitle?: string;
 		metaDescription?: string;

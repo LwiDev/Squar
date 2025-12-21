@@ -2,22 +2,32 @@
     import { goto, invalidateAll } from "$app/navigation";
     import { page } from "$app/stores";
     import logo from "$lib/assets/images/logos/logo.png";
-    import { Button } from "$lib/components/ui";
+    import { Button, NavLink } from "$lib/components/ui";
     import { signOut } from "$lib/auth/client";
     import FloatingBar from "./FloatingBar.svelte";
 
-    async function handleSignOut() {
-        await signOut();
-        await invalidateAll();
-        goto("/");
+    function scrollToSection(sectionId: string) {
+        const element = document.getElementById(sectionId);
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }
+
+    function handleLogoClick() {
+        if ($page.url.pathname === "/") {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+            goto("/");
+        }
     }
 </script>
 
-<FloatingBar position="top">
+<FloatingBar position="top" adaptive>
     <div class="flex items-center justify-between h-12">
+        <div class="flex items-center gap-6">
             <div
-                class="flex items-center gap-2 hover:opacity-70 transition-opacity cursor-pointer pl-2"
-                onclick={() => goto("/")}
+                class="flex items-center gap-2 hover:opacity-70 transition-opacity cursor-pointer"
+                onclick={handleLogoClick}
                 role="button"
                 tabindex="0"
                 onkeydown={(e) => e.key === "Enter" && goto("/")}
@@ -30,19 +40,29 @@
                 />
                 <h1 class="text-sm font-bold tracking-tight">SQUAR</h1>
             </div>
-            <nav class="flex items-center gap-1 pr-1">
+
+            <nav class="hidden md:flex items-center gap-1">
+                <NavLink
+                    label="How it works"
+                    onclick={() => scrollToSection("how-it-works")}
+                />
+                <NavLink
+                    label="Pricing"
+                    onclick={() => scrollToSection("actually-free")}
+                />
+                <NavLink
+                    label="Features"
+                    onclick={() => scrollToSection("features")}
+                />
+            </nav>
+
+            <div class="flex items-center">
                 {#if $page.data.user}
-                    <a href="/dashboard">
+                    <a href="/editor">
                         <Button variant="primary" size="sm" class="h-8 text-xs"
-                            >Dashboard</Button
+                            >My SQUAR</Button
                         >
                     </a>
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                        onclick={handleSignOut}
-                        class="h-8 text-xs">Sign out</Button
-                    >
                 {:else}
                     <Button
                         size="sm"
@@ -52,6 +72,7 @@
                         Join Squar
                     </Button>
                 {/if}
-            </nav>
+            </div>
         </div>
+    </div>
 </FloatingBar>

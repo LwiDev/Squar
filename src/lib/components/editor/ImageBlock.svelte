@@ -13,10 +13,24 @@
 	let uploading = $state(false);
 	let fileInput: HTMLInputElement;
 
+	const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
 	async function handleFileSelect(e: Event) {
 		const target = e.target as HTMLInputElement;
 		const file = target.files?.[0];
 		if (!file) return;
+
+		// Only accept images and GIFs
+		if (!file.type.startsWith('image/')) {
+			alert('Only images and GIFs are allowed');
+			return;
+		}
+
+		// Check file size
+		if (file.size > MAX_FILE_SIZE) {
+			alert('File size must be less than 10 MB');
+			return;
+		}
 
 		uploading = true;
 
@@ -75,7 +89,8 @@
 				<p class="text-sm text-muted">Uploading...</p>
 			{:else}
 				<ImageIcon size={32} class="text-muted mb-2" />
-				<p class="text-sm text-muted">Click to add image</p>
+				<p class="text-sm text-muted">Click to add image or GIF</p>
+				<p class="text-xs text-muted mt-1">Max 10 MB</p>
 			{/if}
 		</button>
 	{/if}

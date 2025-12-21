@@ -28,22 +28,24 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	const body = await request.json();
 	const { slug, settings } = body;
 
-	if (!slug || !settings?.title) {
-		throw error(400, 'Slug and title are required');
+	if (!settings?.title) {
+		throw error(400, 'Title is required');
 	}
 
-	// Check if slug already exists
+	// Check if slug already exists (only if slug is provided)
 	const pagesCollection = getPagesCollection();
-	const existingPage = await pagesCollection.findOne({ slug });
+	if (slug) {
+		const existingPage = await pagesCollection.findOne({ slug });
 
-	if (existingPage) {
-		throw error(409, 'Slug already exists');
+		if (existingPage) {
+			throw error(409, 'Slug already exists');
+		}
 	}
 
 	const newPage: Page = {
 		id: nanoid(),
 		userId: locals.user.id,
-		slug,
+		slug: slug || '', // Allow empty slug
 		settings: {
 			title: settings.title,
 			description: settings.description || '',
