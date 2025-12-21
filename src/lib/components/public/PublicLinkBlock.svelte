@@ -8,15 +8,15 @@
 
 	let { block }: Props = $props();
 
-	const title = block.data.title || 'Link';
-	const url = block.data.url || '#';
-	const iconSvg = block.data.iconSvg;
-	const iconHex = block.data.iconHex;
-	const socialData = block.data.socialData;
+	const title = $derived(block.data.title || 'Link');
+	const url = $derived(block.data.url || '#');
+	const iconSvg = $derived(block.data.iconSvg);
+	const iconHex = $derived(block.data.iconHex);
+	const socialData = $derived(block.data.socialData);
 
 	// Determine display mode based on block size
-	const hasImages = socialData?.images && socialData.images.length > 0;
-	const showPhotos = hasImages && block.h >= 4;
+	const hasImages = $derived(socialData?.images && socialData.images.length > 0);
+	const showPhotos = $derived(hasImages && block.h >= 4);
 </script>
 
 {#if showPhotos}

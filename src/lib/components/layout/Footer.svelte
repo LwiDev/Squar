@@ -22,16 +22,16 @@
                         src={logo}
                         loading="lazy"
                         alt="Squar Logo"
-                        class="w-5 h-auto"
+                        class="w-6 h-auto"
                     />
-                    <h1 class="text-sm font-bold tracking-tight uppercase">
+                    <h1 class="text-base font-bold tracking-tight uppercase">
                         Squar
                     </h1>
                 </div>
                 <p
-                    class="text-xs text-muted max-w-[200px] text-center md:text-left leading-relaxed"
+                    class="text-sm text-muted max-w-[200px] text-center md:text-left leading-relaxed"
                 >
-                    The open-source, self-hosted personal page builder.
+                    Your page, your way.
                 </p>
             </div>
 
@@ -45,18 +45,15 @@
                         rel="noopener noreferrer"
                         class="hover:text-text transition-colors">GitHub</a
                     >
-                    <a href="/login" class="hover:text-text transition-colors"
-                        >Login</a
-                    >
                     <a href="/signup" class="hover:text-text transition-colors"
                         >Join Squar</a
                     >
                 </nav>
 
                 <div
-                    class="text-[10px] uppercase tracking-[0.2em] text-muted/40 font-bold"
+                    class="text-[10px] uppercase tracking-[0.2em] text-muted/60 font-bold"
                 >
-                    © {new Date().getFullYear()} Squar.me — Built for the open web.
+                    © {new Date().getFullYear()} Squar — Built for the open web.
                 </div>
             </div>
         </div>
