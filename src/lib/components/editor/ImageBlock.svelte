@@ -4,10 +4,11 @@
 
 	interface Props {
 		block: Block;
+		editable?: boolean;
 		onUpdate?: (data: any) => void;
 	}
 
-	let { block, onUpdate }: Props = $props();
+	let { block, editable = true, onUpdate }: Props = $props();
 
 	let imageUrl = $state(block.data.imageUrl || '');
 	let uploading = $state(false);
@@ -16,6 +17,8 @@
 	const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
 	async function handleFileSelect(e: Event) {
+		if (!editable) return;
+
 		const target = e.target as HTMLInputElement;
 		const file = target.files?.[0];
 		if (!file) return;
@@ -68,18 +71,24 @@
 
 <div class="h-full w-full">
 	{#if imageUrl}
-		<button
-			onclick={() => fileInput.click()}
-			class="h-full w-full group relative overflow-hidden bg-secondary/50"
-		>
-			<img src={imageUrl} alt="" class="h-full w-full object-contain" />
-			<div
-				class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+		{#if editable}
+			<button
+				onclick={() => fileInput.click()}
+				class="h-full w-full group relative overflow-hidden bg-secondary/50"
 			>
-				<Upload size={24} class="text-white" />
+				<img src={imageUrl} alt="" class="h-full w-full object-contain" />
+				<div
+					class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+				>
+					<Upload size={24} class="text-white" />
+				</div>
+			</button>
+		{:else}
+			<div class="h-full w-full overflow-hidden bg-secondary/50">
+				<img src={imageUrl} alt="" class="h-full w-full object-contain" />
 			</div>
-		</button>
-	{:else}
+		{/if}
+	{:else if editable}
 		<button
 			onclick={() => fileInput.click()}
 			disabled={uploading}

@@ -4,11 +4,12 @@
 
 	interface Props {
 		block: Block;
+		editable?: boolean;
 		onUpdate?: (data: any) => void;
 		onDelete?: () => void;
 	}
 
-	let { block, onUpdate, onDelete }: Props = $props();
+	let { block, editable = true, onUpdate, onDelete }: Props = $props();
 
 	let editing = $state(false);
 	let containerRef: HTMLDivElement;
@@ -31,6 +32,7 @@
 	}
 
 	function handleFocus() {
+		if (!editable) return;
 		editing = true;
 		if (editableRef) {
 			initialText = editableRef.innerText;
@@ -38,6 +40,8 @@
 	}
 
 	onMount(() => {
+		if (!editable) return;
+
 		function handleClickOutside(e: MouseEvent) {
 			if (editing && containerRef && !containerRef.contains(e.target as Node)) {
 				saveAndClose();
@@ -52,10 +56,10 @@
 <div bind:this={containerRef} class="h-full w-full p-4 flex items-center">
 	<div
 		bind:this={editableRef}
-		contenteditable="true"
+		contenteditable={editable}
 		onfocus={handleFocus}
 		class="w-full outline-none text-text text-2xl font-bold"
 	>
-		{block.data.text || 'Heading'}
+		{block.data.text || (editable ? 'Heading' : '')}
 	</div>
 </div>

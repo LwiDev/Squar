@@ -41,11 +41,13 @@
         onUndo: () => void;
         onRedo: () => void;
         onPublish: () => void;
+        onPreviewToggle?: () => void;
         canUndo: boolean;
         canRedo: boolean;
         saving: boolean;
         autoSaving: boolean;
         published: boolean;
+        previewMode?: boolean;
         viewUrl?: string;
         username?: string;
         userEmail?: string;
@@ -65,11 +67,13 @@
         onUndo,
         onRedo,
         onPublish,
+        onPreviewToggle,
         canUndo,
         canRedo,
         saving,
         autoSaving,
         published,
+        previewMode = false,
         viewUrl,
         username,
         userEmail,
@@ -244,7 +248,8 @@
                 <Tooltip text="Add Title">
                     <button
                         onclick={onAddHeading}
-                        class="p-1.5 hover:bg-border/50 rounded-md text-muted hover:text-text transition-colors"
+                        disabled={previewMode}
+                        class="p-1.5 hover:bg-border/50 rounded-md text-muted hover:text-text transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                         <Heading size={18} />
                     </button>
@@ -252,7 +257,8 @@
                 <Tooltip text="Add Text">
                     <button
                         onclick={onAddText}
-                        class="p-1.5 hover:bg-border/50 rounded-md text-muted hover:text-text transition-colors"
+                        disabled={previewMode}
+                        class="p-1.5 hover:bg-border/50 rounded-md text-muted hover:text-text transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                         <Type size={18} />
                     </button>
@@ -260,7 +266,8 @@
                 <Tooltip text="Add Link">
                     <button
                         onclick={onAddLink}
-                        class="p-1.5 hover:bg-border/50 rounded-md text-muted hover:text-text transition-colors"
+                        disabled={previewMode}
+                        class="p-1.5 hover:bg-border/50 rounded-md text-muted hover:text-text transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                         <LinkIcon size={18} />
                     </button>
@@ -268,7 +275,8 @@
                 <Tooltip text="Add Image or GIF">
                     <button
                         onclick={onAddImage}
-                        class="p-1.5 hover:bg-border/50 rounded-md text-muted hover:text-text transition-colors"
+                        disabled={previewMode}
+                        class="p-1.5 hover:bg-border/50 rounded-md text-muted hover:text-text transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                         <ImageIcon size={18} />
                     </button>
@@ -276,7 +284,8 @@
                 <Tooltip text="Add Video">
                     <button
                         onclick={onAddVideo}
-                        class="p-1.5 hover:bg-border/50 rounded-md text-muted hover:text-text transition-colors"
+                        disabled={previewMode}
+                        class="p-1.5 hover:bg-border/50 rounded-md text-muted hover:text-text transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                         <VideoIcon size={18} />
                     </button>
@@ -297,14 +306,14 @@
                     <IconButton
                         icon={Undo2}
                         onclick={onUndo}
-                        disabled={!canUndo}
+                        disabled={!canUndo || previewMode}
                     />
                 </Tooltip>
                 <Tooltip text="Redo (Cmd+Shift+Z)">
                     <IconButton
                         icon={Redo2}
                         onclick={onRedo}
-                        disabled={!canRedo}
+                        disabled={!canRedo || previewMode}
                     />
                 </Tooltip>
             </div>
@@ -312,6 +321,19 @@
             <Separator />
 
             <div class="flex items-center">
+                <!-- Preview Mode Toggle -->
+                {#if onPreviewToggle}
+                    <div class="flex items-center gap-1 sm:gap-2 mr-1 sm:mr-2">
+                        <Tooltip text={previewMode ? "Exit Preview" : "Preview"}>
+                            <IconButton
+                                icon={Eye}
+                                onclick={onPreviewToggle}
+                                class={previewMode ? "bg-accent/20 text-accent" : ""}
+                            />
+                        </Tooltip>
+                    </div>
+                {/if}
+
                 {#if published && viewUrl}
                     <div
                         class="flex items-center gap-1 sm:gap-2 mr-1 sm:mr-2"
@@ -322,12 +344,14 @@
                             <IconButton icon={Share} onclick={handleShare} />
                         </Tooltip>
 
-                        <!-- View -->
-                        <Tooltip text="View your SQUAR">
-                            <a href={viewUrl} target="_blank">
-                                <IconButton icon={Eye} onclick={() => {}} />
-                            </a>
-                        </Tooltip>
+                        <!-- View (deprecated in new unified mode, but kept for compatibility) -->
+                        {#if viewUrl !== `/${username}`}
+                            <Tooltip text="View your SQUAR">
+                                <a href={viewUrl} target="_blank">
+                                    <IconButton icon={Eye} onclick={() => {}} />
+                                </a>
+                            </Tooltip>
+                        {/if}
                     </div>
                 {/if}
 
@@ -337,7 +361,7 @@
                         <IconButton
                             icon={published ? GlobeLock : Globe}
                             onclick={onPublish}
-                            disabled={saving}
+                            disabled={saving || previewMode}
                             class="bg-accent text-white hover:bg-accent/80 active:bg-accent"
                         />
                     </Tooltip>
@@ -348,7 +372,7 @@
                         size="sm"
                         variant="primary"
                         onclick={onPublish}
-                        disabled={saving}
+                        disabled={saving || previewMode}
                         class="px-3"
                     >
                         {#if published}

@@ -6,15 +6,16 @@
 
 	interface Props {
 		block: Block;
+		editable?: boolean;
 		onUpdate?: (data: any) => void;
 	}
 
-	let { block, onUpdate }: Props = $props();
+	let { block, editable = true, onUpdate }: Props = $props();
 
 	let url = $state(block.data.url || '');
 	let videoUrl = $state(block.data.videoUrl || '');
 	let sourceType = $state<'upload' | 'link'>(block.data.sourceType || 'link');
-	let editing = $state(!block.data.url && !block.data.videoUrl);
+	let editing = $state(editable && !block.data.url && !block.data.videoUrl);
 	let uploading = $state(false);
 	let fileInput: HTMLInputElement;
 
@@ -22,6 +23,8 @@
 	const videoInfo = $derived(url ? parseVideoUrl(url) : null);
 
 	async function handleFileSelect(e: Event) {
+		if (!editable) return;
+
 		const target = e.target as HTMLInputElement;
 		const file = target.files?.[0];
 		if (!file) return;
@@ -78,6 +81,7 @@
 	}
 
 	function handleEdit() {
+		if (!editable) return;
 		editing = true;
 	}
 </script>
@@ -157,13 +161,15 @@
 		</div>
 	{:else if videoUrl}
 		<!-- Uploaded video -->
-		<div class="h-full w-full flex flex-col gap-2" ondblclick={handleEdit}>
+		<div class="h-full w-full flex flex-col gap-2" ondblclick={editable ? handleEdit : undefined}>
 			<video src={videoUrl} class="w-full h-full rounded object-contain" controls loop muted autoplay />
-			<p class="text-xs text-muted text-center">Double-click to edit • Uploaded</p>
+			{#if editable}
+				<p class="text-xs text-muted text-center">Double-click to edit • Uploaded</p>
+			{/if}
 		</div>
 	{:else if videoInfo}
 		<!-- External video -->
-		<div class="h-full w-full flex flex-col gap-2" ondblclick={handleEdit}>
+		<div class="h-full w-full flex flex-col gap-2" ondblclick={editable ? handleEdit : undefined}>
 			<iframe
 				src={videoInfo.embedUrl}
 				title="Video"
@@ -172,9 +178,11 @@
 				allowfullscreen
 				class="w-full h-full rounded"
 			></iframe>
-			<p class="text-xs text-muted text-center">
-				Double-click to edit • {videoInfo.platform}
-			</p>
+			{#if editable}
+				<p class="text-xs text-muted text-center">
+					Double-click to edit • {videoInfo.platform}
+				</p>
+			{/if}
 		</div>
 	{:else}
 		<div class="h-full w-full flex flex-col items-center justify-center gap-2 text-muted">

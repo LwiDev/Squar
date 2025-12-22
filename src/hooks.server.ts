@@ -44,8 +44,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.session = session;
 	event.locals.user = session?.user;
 
-	// Routes protégées (éditeur)
-	const protectedRoutes = ['/editor', '/dashboard'];
+	// Routes protégées
+	const protectedRoutes = ['/dashboard'];
 	const isProtectedRoute = protectedRoutes.some((route) => event.url.pathname.startsWith(route));
 
 	// Rediriger vers login si non authentifié sur route protégée

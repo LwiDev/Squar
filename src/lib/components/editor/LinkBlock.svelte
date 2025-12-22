@@ -5,10 +5,11 @@
 
 	interface Props {
 		block: Block;
+		editable?: boolean;
 		onUpdate?: (data: any) => void;
 	}
 
-	let { block, onUpdate }: Props = $props();
+	let { block, editable = true, onUpdate }: Props = $props();
 
 	let editTitle = $state('');
 	let editUrl = $state('');
@@ -33,6 +34,7 @@
 	const showPhotos = $derived(hasImages && block.h >= 4);
 
 	function startEditing() {
+		if (!editable) return;
 		editing = true;
 		editTitle = block.data.title || 'Link Title';
 		editUrl = block.data.url || 'https://';
@@ -49,6 +51,8 @@
 	}
 
 	onMount(() => {
+		if (!editable) return;
+
 		function handleClickOutside(e: MouseEvent) {
 			if (editing && containerRef && !containerRef.contains(e.target as Node)) {
 				saveAndClose();
@@ -85,9 +89,12 @@
 {:else}
 	{#if showPhotos}
 		<!-- With photos: Show icon + title + photo grid -->
-		<button
-			onclick={startEditing}
-			class="h-full w-full p-4 flex flex-col gap-3 hover:bg-border/50 transition-colors text-left"
+		<a
+			href={editable ? undefined : url}
+			target={editable ? undefined : '_blank'}
+			rel={editable ? undefined : 'noopener noreferrer'}
+			onclick={editable ? startEditing : undefined}
+			class="h-full w-full p-4 flex flex-col gap-3 {editable ? 'hover:bg-border/50 cursor-pointer' : 'cursor-default'} transition-colors text-left block"
 		>
 			<div class="flex items-center gap-3">
 				{#if iconSvg && iconHex}
@@ -115,12 +122,15 @@
 					</div>
 				{/each}
 			</div>
-		</button>
+		</a>
 	{:else}
 		<!-- Without photos: Just icon + title -->
-		<button
-			onclick={startEditing}
-			class="h-full w-full p-4 flex items-center gap-3 hover:bg-border/50 transition-colors text-left"
+		<a
+			href={editable ? undefined : url}
+			target={editable ? undefined : '_blank'}
+			rel={editable ? undefined : 'noopener noreferrer'}
+			onclick={editable ? startEditing : undefined}
+			class="h-full w-full p-4 flex items-center gap-3 {editable ? 'hover:bg-border/50 cursor-pointer' : 'cursor-default'} transition-colors text-left block"
 		>
 			{#if iconSvg && iconHex}
 				<div
@@ -137,6 +147,6 @@
 				{/if}
 			</div>
 			<ExternalLink size={18} class="text-muted flex-shrink-0" />
-		</button>
+		</a>
 	{/if}
 {/if}
