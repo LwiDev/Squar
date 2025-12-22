@@ -204,7 +204,7 @@
 	class="relative transition-colors rounded-md overflow-visible bg-background group {editable
 		? isSelected
 			? 'border-2 border-accent'
-			: 'border-2 border-transparent hover:border-border/50'
+			: 'border-2 border-transparent hover:bg-border/50'
 		: 'border-0'} {isDragging || isResizing ? 'opacity-70' : ''}"
 	role="button"
 	tabindex={editable ? 0 : -1}
@@ -216,6 +216,8 @@
 		<button
 			onmousedown={handleDragStart}
 			class="absolute top-2 left-2 z-20 p-1 bg-background border border-border rounded cursor-move hover:bg-border transition-colors"
+			aria-label="Déplacer le bloc"
+			title="Déplacer le bloc"
 		>
 			<GripVertical size={16} class="text-text" />
 		</button>
@@ -229,6 +231,8 @@
 				onDelete?.();
 			}}
 			class="absolute top-2 right-2 z-20 p-1.5 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+			aria-label="Supprimer le bloc"
+			title="Supprimer le bloc"
 		>
 			<Trash2 size={14} />
 		</button>
@@ -245,6 +249,7 @@
 					}}
 					class="group relative p-2 rounded hover:bg-border transition-colors {block.w === size.w && block.h === size.h ? 'bg-accent/20' : ''}"
 					title={size.label}
+					aria-label="Taille : {size.label}"
 				>
 					<div
 						class="border-2 {block.w === size.w && block.h === size.h ? 'border-accent' : 'border-muted'} rounded"
@@ -261,43 +266,51 @@
 		<button
 			onmousedown={(e) => handleResizeStart(e, 'se')}
 			class="absolute -bottom-1 -right-1 w-3 h-3 bg-accent rounded-full cursor-se-resize z-20"
+			aria-label="Redimensionner sud-est"
 		></button>
 		<button
 			onmousedown={(e) => handleResizeStart(e, 'ne')}
 			class="absolute -top-1 -right-1 w-3 h-3 bg-accent rounded-full cursor-ne-resize z-20"
+			aria-label="Redimensionner nord-est"
 		></button>
 		<button
 			onmousedown={(e) => handleResizeStart(e, 'sw')}
 			class="absolute -bottom-1 -left-1 w-3 h-3 bg-accent rounded-full cursor-sw-resize z-20"
+			aria-label="Redimensionner sud-ouest"
 		></button>
 		<button
 			onmousedown={(e) => handleResizeStart(e, 'nw')}
 			class="absolute -top-1 -left-1 w-3 h-3 bg-accent rounded-full cursor-nw-resize z-20"
+			aria-label="Redimensionner nord-ouest"
 		></button>
 
 		<!-- Edges -->
 		<button
 			onmousedown={(e) => handleResizeStart(e, 'e')}
 			class="absolute top-1/2 -translate-y-1/2 -right-1 w-3 h-8 bg-accent rounded-full cursor-e-resize z-20"
+			aria-label="Redimensionner est"
 		></button>
 		<button
 			onmousedown={(e) => handleResizeStart(e, 's')}
 			class="absolute left-1/2 -translate-x-1/2 -bottom-1 w-8 h-3 bg-accent rounded-full cursor-s-resize z-20"
+			aria-label="Redimensionner sud"
 		></button>
 		<button
 			onmousedown={(e) => handleResizeStart(e, 'w')}
 			class="absolute top-1/2 -translate-y-1/2 -left-1 w-3 h-8 bg-accent rounded-full cursor-w-resize z-20"
+			aria-label="Redimensionner ouest"
 		></button>
 		<button
 			onmousedown={(e) => handleResizeStart(e, 'n')}
 			class="absolute left-1/2 -translate-x-1/2 -top-1 w-8 h-3 bg-accent rounded-full cursor-n-resize z-20"
+			aria-label="Redimensionner nord"
 		></button>
 	{/if}
 
 	<!-- Block content -->
 	<div class="h-full w-full overflow-hidden rounded-md">
 		{#if block.type === 'text'}
-			<TextBlock {block} {editable} onUpdate={handleBlockUpdate} />
+			<TextBlock {block} {editable} onUpdate={handleBlockUpdate} onResize={changeSize} />
 		{:else if block.type === 'link'}
 			<LinkBlock {block} {editable} onUpdate={handleBlockUpdate} />
 		{:else if block.type === 'image'}

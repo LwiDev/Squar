@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { untrack } from 'svelte';
     import { Modal, Input, Button } from "$lib/components/ui";
     import type { PageSettings } from "$lib/types/models";
 
@@ -11,7 +12,7 @@
 
     let { open, onClose, settings, onUpdate }: Props = $props();
 
-    let localSettings = $state({ ...settings });
+    let localSettings = $state(untrack(() => ({ ...settings })));
     
     // Reset local state when modal opens
     $effect(() => {
@@ -40,25 +41,11 @@
     title="Page Settings"
 >
     <div class="space-y-6">
-        <!-- General Settings -->
-        <div class="space-y-4">
-            <div>
-                <label for="settings-title" class="block text-sm font-medium text-text mb-2">
-                    Page Title
-                </label>
-                <Input
-                    id="settings-title"
-                    bind:value={localSettings.title}
-                    placeholder="My Page"
-                />
-            </div>
-        </div>
-
         <!-- Theme Selection -->
         <div class="space-y-4">
-            <label class="block text-sm font-medium text-text">
+            <span class="block text-sm font-medium text-text">
                 Theme
-            </label>
+            </span>
             <div class="grid grid-cols-5 gap-2">
                 {#each themes as theme}
                     <button

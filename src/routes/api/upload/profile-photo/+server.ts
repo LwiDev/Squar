@@ -63,11 +63,11 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			}
 		}
 
-		// Generate permanent URL (1 year expiry)
+		// Generate permanent URL (max 7 days for presigned, but we strip params anyway so it assumes public bucket)
 		const url = await minioClient.presignedGetObject(
 			MINIO_BUCKET,
 			filename,
-			365 * 24 * 60 * 60
+			7 * 24 * 60 * 60
 		);
 
 		return json({

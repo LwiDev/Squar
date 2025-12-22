@@ -54,6 +54,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				text: '#111111',
 				accent: '#000000'
 			},
+			titleSize: 'medium',
 			seo: settings.seo || {}
 		},
 		layout: [],

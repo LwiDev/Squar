@@ -18,8 +18,8 @@
         Undo2,
         Redo2,
         Eye,
+        EyeOff,
         Globe,
-        Menu,
         Home,
         Settings,
         LogOut,
@@ -324,11 +324,15 @@
                 <!-- Preview Mode Toggle -->
                 {#if onPreviewToggle}
                     <div class="flex items-center gap-1 sm:gap-2 mr-1 sm:mr-2">
-                        <Tooltip text={previewMode ? "Exit Preview" : "Preview"}>
+                        <Tooltip
+                            text={previewMode ? "Exit Preview" : "Preview"}
+                        >
                             <IconButton
-                                icon={Eye}
+                                icon={previewMode ? EyeOff : Eye}
                                 onclick={onPreviewToggle}
-                                class={previewMode ? "bg-accent/20 text-accent" : ""}
+                                class={previewMode
+                                    ? "bg-accent/20 text-accent"
+                                    : ""}
                             />
                         </Tooltip>
                     </div>

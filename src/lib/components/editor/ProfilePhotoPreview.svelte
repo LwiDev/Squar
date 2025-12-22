@@ -32,23 +32,21 @@
 	};
 </script>
 
-<div class="flex items-center justify-center p-2 bg-border/30 rounded-lg">
-	{#if visibility === 'hidden'}
-		<div class="h-24 w-24 flex items-center justify-center border-2 border-dashed border-border rounded-lg">
-			<span class="text-xs text-muted">Hidden</span>
-		</div>
-	{:else if visibility === 'photo' && photoUrl}
-		<img
-			src={photoUrl}
-			alt="Profile"
-			class="{sizeClasses[size]} {shapeClasses[shape]} object-cover"
-		/>
-	{:else}
-		<!-- Letter fallback (same style as EditorToolbar) -->
-		<div
-			class="{sizeClasses[size]} {shapeClasses[shape]} bg-accent text-white flex items-center justify-center font-bold"
-		>
-			{firstLetter}
-		</div>
-	{/if}
-</div>
+{#if visibility === 'hidden'}
+	<div class="h-24 w-24 flex items-center justify-center border-2 border-dashed border-border rounded-lg bg-border/10">
+		<span class="text-xs text-muted">Hidden</span>
+	</div>
+{:else if visibility === 'photo' && photoUrl}
+	<img
+		src={photoUrl}
+		alt="Profile"
+		class="{sizeClasses[size]} {shapeClasses[shape]} object-cover"
+	/>
+{:else}
+	<!-- Letter fallback (same style as EditorToolbar) -->
+	<div
+		class="{sizeClasses[size]} {shapeClasses[shape]} bg-accent text-white flex items-center justify-center font-bold"
+	>
+		{firstLetter}
+	</div>
+{/if}

@@ -72,11 +72,20 @@ h2,
 h3,
 h4,
 h5,
-h6 {
+h6,
+.font-heading {
     font-family:
         "Lexend Deca",
         -apple-system,
         BlinkMacSystemFont,
         sans-serif;
     font-weight: 600;
+}
+
+.font-body {
+    font-family:
+        "Cabin",
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
 }

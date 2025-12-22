@@ -7,9 +7,10 @@
 		editable?: boolean;
 		onUpdate?: (data: any) => void;
 		onDelete?: () => void;
+		onResize?: (w: number, h: number) => void;
 	}
 
-	let { block, editable = true, onUpdate, onDelete }: Props = $props();
+	let { block, editable = true, onUpdate, onDelete, onResize }: Props = $props();
 
 	let editing = $state(false);
 	let containerRef: HTMLDivElement;
@@ -17,7 +18,20 @@
 	let initialText = $state('');
 
 	function handleInput(e: Event) {
-		// Just let contenteditable do its thing, don't update yet
+		if (!editable || !editableRef || !onResize) return;
+		
+		const contentHeight = editableRef.scrollHeight;
+		// 32px padding (16px top + 16px bottom)
+		const totalHeight = contentHeight + 32;
+		const rowHeight = 48; // Approx row height in grid
+		const requiredRows = Math.ceil(totalHeight / rowHeight);
+		
+		// Minimum 2 rows to look good, or match preset sizes
+		const newH = Math.max(2, requiredRows);
+		
+		if (newH !== block.h) {
+			onResize(block.w, newH);
+		}
 	}
 
 	function saveAndClose() {
@@ -58,6 +72,7 @@
 		bind:this={editableRef}
 		contenteditable={editable}
 		onfocus={handleFocus}
+		oninput={handleInput}
 		class="h-full w-full outline-none text-text"
 	>
 		{block.data.text || (editable ? 'Click to edit' : '')}

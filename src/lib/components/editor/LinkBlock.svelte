@@ -14,9 +14,14 @@
 	let editTitle = $state('');
 	let editUrl = $state('');
 	let editing = $state(false);
-	let containerRef: HTMLDivElement;
+	let containerRef = $state<HTMLDivElement>();
 	let initialTitle = $state('');
 	let initialUrl = $state('');
+
+	// Action for auto-focusing
+	function autofocus(node: HTMLElement) {
+		node.focus();
+	}
 
 	// Use block data directly when not editing
 	const title = $derived(editing ? editTitle : (block.data.title || 'Link Title'));
@@ -74,7 +79,7 @@
 			}}
 			placeholder="Link title"
 			class="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:border-accent"
-			autofocus
+			use:autofocus
 		/>
 		<input
 			type="url"
@@ -94,7 +99,7 @@
 			target={editable ? undefined : '_blank'}
 			rel={editable ? undefined : 'noopener noreferrer'}
 			onclick={editable ? startEditing : undefined}
-			class="h-full w-full p-4 flex flex-col gap-3 {editable ? 'hover:bg-border/50 cursor-pointer' : 'cursor-default'} transition-colors text-left block"
+			class="h-full w-full p-4 flex flex-col gap-3 {editable ? 'cursor-pointer' : 'cursor-default'} transition-colors text-left block"
 		>
 			<div class="flex items-center gap-3">
 				{#if iconSvg && iconHex}
@@ -130,7 +135,7 @@
 			target={editable ? undefined : '_blank'}
 			rel={editable ? undefined : 'noopener noreferrer'}
 			onclick={editable ? startEditing : undefined}
-			class="h-full w-full p-4 flex items-center gap-3 {editable ? 'hover:bg-border/50 cursor-pointer' : 'cursor-default'} transition-colors text-left block"
+			class="h-full w-full p-4 flex items-center gap-3 {editable ? 'cursor-pointer' : 'cursor-default'} transition-colors text-left block"
 		>
 			{#if iconSvg && iconHex}
 				<div
