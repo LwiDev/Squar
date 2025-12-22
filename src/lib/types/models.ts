@@ -21,6 +21,14 @@ export interface PageSettings {
 		metaDescription?: string;
 		ogImage?: string;
 	};
+	profilePhoto?: {
+		url?: string;
+		filename?: string;
+		position: 'left' | 'center' | 'right';
+		size: 'small' | 'medium' | 'large';
+		shape: 'circle' | 'square' | 'rounded';
+		visibility: 'photo' | 'letter' | 'hidden';
+	};
 }
 
 export interface Page {

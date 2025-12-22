@@ -5,6 +5,7 @@
     import GridEditor from "$lib/components/editor/GridEditor.svelte";
     import EditorToolbar from "$lib/components/editor/EditorToolbar.svelte";
     import AddLinkDialog from "$lib/components/editor/AddLinkDialog.svelte";
+    import ProfilePhotoPreview from "$lib/components/editor/ProfilePhotoPreview.svelte";
     import type { Block, PageSettings } from "$lib/types/models";
     import { HistoryManager } from "$lib/stores/history.svelte";
     import { nanoid } from "nanoid";
@@ -28,6 +29,17 @@
     let autoSaving = $state(false);
     let lastSaved = $state<Date | null>(null);
     let slugError = $state("");
+
+    // Profile photo state
+    let profilePhoto = $state(untrack(() => data.page.settings.profilePhoto || {
+        position: 'center' as const,
+        size: 'medium' as const,
+        shape: 'circle' as const,
+        visibility: 'letter' as const
+    }));
+    let uploading = $state(false);
+    let fileInput: HTMLInputElement;
+    let showPhotoControls = $state(false);
 
     let showChooseUsernameModal = $state(false);
     let initialSlug = $state("");
@@ -53,6 +65,12 @@
             theme = data.page.settings.theme || 'light';
             slug = data.page.slug;
             published = data.page.published;
+            profilePhoto = data.page.settings.profilePhoto || {
+                position: 'center',
+                size: 'medium',
+                shape: 'circle',
+                visibility: 'letter'
+            };
             history.reset(layout);
         }
     });
@@ -101,15 +119,77 @@
         theme = newSettings.theme;
     }
 
-    // Auto-save when layout, title, slug, or theme changes
+    // Profile photo handlers
+    async function handlePhotoUpload(e: Event) {
+        const target = e.target as HTMLInputElement;
+        const file = target.files?.[0];
+        if (!file) return;
+
+        uploading = true;
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            if (profilePhoto.filename) {
+                formData.append('oldFilename', profilePhoto.filename);
+            }
+
+            const response = await fetch('/api/upload/profile-photo', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('Upload failed');
+            }
+
+            const { url, filename } = await response.json();
+
+            profilePhoto = {
+                ...profilePhoto,
+                url,
+                filename,
+                visibility: 'photo'
+            };
+        } catch (err) {
+            console.error('Upload error:', err);
+            alert('Failed to upload photo');
+        } finally {
+            uploading = false;
+            target.value = '';
+        }
+    }
+
+    async function handlePhotoRemove() {
+        if (!profilePhoto.filename) return;
+
+        try {
+            await fetch('/api/upload/profile-photo', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filename: profilePhoto.filename })
+            });
+        } catch (err) {
+            console.error('Delete error:', err);
+        }
+
+        profilePhoto = {
+            position: profilePhoto.position,
+            size: profilePhoto.size,
+            shape: profilePhoto.shape,
+            visibility: 'letter'
+        };
+    }
+
+    // Auto-save when layout, title, slug, theme, or profilePhoto changes
     $effect(() => {
         // Skip initial run
         const hasLayoutChanged = layout !== data.page.layout;
         const hasTitleChanged = title !== data.page.settings.title;
         const hasThemeChanged = theme !== (data.page.settings.theme || 'light');
         const hasSlugChanged = slug !== data.page.slug;
+        const hasProfilePhotoChanged = JSON.stringify(profilePhoto) !== JSON.stringify(data.page.settings.profilePhoto);
 
-        if (!hasLayoutChanged && !hasTitleChanged && !hasSlugChanged && !hasThemeChanged) return;
+        if (!hasLayoutChanged && !hasTitleChanged && !hasSlugChanged && !hasThemeChanged && !hasProfilePhotoChanged) return;
 
         clearTimeout(autoSaveTimeout);
         autoSaveTimeout = setTimeout(() => {
@@ -131,6 +211,7 @@
                             ...data.page.settings,
                             title,
                             theme,
+                            profilePhoto,
                         },
                         layout,
                     }),
@@ -141,6 +222,7 @@
                     data.page.slug = slug;
                     data.page.settings.title = title;
                     data.page.settings.theme = theme;
+                    data.page.settings.profilePhoto = profilePhoto;
                     lastSaved = new Date();
                     slugError = "";
                 } else if (response.status === 409) {
@@ -321,6 +403,153 @@
 
 <Container class="py-4">
     <div class="max-w-4xl mx-auto space-y-4">
+        <!-- Page Header Settings -->
+        <div class="theme-{theme} rounded-lg bg-background text-text transition-colors p-6 shadow-sm border border-border/50 space-y-4">
+            <!-- Header Preview with Position -->
+            <div class="flex {profilePhoto.position === 'left' ? 'justify-start' : profilePhoto.position === 'right' ? 'justify-end' : 'justify-center'}">
+                <div class="flex flex-col items-center gap-3">
+                    <!-- Profile Photo Preview -->
+                    {#if profilePhoto.visibility !== 'hidden'}
+                        <ProfilePhotoPreview
+                            photoUrl={profilePhoto.url}
+                            visibility={profilePhoto.visibility}
+                            size={profilePhoto.size}
+                            shape={profilePhoto.shape}
+                            username={slug}
+                            userEmail={data.user.email}
+                        />
+                    {/if}
+
+                    <!-- Title Input -->
+                    <Input
+                        id="page-title"
+                        bind:value={title}
+                        placeholder="My Page"
+                        class="text-2xl font-bold text-center"
+                    />
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="flex items-center justify-between pt-2 border-t border-border/50">
+                <div class="flex gap-2">
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onchange={handlePhotoUpload}
+                        bind:this={fileInput}
+                        class="hidden"
+                    />
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        onclick={() => fileInput?.click()}
+                        disabled={uploading}
+                    >
+                        {uploading ? 'Uploading...' : profilePhoto.url ? 'Change Photo' : 'Upload Photo'}
+                    </Button>
+                    {#if profilePhoto.url}
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onclick={handlePhotoRemove}
+                        >
+                            Remove
+                        </Button>
+                    {/if}
+                </div>
+
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onclick={() => showPhotoControls = !showPhotoControls}
+                >
+                    {showPhotoControls ? 'Hide' : 'Customize'}
+                </Button>
+            </div>
+
+            <!-- Expandable Controls -->
+            {#if showPhotoControls}
+                <div class="pt-4 space-y-4 border-t border-border/50">
+                    <!-- Grid Layout for Controls -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Display Mode -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-medium text-muted">Display</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button
+                                    class="px-2 py-1.5 text-xs rounded border-2 transition-colors {profilePhoto.visibility === 'photo' ? 'border-accent bg-accent/10' : 'border-border'}"
+                                    onclick={() => profilePhoto = { ...profilePhoto, visibility: 'photo' }}
+                                    disabled={!profilePhoto.url}
+                                >
+                                    Photo
+                                </button>
+                                <button
+                                    class="px-2 py-1.5 text-xs rounded border-2 transition-colors {profilePhoto.visibility === 'letter' ? 'border-accent bg-accent/10' : 'border-border'}"
+                                    onclick={() => profilePhoto = { ...profilePhoto, visibility: 'letter' }}
+                                >
+                                    Letter
+                                </button>
+                                <button
+                                    class="px-2 py-1.5 text-xs rounded border-2 transition-colors {profilePhoto.visibility === 'hidden' ? 'border-accent bg-accent/10' : 'border-border'}"
+                                    onclick={() => profilePhoto = { ...profilePhoto, visibility: 'hidden' }}
+                                >
+                                    Hidden
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Position (affects title + photo) -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-medium text-muted">Alignment</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                {#each ['left', 'center', 'right'] as pos}
+                                    <button
+                                        class="px-2 py-1.5 text-xs rounded border-2 transition-colors capitalize {profilePhoto.position === pos ? 'border-accent bg-accent/10' : 'border-border'}"
+                                        onclick={() => profilePhoto = { ...profilePhoto, position: pos as 'left' | 'center' | 'right' }}
+                                    >
+                                        {pos}
+                                    </button>
+                                {/each}
+                            </div>
+                        </div>
+
+                        {#if profilePhoto.visibility !== 'hidden'}
+                            <!-- Size -->
+                            <div class="space-y-2">
+                                <label class="text-xs font-medium text-muted">Size</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    {#each [{id: 'small', label: 'S'}, {id: 'medium', label: 'M'}, {id: 'large', label: 'L'}] as size}
+                                        <button
+                                            class="px-2 py-1.5 text-xs rounded border-2 transition-colors {profilePhoto.size === size.id ? 'border-accent bg-accent/10' : 'border-border'}"
+                                            onclick={() => profilePhoto = { ...profilePhoto, size: size.id as 'small' | 'medium' | 'large' }}
+                                        >
+                                            {size.label}
+                                        </button>
+                                    {/each}
+                                </div>
+                            </div>
+
+                            <!-- Shape -->
+                            <div class="space-y-2">
+                                <label class="text-xs font-medium text-muted">Shape</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    {#each ['circle', 'square', 'rounded'] as shp}
+                                        <button
+                                            class="px-2 py-1.5 text-xs rounded border-2 transition-colors capitalize {profilePhoto.shape === shp ? 'border-accent bg-accent/10' : 'border-border'}"
+                                            onclick={() => profilePhoto = { ...profilePhoto, shape: shp as 'circle' | 'square' | 'rounded' }}
+                                        >
+                                            {shp}
+                                        </button>
+                                    {/each}
+                                </div>
+                            </div>
+                        {/if}
+                    </div>
+                </div>
+            {/if}
+        </div>
+
         <!-- Editor Canvas with Theme -->
         <div class="theme-{theme} rounded-lg bg-background text-text transition-colors p-4 min-h-[50vh] shadow-sm border border-border/50">
             <GridEditor

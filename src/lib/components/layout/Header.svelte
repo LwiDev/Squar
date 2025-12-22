@@ -1,9 +1,8 @@
 <script lang="ts">
-    import { goto, invalidateAll } from "$app/navigation";
+    import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import logo from "$lib/assets/images/logos/logo.png";
     import { Button, NavLink } from "$lib/components/ui";
-    import { signOut } from "$lib/auth/client";
     import FloatingBar from "./FloatingBar.svelte";
 
     function scrollToSection(sectionId: string) {

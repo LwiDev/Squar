@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PublicBlock from '$lib/components/public/PublicBlock.svelte';
+	import ProfilePhotoDisplay from '$lib/components/public/ProfilePhotoDisplay.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -36,15 +37,26 @@
 
 <div class="min-h-screen w-full p-4 theme-{themeName} bg-background text-text transition-colors">
 	<div class="max-w-6xl mx-auto">
-		<header class="mb-4 text-center">
-			<h1 class="text-4xl md:text-5xl font-bold mb-2">
-				{data.page.settings.title}
-			</h1>
-			{#if data.page.settings.description}
-				<p class="text-lg text-muted">
-					{data.page.settings.description}
-				</p>
-			{/if}
+		<!-- Header with Photo & Title (aligned based on position) -->
+		<header class="mb-4 flex {data.page.settings.profilePhoto?.position === 'left' ? 'justify-start' : data.page.settings.profilePhoto?.position === 'right' ? 'justify-end' : 'justify-center'}">
+			<div class="flex flex-col items-center gap-4">
+				<!-- Profile Photo -->
+				{#if data.page.settings.profilePhoto?.visibility !== 'hidden'}
+					<ProfilePhotoDisplay settings={data.page.settings} />
+				{/if}
+
+				<!-- Title & Description -->
+				<div class="text-center">
+					<h1 class="text-4xl md:text-5xl font-bold mb-2">
+						{data.page.settings.title}
+					</h1>
+					{#if data.page.settings.description}
+						<p class="text-lg text-muted">
+							{data.page.settings.description}
+						</p>
+					{/if}
+				</div>
+			</div>
 		</header>
 
 		<div
