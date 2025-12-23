@@ -4,6 +4,7 @@
     import { Container } from "$lib/components/layout";
     import { PUBLIC_GITHUB_URL } from "$env/static/public";
     import { t } from "svelte-i18n";
+    import { LanguageSwitcher } from "$lib/components/ui";
 </script>
 
 <footer class="w-full border-t border-border bg-background py-12 mt-20">
@@ -49,6 +50,7 @@
                     <a href="/signup" class="hover:text-text transition-colors"
                         >{$t('common.join_squar')}</a
                     >
+                    <LanguageSwitcher />
                 </nav>
 
                 <div

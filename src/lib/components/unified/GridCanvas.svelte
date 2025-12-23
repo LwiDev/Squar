@@ -2,6 +2,7 @@
     import type { Block } from "$lib/types/models";
     import UnifiedBlock from "./UnifiedBlock.svelte";
     import { Plus } from "lucide-svelte";
+    import { t } from "svelte-i18n";
 
     interface Props {
         blocks: Block[];
@@ -204,11 +205,10 @@
             <div class="bg-border/30 rounded-2xl p-12 max-w-md">
                 <Plus size={48} class="text-muted mb-4 mx-auto" />
                 <h3 class="text-lg font-semibold text-text mb-2">
-                    Add your first block
+                    {$t('grid.empty_title')}
                 </h3>
                 <p class="text-sm text-muted">
-                    Use the toolbar at the bottom to add text, links, or images
-                    to your page
+                    {$t('grid.empty_desc')}
                 </p>
             </div>
         </div>

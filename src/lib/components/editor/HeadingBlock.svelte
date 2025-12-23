@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Block } from '$lib/types/models';
 	import { onMount } from 'svelte';
+    import { t } from 'svelte-i18n';
 
 	interface Props {
 		block: Block;
@@ -45,7 +46,7 @@
 			const currentText = editableRef.textContent?.trim() || '';
 			initialText = currentText;
 			// If it's the placeholder text or empty, clear it
-			if (currentText === 'Heading' || !currentText) {
+			if (currentText === $t('blocks.heading.placeholder') || !currentText) {
 				editableRef.textContent = '';
 				initialText = '';
 			}
@@ -73,6 +74,6 @@
 		onfocus={handleFocus}
 		class="w-full outline-none text-text text-2xl font-bold"
 	>
-		{block.data.text || (editable ? 'Heading' : '')}
+		{block.data.text || (editable ? $t('blocks.heading.placeholder') : '')}
 	</div>
 </div>

@@ -115,6 +115,7 @@
     "menu": {
         "change_username": "Change username",
         "settings": "Settings",
+        "language": "Language",
         "home": "Home",
         "logout": "Logout"
     },
@@ -129,6 +130,7 @@
     "settings_modal": {
         "title": "Page Settings",
         "theme": "Theme",
+        "language": "Language",
         "selected": "Selected",
         "save": "Save Changes",
         "themes": {
@@ -185,6 +187,41 @@
     "share": {
         "title": "My SQUAR page is live → {url}",
         "copied": "Link copied to clipboard!"
+    },
+    "grid": {
+        "empty_title": "Add your first block",
+        "empty_desc": "Use the toolbar at the bottom to add text, links, or images to your page"
+    },
+    "blocks": {
+        "heading": {
+            "placeholder": "Heading"
+        },
+        "text": {
+            "placeholder": "Click to edit"
+        },
+        "image": {
+            "uploading": "Uploading...",
+            "add": "Click to add image or GIF",
+            "max_size": "Max 10 MB",
+            "error_type": "Only images and GIFs are allowed",
+            "error_size": "File size must be less than 10 MB",
+            "error_failed": "Failed to upload image"
+        },
+        "video": {
+            "uploading": "Uploading...",
+            "add": "Click to add video",
+            "upload_tab": "Upload Video",
+            "link_tab": "Video Link",
+            "url_label": "Video URL",
+            "url_help": "Supports YouTube, Vimeo, and Loom",
+            "url_invalid": "Invalid video URL",
+            "max_size_help": "Max 10 MB • MP4, WebM, MOV",
+            "edit_hint_upload": "Double-click to edit • Uploaded",
+            "edit_hint_link": "Double-click to edit • {platform}",
+            "error_type": "Only video files are allowed",
+            "error_size": "Video size must be less than 10 MB",
+            "error_failed": "Failed to upload video"
+        }
     }
   }
 }

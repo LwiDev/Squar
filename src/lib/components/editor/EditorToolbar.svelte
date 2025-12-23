@@ -7,6 +7,7 @@
         Separator,
         MenuItem,
         IconButton,
+        LanguageSwitcher,
     } from "$lib/components/ui";
     import FloatingBar from "$lib/components/layout/FloatingBar.svelte";
     import {
@@ -128,8 +129,7 @@
         }
 
         if (!/^[a-z0-9-]+$/.test(newSlug)) {
-            slugError =
-                "editor.username_modal.error_invalid";
+            slugError = "editor.username_modal.error_invalid";
             return;
         }
 
@@ -171,7 +171,7 @@
         } else {
             try {
                 await navigator.clipboard.writeText(fullUrl);
-                alert($t('editor.share.copied'));
+                alert($t("editor.share.copied"));
             } catch (err) {
                 console.error("Error copying to clipboard:", err);
             }
@@ -205,33 +205,26 @@
 
                 {#if showMenu}
                     <div
-                        class="absolute bottom-full left-0 mb-2 w-52 bg-background border border-border rounded-lg shadow-lg overflow-hidden"
+                        class="absolute bottom-full left-0 mb-2 w-52 bg-background border border-border rounded-lg shadow-lg"
                         onmouseleave={() => (showMenu = false)}
                         role="menu"
                         tabindex="-1"
                     >
                         <MenuItem
-                            icon={Home}
-                            label={$t('editor.menu.home')}
-                            onclick={() => {
-                                goto("/");
-                                showMenu = false;
-                            }}
-                        />
-                        <MenuItem
                             icon={User}
-                            label={$t('editor.menu.change_username')}
+                            label={$t("editor.menu.change_username")}
                             onclick={openChangeUsername}
                         />
+                        <LanguageSwitcher variant="menu" direction="right" />
                         <MenuItem
                             icon={Settings}
-                            label={$t('editor.menu.settings')}
+                            label={$t("editor.menu.settings")}
                             onclick={openSettings}
                         />
                         <Separator orientation="horizontal" class="mx-4 my-2" />
                         <MenuItem
                             icon={LogOut}
-                            label={$t('editor.menu.logout')}
+                            label={$t("editor.menu.logout")}
                             variant="destructive"
                             onclick={() => {
                                 handleLogout();
@@ -246,7 +239,7 @@
 
             <!-- Add blocks -->
             <div class="flex items-center gap-1">
-                <Tooltip text={$t('editor.toolbar.add_title')}>
+                <Tooltip text={$t("editor.toolbar.add_title")}>
                     <button
                         onclick={onAddHeading}
                         disabled={previewMode}
@@ -255,7 +248,7 @@
                         <Heading size={18} />
                     </button>
                 </Tooltip>
-                <Tooltip text={$t('editor.toolbar.add_text')}>
+                <Tooltip text={$t("editor.toolbar.add_text")}>
                     <button
                         onclick={onAddText}
                         disabled={previewMode}
@@ -264,7 +257,7 @@
                         <Type size={18} />
                     </button>
                 </Tooltip>
-                <Tooltip text={$t('editor.toolbar.add_link')}>
+                <Tooltip text={$t("editor.toolbar.add_link")}>
                     <button
                         onclick={onAddLink}
                         disabled={previewMode}
@@ -273,7 +266,7 @@
                         <LinkIcon size={18} />
                     </button>
                 </Tooltip>
-                <Tooltip text={$t('editor.toolbar.add_image')}>
+                <Tooltip text={$t("editor.toolbar.add_image")}>
                     <button
                         onclick={onAddImage}
                         disabled={previewMode}
@@ -282,7 +275,7 @@
                         <ImageIcon size={18} />
                     </button>
                 </Tooltip>
-                <Tooltip text={$t('editor.toolbar.add_video')}>
+                <Tooltip text={$t("editor.toolbar.add_video")}>
                     <button
                         onclick={onAddVideo}
                         disabled={previewMode}
@@ -303,14 +296,14 @@
                     ? 'hidden sm:flex'
                     : 'flex'}"
             >
-                <Tooltip text={$t('editor.toolbar.undo')}>
+                <Tooltip text={$t("editor.toolbar.undo")}>
                     <IconButton
                         icon={Undo2}
                         onclick={onUndo}
                         disabled={!canUndo || previewMode}
                     />
                 </Tooltip>
-                <Tooltip text={$t('editor.toolbar.redo')}>
+                <Tooltip text={$t("editor.toolbar.redo")}>
                     <IconButton
                         icon={Redo2}
                         onclick={onRedo}
@@ -326,7 +319,9 @@
                 {#if onPreviewToggle}
                     <div class="flex items-center gap-1 sm:gap-2 mr-1 sm:mr-2">
                         <Tooltip
-                            text={previewMode ? $t('editor.toolbar.exit_preview') : $t('editor.toolbar.preview')}
+                            text={previewMode
+                                ? $t("editor.toolbar.exit_preview")
+                                : $t("editor.toolbar.preview")}
                         >
                             <IconButton
                                 icon={previewMode ? EyeOff : Eye}
@@ -345,13 +340,13 @@
                         transition:slide={{ axis: "x", duration: 200 }}
                     >
                         <!-- Share -->
-                        <Tooltip text={$t('editor.toolbar.share')}>
+                        <Tooltip text={$t("editor.toolbar.share")}>
                             <IconButton icon={Share} onclick={handleShare} />
                         </Tooltip>
 
                         <!-- View (deprecated in new unified mode, but kept for compatibility) -->
                         {#if viewUrl !== `/${username}`}
-                            <Tooltip text={$t('editor.toolbar.view')}>
+                            <Tooltip text={$t("editor.toolbar.view")}>
                                 <a href={viewUrl} target="_blank">
                                     <IconButton icon={Eye} onclick={() => {}} />
                                 </a>
@@ -362,7 +357,11 @@
 
                 <!-- Publish -->
                 <div class="sm:hidden flex items-center">
-                    <Tooltip text={published ? $t('editor.toolbar.unpublish') : $t('editor.toolbar.publish')}>
+                    <Tooltip
+                        text={published
+                            ? $t("editor.toolbar.unpublish")
+                            : $t("editor.toolbar.publish")}
+                    >
                         <IconButton
                             icon={published ? GlobeLock : Globe}
                             onclick={onPublish}
@@ -385,7 +384,9 @@
                         {:else}
                             <Globe size={16} class="mr-1.5" />
                         {/if}
-                        {published ? $t('editor.toolbar.unpublish') : $t('editor.toolbar.publish')}
+                        {published
+                            ? $t("editor.toolbar.unpublish")
+                            : $t("editor.toolbar.publish")}
                     </Button>
                 </div>
             </div>
@@ -396,7 +397,7 @@
 <Modal
     bind:open={showChangeUsernameModal}
     onClose={() => (showChangeUsernameModal = false)}
-    title={$t('editor.username_modal.title')}
+    title={$t("editor.username_modal.title")}
 >
     <div class="space-y-4">
         <div>
@@ -404,7 +405,7 @@
                 for="username-input"
                 class="block text-sm font-medium text-text mb-2"
             >
-                {$t('editor.username_modal.label')}
+                {$t("editor.username_modal.label")}
             </label>
             <div class="flex items-center gap-2">
                 <span class="text-sm text-muted whitespace-nowrap"
@@ -434,7 +435,7 @@
                 <p class="text-xs text-destructive mt-1">{$t(slugError)}</p>
             {/if}
             <p class="text-xs text-muted mt-2">
-                {$t('editor.username_modal.help')}
+                {$t("editor.username_modal.help")}
             </p>
         </div>
 
@@ -444,14 +445,16 @@
                 onclick={() => (showChangeUsernameModal = false)}
                 disabled={savingSlug}
             >
-                {$t('common.cancel')}
+                {$t("common.cancel")}
             </Button>
             <Button
                 variant="primary"
                 onclick={handleSaveSlug}
                 disabled={savingSlug || !newSlug}
             >
-                {savingSlug ? $t('editor.username_modal.saving') : $t('common.save')}
+                {savingSlug
+                    ? $t("editor.username_modal.saving")
+                    : $t("common.save")}
             </Button>
         </div>
     </div>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Block } from '$lib/types/models';
 	import { onMount } from 'svelte';
+    import { t } from 'svelte-i18n';
 
 	interface Props {
 		block: Block;
@@ -59,7 +60,7 @@
 			const currentText = editableRef.textContent?.trim() || '';
 			initialText = currentText;
 			// If it's the placeholder text or empty, clear it
-			if (currentText === 'Click to edit' || !currentText) {
+			if (currentText === $t('blocks.text.placeholder') || !currentText) {
 				editableRef.textContent = '';
 				initialText = '';
 			}
@@ -88,6 +89,6 @@
 		oninput={handleInput}
 		class="h-full w-full outline-none text-text"
 	>
-		{block.data.text || (editable ? 'Click to edit' : '')}
+		{block.data.text || (editable ? $t('blocks.text.placeholder') : '')}
 	</div>
 </div>

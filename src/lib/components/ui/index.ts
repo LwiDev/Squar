@@ -7,3 +7,4 @@ export { default as Separator } from "./Separator.svelte";
 export { default as MenuItem } from "./MenuItem.svelte";
 export { default as NavLink } from "./NavLink.svelte";
 export { default as IconButton } from "./IconButton.svelte";
+export { default as LanguageSwitcher } from "./LanguageSwitcher.svelte";

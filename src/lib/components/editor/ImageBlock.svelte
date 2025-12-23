@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Block } from '$lib/types/models';
 	import { Image as ImageIcon, Upload } from 'lucide-svelte';
+    import { t } from 'svelte-i18n';
 
 	interface Props {
 		block: Block;
@@ -25,13 +26,13 @@
 
 		// Only accept images and GIFs
 		if (!file.type.startsWith('image/')) {
-			alert('Only images and GIFs are allowed');
+			alert($t('blocks.image.error_type'));
 			return;
 		}
 
 		// Check file size
 		if (file.size > MAX_FILE_SIZE) {
-			alert('File size must be less than 10 MB');
+			alert($t('blocks.image.error_size'));
 			return;
 		}
 
@@ -54,7 +55,7 @@
 			imageUrl = data.url;
 			onUpdate?.({ imageUrl: data.url, filename: data.filename });
 		} catch (error) {
-			alert('Failed to upload image');
+			alert($t('blocks.image.error_failed'));
 		} finally {
 			uploading = false;
 		}
@@ -95,11 +96,11 @@
 			class="h-full w-full flex flex-col items-center justify-center bg-border/20 hover:bg-border/30 transition-colors"
 		>
 			{#if uploading}
-				<p class="text-sm text-muted">Uploading...</p>
+				<p class="text-sm text-muted">{$t('blocks.image.uploading')}</p>
 			{:else}
 				<ImageIcon size={32} class="text-muted mb-2" />
-				<p class="text-sm text-muted">Click to add image or GIF</p>
-				<p class="text-xs text-muted mt-1">Max 10 MB</p>
+				<p class="text-sm text-muted">{$t('blocks.image.add')}</p>
+				<p class="text-xs text-muted mt-1">{$t('blocks.image.max_size')}</p>
 			{/if}
 		</button>
 	{/if}

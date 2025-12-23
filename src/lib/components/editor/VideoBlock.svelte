@@ -3,6 +3,7 @@
 	import { Input } from '$lib/components/ui';
 	import { parseVideoUrl } from '$lib/utils/videoParser';
 	import { Video, Upload, Link as LinkIcon } from 'lucide-svelte';
+    import { t } from 'svelte-i18n';
 
 	interface Props {
 		block: Block;
@@ -31,13 +32,13 @@
 
 		// Only accept videos
 		if (!file.type.startsWith('video/')) {
-			alert('Only video files are allowed');
+			alert($t('blocks.video.error_type'));
 			return;
 		}
 
 		// Check file size
 		if (file.size > MAX_FILE_SIZE) {
-			alert('Video size must be less than 10 MB');
+			alert($t('blocks.video.error_size'));
 			return;
 		}
 
@@ -61,7 +62,7 @@
 			onUpdate?.({ videoUrl: data.url, filename: data.filename, sourceType: 'upload' });
 			editing = false;
 		} catch (error) {
-			alert('Failed to upload video');
+			alert($t('blocks.video.error_failed'));
 		} finally {
 			uploading = false;
 		}
@@ -106,7 +107,7 @@
 						: 'border-border hover:border-text'}"
 				>
 					<Upload size={16} class="inline mr-2" />
-					Upload Video
+					{$t('blocks.video.upload_tab')}
 				</button>
 				<button
 					onclick={() => (sourceType = 'link')}
@@ -115,7 +116,7 @@
 						: 'border-border hover:border-text'}"
 				>
 					<LinkIcon size={16} class="inline mr-2" />
-					Video Link
+					{$t('blocks.video.link_tab')}
 				</button>
 			</div>
 
@@ -126,17 +127,18 @@
 					class="py-8 border-2 border-dashed border-border hover:border-accent rounded transition-colors flex flex-col items-center gap-2"
 				>
 					{#if uploading}
-						<p class="text-sm text-muted">Uploading...</p>
+						<p class="text-sm text-muted">{$t('blocks.video.uploading')}</p>
 					{:else}
 						<Upload size={32} class="text-muted" />
-						<p class="text-sm text-muted">Click to upload video</p>
-						<p class="text-xs text-muted">Max 10 MB • MP4, WebM, MOV</p>
+						<p class="text-sm text-muted">{$t('blocks.video.add')}</p>
+						<p class="text-xs text-muted">{$t('blocks.video.max_size_help')}</p>
 					{/if}
 				</button>
 			{:else}
 				<div class="flex flex-col gap-2">
-					<label class="text-sm font-medium">Video URL</label>
+					<label class="text-sm font-medium" for="video-url">{$t('blocks.video.url_label')}</label>
 					<Input
+						id="video-url"
 						bind:value={url}
 						placeholder="https://youtube.com/watch?v=..."
 						onkeydown={(e) => {
@@ -145,31 +147,33 @@
 							}
 						}}
 					/>
-					<p class="text-xs text-muted">Supports YouTube, Vimeo, and Loom</p>
+					<p class="text-xs text-muted">{$t('blocks.video.url_help')}</p>
 					{#if url && !videoInfo}
-						<p class="text-xs text-red-500">Invalid video URL</p>
+						<p class="text-xs text-red-500">{$t('blocks.video.url_invalid')}</p>
 					{/if}
 					<button
 						onclick={handleSaveUrl}
 						disabled={!videoInfo}
 						class="px-3 py-1.5 bg-accent text-white rounded text-sm hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed"
 					>
-						Save
+						{$t('common.save')}
 					</button>
 				</div>
 			{/if}
 		</div>
 	{:else if videoUrl}
 		<!-- Uploaded video -->
-		<div class="h-full w-full flex flex-col gap-2" ondblclick={editable ? handleEdit : undefined}>
-			<video src={videoUrl} class="w-full h-full rounded object-contain" controls loop muted autoplay />
+		<div class="h-full w-full flex flex-col gap-2" ondblclick={editable ? handleEdit : undefined} role="none">
+			<video src={videoUrl} class="w-full h-full rounded object-contain" controls loop muted autoplay>
+                <track kind="captions" />
+            </video>
 			{#if editable}
-				<p class="text-xs text-muted text-center">Double-click to edit • Uploaded</p>
+				<p class="text-xs text-muted text-center">{$t('blocks.video.edit_hint_upload')}</p>
 			{/if}
 		</div>
 	{:else if videoInfo}
 		<!-- External video -->
-		<div class="h-full w-full flex flex-col gap-2" ondblclick={editable ? handleEdit : undefined}>
+		<div class="h-full w-full flex flex-col gap-2" ondblclick={editable ? handleEdit : undefined} role="none">
 			<iframe
 				src={videoInfo.embedUrl}
 				title="Video"
@@ -180,14 +184,14 @@
 			></iframe>
 			{#if editable}
 				<p class="text-xs text-muted text-center">
-					Double-click to edit • {videoInfo.platform}
+					{$t('blocks.video.edit_hint_link', { platform: videoInfo.platform })}
 				</p>
 			{/if}
 		</div>
 	{:else}
 		<div class="h-full w-full flex flex-col items-center justify-center gap-2 text-muted">
 			<Video size={32} />
-			<p class="text-sm">Click to add video</p>
+			<p class="text-sm">{$t('blocks.video.add')}</p>
 		</div>
 	{/if}
 </div>

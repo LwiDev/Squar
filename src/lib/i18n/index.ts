@@ -7,5 +7,5 @@ register('es', () => import('./locales/es.json'));
 
 init({
     fallbackLocale: 'en',
-    initialLocale: browser ? getLocaleFromNavigator() : 'en',
+    initialLocale: browser ? (window.localStorage.getItem('svelte-i18n-locale') || getLocaleFromNavigator()) : 'en',
 });
