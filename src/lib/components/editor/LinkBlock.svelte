@@ -28,15 +28,18 @@
 	const url = $derived(editing ? editUrl : (block.data.url || 'https://'));
 	const iconSvg = $derived(block.data.iconSvg);
 	const iconHex = $derived(block.data.iconHex);
+	const favicon = $derived(block.data.socialData?.favicon);
 
 	// Determine display mode based on block size
 	const socialData = $derived(block.data.socialData);
 	const hasImages = $derived(socialData?.images && socialData.images.length > 0);
 
 	// Display modes (like Bento):
-	// - Small rectangles (any width x 2): Icon + title (NO photos)
-	// - Medium/Large squares (4x4+, 6x4+): Icon + title + photos
-	const showPhotos = $derived(hasImages && block.h >= 4);
+	// - Small square (4x4): Vertical centered (icon on top, title below, NO photos)
+	// - Small rectangles (any width x 2): Icon + title horizontal (NO photos)
+	// - Medium/Large squares (8x4+): Icon + title + photos
+	const isSquareMode = $derived(block.w === 4 && block.h === 4);
+	const showPhotos = $derived(!isSquareMode && hasImages && block.h >= 4);
 
 	function startEditing() {
 		if (!editable) return;
@@ -92,14 +95,37 @@
 		/>
 	</div>
 {:else}
-	{#if showPhotos}
+	{#if isSquareMode}
+		<!-- Square mode (4x4): Vertical centered layout with icon on top, title below -->
+		<a
+			href={editable ? undefined : url}
+			target={editable ? undefined : '_blank'}
+			rel={editable ? undefined : 'noopener noreferrer'}
+			onclick={editable ? startEditing : undefined}
+			class="h-full w-full p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-border/30 transition-colors text-center"
+		>
+			{#if iconSvg && iconHex}
+				<div
+					class="w-16 h-16 flex items-center justify-center rounded-lg"
+					style="background-color: #{iconHex};"
+				>
+					{@html `<svg viewBox="0 0 24 24" class="w-10 h-10" fill="white">${iconSvg}</svg>`}
+				</div>
+			{:else if favicon}
+				<div class="w-16 h-16 flex items-center justify-center rounded-lg bg-secondary/50">
+					<img src={favicon} alt="" class="w-10 h-10 object-contain" loading="lazy" style="image-rendering: -webkit-optimize-contrast;" />
+				</div>
+			{/if}
+			<p class="font-semibold text-text text-sm leading-tight">{title}</p>
+		</a>
+	{:else if showPhotos}
 		<!-- With photos: Show icon + title + photo grid -->
 		<a
 			href={editable ? undefined : url}
 			target={editable ? undefined : '_blank'}
 			rel={editable ? undefined : 'noopener noreferrer'}
 			onclick={editable ? startEditing : undefined}
-			class="h-full w-full p-4 flex flex-col gap-3 {editable ? 'cursor-pointer' : 'cursor-default'} transition-colors text-left block"
+			class="h-full w-full p-4 flex flex-col gap-3 cursor-pointer hover:bg-border/30 transition-colors text-left block"
 		>
 			<div class="flex items-center gap-3">
 				{#if iconSvg && iconHex}
@@ -108,6 +134,10 @@
 						style="background-color: #{iconHex};"
 					>
 						{@html `<svg viewBox="0 0 24 24" class="w-6 h-6" fill="white">${iconSvg}</svg>`}
+					</div>
+				{:else if favicon}
+					<div class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-md bg-secondary/50">
+						<img src={favicon} alt="" class="w-6 h-6 object-contain" loading="lazy" style="image-rendering: -webkit-optimize-contrast;" />
 					</div>
 				{/if}
 				<div class="flex-1 min-w-0">
@@ -123,7 +153,7 @@
 			<div class="grid grid-cols-3 gap-1">
 				{#each socialData.images.slice(0, 6) as image}
 					<div class="aspect-square bg-secondary/50 rounded overflow-hidden">
-						<img src={`/api/proxy-image?url=${encodeURIComponent(image)}`} alt="" class="w-full h-full object-cover" />
+						<img src={image} alt="" class="w-full h-full object-cover" loading="lazy" />
 					</div>
 				{/each}
 			</div>
@@ -135,7 +165,7 @@
 			target={editable ? undefined : '_blank'}
 			rel={editable ? undefined : 'noopener noreferrer'}
 			onclick={editable ? startEditing : undefined}
-			class="h-full w-full p-4 flex items-center gap-3 {editable ? 'cursor-pointer' : 'cursor-default'} transition-colors text-left block"
+			class="h-full w-full p-4 flex items-center gap-3 cursor-pointer hover:bg-border/30 transition-colors text-left block"
 		>
 			{#if iconSvg && iconHex}
 				<div
@@ -143,6 +173,10 @@
 					style="background-color: #{iconHex};"
 				>
 					{@html `<svg viewBox="0 0 24 24" class="w-6 h-6" fill="white">${iconSvg}</svg>`}
+				</div>
+			{:else if favicon}
+				<div class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-md bg-secondary/50">
+					<img src={favicon} alt="" class="w-6 h-6 object-contain" loading="lazy" style="image-rendering: -webkit-optimize-contrast;" />
 				</div>
 			{/if}
 			<div class="flex-1 min-w-0">

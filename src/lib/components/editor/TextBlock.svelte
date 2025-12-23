@@ -17,18 +17,25 @@
 	let editableRef: HTMLDivElement;
 	let initialText = $state('');
 
+	// Sync content when block data changes
+	$effect(() => {
+		if (editableRef && !editing && block.data.text !== undefined) {
+			editableRef.textContent = block.data.text;
+		}
+	});
+
 	function handleInput(e: Event) {
 		if (!editable || !editableRef || !onResize) return;
-		
+
 		const contentHeight = editableRef.scrollHeight;
 		// 32px padding (16px top + 16px bottom)
 		const totalHeight = contentHeight + 32;
 		const rowHeight = 48; // Approx row height in grid
 		const requiredRows = Math.ceil(totalHeight / rowHeight);
-		
+
 		// Minimum 2 rows to look good, or match preset sizes
 		const newH = Math.max(2, requiredRows);
-		
+
 		if (newH !== block.h) {
 			onResize(block.w, newH);
 		}
@@ -36,9 +43,9 @@
 
 	function saveAndClose() {
 		if (editableRef) {
-			const newText = editableRef.innerText;
-			// Only update if text actually changed
-			if (newText !== initialText) {
+			const newText = editableRef.textContent?.trim() || '';
+			// Only update if text actually changed and is not empty
+			if (newText && newText !== initialText) {
 				onUpdate?.({ text: newText });
 			}
 		}
@@ -49,7 +56,13 @@
 		if (!editable) return;
 		editing = true;
 		if (editableRef) {
-			initialText = editableRef.innerText;
+			const currentText = editableRef.textContent?.trim() || '';
+			initialText = currentText;
+			// If it's the placeholder text or empty, clear it
+			if (currentText === 'Click to edit' || !currentText) {
+				editableRef.textContent = '';
+				initialText = '';
+			}
 		}
 	}
 

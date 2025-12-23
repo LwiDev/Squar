@@ -1,5 +1,7 @@
 <script lang="ts">
     import "../app.css";
+    import "$lib/i18n";
+    import { isLoading } from "svelte-i18n";
     import favicon from "$lib/assets/favicon.png";
     import { Header, Footer } from "$lib/components/layout";
     import { page } from "$app/stores";
@@ -26,6 +28,11 @@
     <link rel="icon" href={favicon} />
 </svelte:head>
 
+{#if $isLoading}
+    <div class="flex items-center justify-center min-h-screen bg-background text-text">
+        Loading...
+    </div>
+{:else}
 <div class="min-h-screen flex flex-col">
     {#if showHeader}
         <Header />
@@ -39,3 +46,4 @@
         <Footer />
     {/if}
 </div>
+{/if}

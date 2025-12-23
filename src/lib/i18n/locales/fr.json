@@ -1,0 +1,190 @@
+{
+  "common": {
+    "squar": "Squar",
+    "login": "Connexion",
+    "signup": "S'inscrire",
+    "logout": "Déconnexion",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "remove": "Retirer",
+    "add": "Ajouter",
+    "done": "Terminé",
+    "publish": "Publier",
+    "unpublish": "Dépublier",
+    "preview": "Aperçu",
+    "exit_preview": "Quitter l'aperçu",
+    "share": "Partager",
+    "settings": "Paramètres",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "github": "GitHub",
+    "join_squar": "Rejoindre Squar",
+    "home": "Accueil"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Mot de passe",
+    "confirm_password": "Confirmer le mot de passe",
+    "sign_in": "Se connecter",
+    "sign_in_title": "Connectez-vous à votre compte Squar",
+    "sign_in_button": "Se connecter",
+    "signing_in": "Connexion en cours...",
+    "create_account": "Créer un compte",
+    "create_account_title": "Créez votre compte Squar.me",
+    "create_account_button": "Créer un compte",
+    "creating_account": "Création du compte...",
+    "no_account": "Pas encore de compte ?",
+    "has_account": "Vous avez déjà un compte ?",
+    "invalid_credentials": "Email ou mot de passe invalide",
+    "passwords_mismatch": "Les mots de passe ne correspondent pas",
+    "password_min_length": "Le mot de passe doit contenir au moins 8 caractères",
+    "fields_required": "Tous les champs sont requis",
+    "failed_create": "Échec de la création du compte"
+  },
+  "landing": {
+    "hero": {
+      "tagline": "Open-source, toujours gratuit",
+      "title": "Votre page, à votre façon.",
+      "subtitle": "Créez votre page, glissez vos blocs et personnalisez-la à votre goût.",
+      "cta": "Créer votre Squar",
+      "star_github": "Star sur GitHub"
+    },
+    "nav": {
+      "how_it_works": "Comment ça marche",
+      "pricing": "Tarifs",
+      "features": "Fonctionnalités",
+      "my_squar": "Mon SQUAR"
+    },
+    "how_it_works": {
+      "title": "Comment ça marche",
+      "subtitle": "Trois étapes simples pour créer votre page parfaite.",
+      "step1_title": "Choisissez vos blocs",
+      "step1_desc": "Ajoutez des liens, images, textes ou blocs sociaux. Glissez-déposez les sur votre grille.",
+      "step2_title": "Personnalisez votre style",
+      "step2_desc": "Choisissez un thème et ajustez votre mise en page. Positionnez votre photo de profil exactement où vous voulez.",
+      "step3_title": "Partagez votre lien",
+      "step3_desc": "Publiez instantanément et partagez votre URL unique. Mettez à jour à tout moment, sans limites."
+    },
+    "pricing": {
+      "title": "Vraiment gratuit. Sans astérisque.",
+      "subtitle": "Quand on dit gratuit, on le pense vraiment. Aucune limite cachée, aucun plan premium, aucune carte de crédit.",
+      "unlimited_blocks": "Blocs et liens illimités",
+      "unlimited_blocks_desc": "Ajoutez-en autant que vous voulez, sans restrictions",
+      "themes_included": "Thèmes magnifiques inclus",
+      "themes_included_desc": "Choisissez parmi des palettes de couleurs soigneusement conçues",
+      "profile_customization": "Personnalisation du profil",
+      "profile_customization_desc": "Contrôlez la position, la taille et la forme de votre photo de profil",
+      "no_watermark": "Pas de filigrane",
+      "no_watermark_desc": "Votre page est la vôtre, aucune marque ne vous est imposée",
+      "forever_free": "Gratuit pour toujours",
+      "forever_free_desc": "Pas d'essais, pas d'expiration, pas de carte de crédit requise"
+    },
+    "features": {
+      "title": "Tout ce dont vous avez besoin",
+      "subtitle": "Focalisé sur la simplicité et la flexibilité. Pas de superflu, juste l'essentiel pour construire votre page parfaite.",
+      "grid_system": "Système de grille intelligent",
+      "grid_system_desc": "Grille intelligente de 12 colonnes qui s'aligne automatiquement. Glissez, redimensionnez et arrangez vos blocs librement sans code.",
+      "rich_media": "Support média riche",
+      "rich_media_desc": "Téléchargez des images haute résolution, intégrez des vidéos, ajoutez des liens ou écrivez du texte. Nous optimisons tout pour un chargement ultra-rapide.",
+      "no_limits": "Aucune limite, aucun paywall",
+      "no_limits_desc": "Tout est gratuit. Aucun plan premium, aucun coût caché, aucune limite artificielle. Juste vous et votre espace."
+    },
+    "footer": {
+      "rights": "Pensé pour le web ouvert.",
+      "tagline": "Votre page, à votre façon."
+    }
+  },
+  "editor": {
+    "toolbar": {
+      "add_title": "Ajouter un titre",
+      "add_text": "Ajouter du texte",
+      "add_link": "Ajouter un lien",
+      "add_image": "Ajouter une image ou un GIF",
+      "add_video": "Ajouter une vidéo",
+      "undo": "Annuler (Cmd+Z)",
+      "redo": "Rétablir (Cmd+Shift+Z)",
+      "preview": "Aperçu",
+      "exit_preview": "Quitter l'aperçu",
+      "share": "Partager votre SQUAR",
+      "view": "Voir votre SQUAR",
+      "publish": "Publier",
+      "unpublish": "Dépublier"
+    },
+    "menu": {
+      "change_username": "Changer le nom d'utilisateur",
+      "settings": "Paramètres",
+      "home": "Accueil",
+      "logout": "Déconnexion"
+    },
+    "username_modal": {
+      "title": "Changer le nom d'utilisateur",
+      "label": "Nom d'utilisateur",
+      "help": "Lettres minuscules, chiffres et tirets uniquement. Minimum 3 caractères.",
+      "error_min_length": "Le nom d'utilisateur doit contenir au moins 3 caractères",
+      "error_invalid": "Le nom d'utilisateur ne peut contenir que des lettres minuscules, des chiffres et des tirets",
+      "saving": "Enregistrement..."
+    },
+    "settings_modal": {
+      "title": "Paramètres de la page",
+      "theme": "Thème",
+      "selected": "Sélectionné",
+      "save": "Enregistrer les modifications",
+      "themes": {
+        "light": "Clair",
+        "cream": "Crème",
+        "dark": "Sombre",
+        "slate": "Ardoise",
+        "midnight": "Minuit"
+      }
+    },
+    "title_modal": {
+      "title": "Paramètres du titre",
+      "size": "Taille",
+      "sizes": {
+        "small": "Petit",
+        "medium": "Moyen",
+        "large": "Grand"
+      }
+    },
+    "profile_modal": {
+      "title": "Paramètres de la photo de profil",
+      "photo_label": "Photo",
+      "change_photo": "Changer la photo",
+      "upload_photo": "Télécharger une photo",
+      "uploading": "Téléchargement...",
+      "display_label": "Affichage",
+      "display_photo": "Photo",
+      "display_letter": "Lettre",
+      "display_hidden": "Caché",
+      "position_label": "Position",
+      "position_left": "Barre latérale gauche",
+      "position_center": "Centre",
+      "position_right": "Barre latérale droite",
+      "layout_label": "Mise en page de l'en-tête",
+      "layout_vertical": "Vertical",
+      "layout_vertical_desc": "Photo en haut",
+      "layout_photo_left": "Photo à gauche",
+      "layout_photo_left_desc": "Photo → Texte",
+      "layout_photo_right": "Photo à droite",
+      "layout_photo_right_desc": "Texte → Photo",
+      "size_label": "Taille",
+      "shape_label": "Forme",
+      "shapes": {
+        "circle": "Cercle",
+        "square": "Carré",
+        "rounded": "Arrondi"
+      }
+    },
+    "link_modal": {
+      "title": "Ajouter un lien",
+      "url_label": "URL",
+      "adding": "Ajout..."
+    },
+    "share": {
+      "title": "Ma page SQUAR est en ligne → {url}",
+      "copied": "Lien copié dans le presse-papier !"
+    }
+  }
+}

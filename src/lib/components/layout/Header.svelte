@@ -4,6 +4,7 @@
     import logo from "$lib/assets/images/logos/logo.png";
     import { Button, NavLink } from "$lib/components/ui";
     import FloatingBar from "./FloatingBar.svelte";
+    import { t } from "svelte-i18n";
 
     function scrollToSection(sectionId: string) {
         const element = document.getElementById(sectionId);
@@ -37,20 +38,20 @@
                     alt="Squar Logo"
                     class="w-5 h-auto"
                 />
-                <h1 class="text-sm font-bold tracking-tight">SQUAR</h1>
+                <h1 class="text-sm font-bold tracking-tight">{$t('common.squar')}</h1>
             </div>
 
             <nav class="hidden md:flex items-center gap-1">
                 <NavLink
-                    label="How it works"
+                    label={$t('landing.nav.how_it_works')}
                     onclick={() => scrollToSection("how-it-works")}
                 />
                 <NavLink
-                    label="Pricing"
+                    label={$t('landing.nav.pricing')}
                     onclick={() => scrollToSection("actually-free")}
                 />
                 <NavLink
-                    label="Features"
+                    label={$t('landing.nav.features')}
                     onclick={() => scrollToSection("features")}
                 />
             </nav>
@@ -59,7 +60,7 @@
                 {#if $page.data.user}
                     <a href="/editor">
                         <Button variant="primary" size="sm" class="h-8 text-xs"
-                            >My SQUAR</Button
+                            >{$t('landing.nav.my_squar')}</Button
                         >
                     </a>
                 {:else}
@@ -68,7 +69,7 @@
                         onclick={() => goto("/signup")}
                         class="h-8 text-xs px-6 font-bold tracking-wide"
                     >
-                        Join Squar
+                        {$t('common.join_squar')}
                     </Button>
                 {/if}
             </div>

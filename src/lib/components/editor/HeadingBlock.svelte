@@ -16,15 +16,22 @@
 	let editableRef: HTMLDivElement;
 	let initialText = $state('');
 
+	// Sync content when block data changes
+	$effect(() => {
+		if (editableRef && !editing && block.data.text !== undefined) {
+			editableRef.textContent = block.data.text;
+		}
+	});
+
 	function handleInput(e: Event) {
 		// Just let contenteditable do its thing, don't update yet
 	}
 
 	function saveAndClose() {
 		if (editableRef) {
-			const newText = editableRef.innerText;
-			// Only update if text actually changed
-			if (newText !== initialText) {
+			const newText = editableRef.textContent?.trim() || '';
+			// Only update if text actually changed and is not empty
+			if (newText && newText !== initialText) {
 				onUpdate?.({ text: newText });
 			}
 		}
@@ -35,7 +42,13 @@
 		if (!editable) return;
 		editing = true;
 		if (editableRef) {
-			initialText = editableRef.innerText;
+			const currentText = editableRef.textContent?.trim() || '';
+			initialText = currentText;
+			// If it's the placeholder text or empty, clear it
+			if (currentText === 'Heading' || !currentText) {
+				editableRef.textContent = '';
+				initialText = '';
+			}
 		}
 	}
 

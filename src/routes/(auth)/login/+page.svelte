@@ -4,6 +4,7 @@
     import PageHead from "$lib/components/PageHead.svelte";
     import { signIn } from "$lib/auth/client";
     import { goto, invalidateAll } from "$app/navigation";
+    import { t } from "svelte-i18n";
 
     let email = $state("");
     let password = $state("");
@@ -12,7 +13,7 @@
 
     async function handleLogin() {
         if (!email || !password) {
-            error = "Email and password are required";
+            error = "auth.fields_required";
             return;
         }
 
@@ -27,7 +28,7 @@
             await invalidateAll();
             goto("/editor");
         } catch (e) {
-            error = "Invalid email or password";
+            error = "auth.invalid_credentials";
         } finally {
             loading = false;
         }
@@ -35,16 +36,16 @@
 </script>
 
 <PageHead
-    title="Login"
-    description="Sign in to your Squar account"
+    title={$t('common.login')}
+    description={$t('auth.sign_in_title')}
 />
 
 <Container size="sm" class="flex items-center justify-center py-10 md:py-20">
 
 	<Card class="w-full max-w-md p-8">
         <div class="mb-6">
-            <h1 class="text-3xl font-bold mb-2">Login</h1>
-            <p class="text-muted">Sign in to your Squar.me account</p>
+            <h1 class="text-3xl font-bold mb-2">{$t('common.login')}</h1>
+            <p class="text-muted">{$t('auth.sign_in_title')}</p>
         </div>
 
         <form
@@ -56,7 +57,7 @@
         >
             <div>
                 <label for="email" class="block text-sm font-medium mb-1.5"
-                    >Email</label
+                    >{$t('auth.email')}</label
                 >
                 <Input
                     id="email"
@@ -70,7 +71,7 @@
 
             <div>
                 <label for="password" class="block text-sm font-medium mb-1.5"
-                    >Password</label
+                    >{$t('auth.password')}</label
                 >
                 <Input
                     id="password"
@@ -83,18 +84,18 @@
             </div>
 
             {#if error}
-                <p class="text-sm text-red-500">{error}</p>
+                <p class="text-sm text-red-500">{$t(error)}</p>
             {/if}
 
             <Button type="submit" class="w-full" disabled={loading}>
-                {loading ? "Signing in..." : "Sign in"}
+                {loading ? $t('auth.signing_in') : $t('auth.sign_in_button')}
             </Button>
         </form>
 
         <p class="mt-6 text-center text-sm text-muted">
-            Don't have an account?
+            {$t('auth.no_account')}
             <a href="/signup" class="text-text hover:underline font-medium"
-                >Sign up</a
+                >{$t('auth.signup')}</a
             >
         </p>
     </Card>

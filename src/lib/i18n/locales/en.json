@@ -1,0 +1,190 @@
+{
+  "common": {
+    "squar": "Squar",
+    "login": "Login",
+    "signup": "Sign up",
+    "logout": "Logout",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "remove": "Remove",
+    "add": "Add",
+    "done": "Done",
+    "publish": "Publish",
+    "unpublish": "Unpublish",
+    "preview": "Preview",
+    "exit_preview": "Exit Preview",
+    "share": "Share",
+    "settings": "Settings",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "github": "GitHub",
+    "join_squar": "Join Squar",
+    "home": "Home"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "confirm_password": "Confirm password",
+    "sign_in": "Sign in",
+    "sign_in_title": "Sign in to your Squar account",
+    "sign_in_button": "Sign in",
+    "signing_in": "Signing in...",
+    "create_account": "Create account",
+    "create_account_title": "Create your Squar.me account",
+    "create_account_button": "Create account",
+    "creating_account": "Creating account...",
+    "no_account": "Don't have an account?",
+    "has_account": "Already have an account?",
+    "invalid_credentials": "Invalid email or password",
+    "passwords_mismatch": "Passwords do not match",
+    "password_min_length": "Password must be at least 8 characters",
+    "fields_required": "All fields are required",
+    "failed_create": "Failed to create account"
+  },
+  "landing": {
+    "hero": {
+      "tagline": "Open-source, always free",
+      "title": "Your page, your way.",
+      "subtitle": "Design your page, drag your blocks, and make it yours.",
+      "cta": "Create your Squar",
+      "star_github": "Star on GitHub"
+    },
+    "nav": {
+      "how_it_works": "How it works",
+      "pricing": "Pricing",
+      "features": "Features",
+      "my_squar": "My SQUAR"
+    },
+    "how_it_works": {
+      "title": "How it works",
+      "subtitle": "Three simple steps to create your perfect page.",
+      "step1_title": "Choose your blocks",
+      "step1_desc": "Add links, images, text, or social media blocks. Drag and drop them into place on your grid.",
+      "step2_title": "Customize your style",
+      "step2_desc": "Pick a theme and adjust your layout. Position your profile picture exactly where you want it.",
+      "step3_title": "Share your link",
+      "step3_desc": "Publish instantly and share your unique URL. Update anytime, no limits."
+    },
+    "pricing": {
+      "title": "Actually free. No asterisk.",
+      "subtitle": "When we say free, we mean it. No hidden limits, no premium tiers, no credit card required.",
+      "unlimited_blocks": "Unlimited blocks and links",
+      "unlimited_blocks_desc": "Add as many as you want, no restrictions",
+      "themes_included": "Beautiful themes included",
+      "themes_included_desc": "Choose from carefully designed color palettes",
+      "profile_customization": "Profile customization",
+      "profile_customization_desc": "Control position, size, and shape of your profile picture",
+      "no_watermark": "No watermark",
+      "no_watermark_desc": "Your page is yours, no branding forced on you",
+      "forever_free": "Forever free",
+      "forever_free_desc": "No trials, no expiration, no credit card required"
+    },
+    "features": {
+      "title": "Everything you need",
+      "subtitle": "Focused on simplicity and flexibility. No bloat, just the essentials to build your perfect page.",
+      "grid_system": "Smart Grid System",
+      "grid_system_desc": "12-column intelligent grid that snaps to place. Drag, resize, and arrange your blocks freely with zero code.",
+      "rich_media": "Rich Media Support",
+      "rich_media_desc": "Upload high-res images, embed videos, add links, or write text. We optimize everything for lightning-fast loading.",
+      "no_limits": "No Limits, No Paywalls",
+      "no_limits_desc": "Everything is free. No premium plans, no hidden costs, and no artificial limits on your creativity. Just you and your space."
+    },
+    "footer": {
+        "rights": "Built for the open web.",
+        "tagline": "Your page, your way."
+    }
+  },
+  "editor": {
+    "toolbar": {
+        "add_title": "Add Title",
+        "add_text": "Add Text",
+        "add_link": "Add Link",
+        "add_image": "Add Image or GIF",
+        "add_video": "Add Video",
+        "undo": "Undo (Cmd+Z)",
+        "redo": "Redo (Cmd+Shift+Z)",
+        "preview": "Preview",
+        "exit_preview": "Exit Preview",
+        "share": "Share your SQUAR",
+        "view": "View your SQUAR",
+        "publish": "Publish",
+        "unpublish": "Unpublish"
+    },
+    "menu": {
+        "change_username": "Change username",
+        "settings": "Settings",
+        "home": "Home",
+        "logout": "Logout"
+    },
+    "username_modal": {
+        "title": "Change username",
+        "label": "Username",
+        "help": "Lowercase letters, numbers, and hyphens only. Minimum 3 characters.",
+        "error_min_length": "Username must be at least 3 characters",
+        "error_invalid": "Username can only contain lowercase letters, numbers, and hyphens",
+        "saving": "Saving..."
+    },
+    "settings_modal": {
+        "title": "Page Settings",
+        "theme": "Theme",
+        "selected": "Selected",
+        "save": "Save Changes",
+        "themes": {
+            "light": "Light",
+            "cream": "Cream",
+            "dark": "Dark",
+            "slate": "Slate",
+            "midnight": "Midnight"
+        }
+    },
+    "title_modal": {
+        "title": "Title Settings",
+        "size": "Size",
+        "sizes": {
+            "small": "Small",
+            "medium": "Medium",
+            "large": "Large"
+        }
+    },
+    "profile_modal": {
+        "title": "Profile Photo Settings",
+        "photo_label": "Photo",
+        "change_photo": "Change Photo",
+        "upload_photo": "Upload Photo",
+        "uploading": "Uploading...",
+        "display_label": "Display",
+        "display_photo": "Photo",
+        "display_letter": "Letter",
+        "display_hidden": "Hidden",
+        "position_label": "Position",
+        "position_left": "Left Sidebar",
+        "position_center": "Center",
+        "position_right": "Right Sidebar",
+        "layout_label": "Header Layout",
+        "layout_vertical": "Vertical",
+        "layout_vertical_desc": "Photo on top",
+        "layout_photo_left": "Photo Left",
+        "layout_photo_left_desc": "Photo → Text",
+        "layout_photo_right": "Photo Right",
+        "layout_photo_right_desc": "Text → Photo",
+        "size_label": "Size",
+        "shape_label": "Shape",
+        "shapes": {
+            "circle": "Circle",
+            "square": "Square",
+            "rounded": "Rounded"
+        }
+    },
+    "link_modal": {
+        "title": "Add Link",
+        "url_label": "URL",
+        "adding": "Adding..."
+    },
+    "share": {
+        "title": "My SQUAR page is live → {url}",
+        "copied": "Link copied to clipboard!"
+    }
+  }
+}

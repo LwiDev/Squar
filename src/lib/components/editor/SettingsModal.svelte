@@ -2,6 +2,7 @@
     import { untrack } from 'svelte';
     import { Modal, Input, Button } from "$lib/components/ui";
     import type { PageSettings } from "$lib/types/models";
+    import { t } from 'svelte-i18n';
 
     interface Props {
         open: boolean;
@@ -10,7 +11,7 @@
         onUpdate: (newSettings: PageSettings) => void;
     }
 
-    let { open, onClose, settings, onUpdate }: Props = $props();
+    let { open = $bindable(), onClose, settings, onUpdate }: Props = $props();
 
     let localSettings = $state(untrack(() => ({ ...settings })));
     
@@ -27,24 +28,24 @@
     }
 
     const themes = [
-        { id: 'light', name: 'Light', color: '#ffffff', border: '#e5e5e5' },
-        { id: 'cream', name: 'Cream', color: '#faf8f5', border: '#d4c5b9' },
-        { id: 'dark', name: 'Dark', color: '#0f0f0f', border: '#2a2a2a' },
-        { id: 'slate', name: 'Slate', color: '#f8fafc', border: '#cbd5e1' },
-        { id: 'midnight', name: 'Midnight', color: '#0f172a', border: '#1e3a5f' },
+        { id: 'light', key: 'editor.settings_modal.themes.light', color: '#ffffff', border: '#e5e5e5' },
+        { id: 'cream', key: 'editor.settings_modal.themes.cream', color: '#faf8f5', border: '#d4c5b9' },
+        { id: 'dark', key: 'editor.settings_modal.themes.dark', color: '#0f0f0f', border: '#2a2a2a' },
+        { id: 'slate', key: 'editor.settings_modal.themes.slate', color: '#f8fafc', border: '#cbd5e1' },
+        { id: 'midnight', key: 'editor.settings_modal.themes.midnight', color: '#0f172a', border: '#1e3a5f' },
     ] as const;
 </script>
 
 <Modal
     bind:open
     {onClose}
-    title="Page Settings"
+    title={$t('editor.settings_modal.title')}
 >
     <div class="space-y-6">
         <!-- Theme Selection -->
         <div class="space-y-4">
             <span class="block text-sm font-medium text-text">
-                Theme
+                {$t('editor.settings_modal.theme')}
             </span>
             <div class="grid grid-cols-5 gap-2">
                 {#each themes as theme}
@@ -53,7 +54,7 @@
                         class:border-accent={localSettings.theme === theme.id}
                         class:border-border={localSettings.theme !== theme.id}
                         onclick={() => localSettings.theme = theme.id}
-                        title={theme.name}
+                        title={$t(theme.key)}
                     >
                         <div 
                             class="absolute inset-0"
@@ -68,14 +69,14 @@
                 {/each}
             </div>
             <p class="text-xs text-muted">
-                Selected: {themes.find(t => t.id === localSettings.theme)?.name || 'Light'}
+                {$t('editor.settings_modal.selected')}: {$t(themes.find(t => t.id === localSettings.theme)?.key || 'editor.settings_modal.themes.light')}
             </p>
         </div>
 
         <!-- Actions -->
         <div class="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" onclick={onClose}>Cancel</Button>
-            <Button variant="primary" onclick={handleSave}>Save Changes</Button>
+            <Button variant="secondary" onclick={onClose}>{$t('common.cancel')}</Button>
+            <Button variant="primary" onclick={handleSave}>{$t('editor.settings_modal.save')}</Button>
         </div>
     </div>
 </Modal>

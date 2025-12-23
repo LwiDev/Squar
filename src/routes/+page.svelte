@@ -19,6 +19,7 @@
         Check,
     } from "lucide-svelte";
     import { PUBLIC_GITHUB_URL } from "$env/static/public";
+    import { t } from "svelte-i18n";
 
     let heroVisible = $state(false);
     let demoVisible = $state(false);
@@ -129,7 +130,7 @@
                         class="relative inline-flex rounded-full h-2 w-2 bg-accent"
                     ></span>
                 </span>
-                Open-source, always free
+                {$t('landing.hero.tagline')}
             </div>
         </div>
 
@@ -137,14 +138,14 @@
             class="text-5xl md:text-7xl font-bold tracking-tight text-text mb-6 leading-tight fade-in stagger-2"
             class:visible={heroVisible}
         >
-            Your page, your way.
+            {$t('landing.hero.title')}
         </h1>
 
         <p
             class="text-xl text-muted max-w-2xl mx-auto mb-10 fade-in stagger-3"
             class:visible={heroVisible}
         >
-            Design your page, drag your blocks, and make it yours.
+            {$t('landing.hero.subtitle')}
         </p>
 
         <div
@@ -156,7 +157,7 @@
                 onclick={() => goto("/signup")}
                 class="w-full sm:w-auto px-8 h-12 text-base transition-transform hover:scale-[1.02]"
             >
-                Create your Squar
+                {$t('landing.hero.cta')}
             </Button>
             <a
                 href={PUBLIC_GITHUB_URL}
@@ -170,7 +171,7 @@
                     class="w-full gap-2 h-12 text-base transition-transform hover:scale-[1.02]"
                 >
                     <Github size={20} />
-                    Star on GitHub
+                    {$t('landing.hero.star_github')}
                 </Button>
             </a>
         </div>
@@ -362,9 +363,9 @@
             class="text-center mb-16 fade-in stagger-1"
             class:visible={howItWorksVisible}
         >
-            <h2 class="text-3xl font-bold mb-4 text-text">How it works</h2>
+            <h2 class="text-3xl font-bold mb-4 text-text">{$t('landing.how_it_works.title')}</h2>
             <p class="text-muted max-w-2xl mx-auto">
-                Three simple steps to create your perfect page.
+                {$t('landing.how_it_works.subtitle')}
             </p>
         </div>
 
@@ -379,11 +380,10 @@
                     <MousePointer2 size={28} />
                 </div>
                 <h3 class="text-xl font-bold mb-3 text-text">
-                    Choose your blocks
+                    {$t('landing.how_it_works.step1_title')}
                 </h3>
                 <p class="text-muted leading-relaxed">
-                    Add links, images, text, or social media blocks. Drag and
-                    drop them into place on your grid.
+                    {$t('landing.how_it_works.step1_desc')}
                 </p>
             </Card>
 
@@ -397,11 +397,10 @@
                     <Palette size={28} />
                 </div>
                 <h3 class="text-xl font-bold mb-3 text-text">
-                    Customize your style
+                    {$t('landing.how_it_works.step2_title')}
                 </h3>
                 <p class="text-muted leading-relaxed">
-                    Pick a theme and adjust your layout. Position your profile
-                    picture exactly where you want it.
+                    {$t('landing.how_it_works.step2_desc')}
                 </p>
             </Card>
 
@@ -415,11 +414,10 @@
                     <Share2 size={28} />
                 </div>
                 <h3 class="text-xl font-bold mb-3 text-text">
-                    Share your link
+                    {$t('landing.how_it_works.step3_title')}
                 </h3>
                 <p class="text-muted leading-relaxed">
-                    Publish instantly and share your unique URL. Update anytime,
-                    no limits.
+                    {$t('landing.how_it_works.step3_desc')}
                 </p>
             </Card>
         </div>
@@ -432,11 +430,10 @@
             class:visible={actuallyFreeVisible}
         >
             <h2 class="text-3xl font-bold mb-4 text-text">
-                Actually free. No asterisk.
+                {$t('landing.pricing.title')}
             </h2>
             <p class="text-muted max-w-2xl mx-auto">
-                When we say free, we mean it. No hidden limits, no premium
-                tiers, no credit card required.
+                {$t('landing.pricing.subtitle')}
             </p>
         </div>
 
@@ -451,10 +448,10 @@
                         </div>
                         <div>
                             <p class="text-text font-medium">
-                                Unlimited blocks and links
+                                {$t('landing.pricing.unlimited_blocks')}
                             </p>
                             <p class="text-muted text-sm mt-1">
-                                Add as many as you want, no restrictions
+                                {$t('landing.pricing.unlimited_blocks_desc')}
                             </p>
                         </div>
                     </div>
@@ -467,10 +464,10 @@
                         </div>
                         <div>
                             <p class="text-text font-medium">
-                                Beautiful themes included
+                                {$t('landing.pricing.themes_included')}
                             </p>
                             <p class="text-muted text-sm mt-1">
-                                Choose from carefully designed color palettes
+                                {$t('landing.pricing.themes_included_desc')}
                             </p>
                         </div>
                     </div>
@@ -483,25 +480,10 @@
                         </div>
                         <div>
                             <p class="text-text font-medium">
-                                Profile customization
+                                {$t('landing.pricing.profile_customization')}
                             </p>
                             <p class="text-muted text-sm mt-1">
-                                Control position, size, and shape of your
-                                profile picture
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="h-px bg-border"></div>
-
-                    <div class="flex items-start gap-3">
-                        <div class="mt-1">
-                            <Check size={20} class="text-accent" />
-                        </div>
-                        <div>
-                            <p class="text-text font-medium">No watermark</p>
-                            <p class="text-muted text-sm mt-1">
-                                Your page is yours, no branding forced on you
+                                {$t('landing.pricing.profile_customization_desc')}
                             </p>
                         </div>
                     </div>
@@ -513,10 +495,23 @@
                             <Check size={20} class="text-accent" />
                         </div>
                         <div>
-                            <p class="text-text font-medium">Forever free</p>
+                            <p class="text-text font-medium">{$t('landing.pricing.no_watermark')}</p>
                             <p class="text-muted text-sm mt-1">
-                                No trials, no expiration, no credit card
-                                required
+                                {$t('landing.pricing.no_watermark_desc')}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="h-px bg-border"></div>
+
+                    <div class="flex items-start gap-3">
+                        <div class="mt-1">
+                            <Check size={20} class="text-accent" />
+                        </div>
+                        <div>
+                            <p class="text-text font-medium">{$t('landing.pricing.forever_free')}</p>
+                            <p class="text-muted text-sm mt-1">
+                                {$t('landing.pricing.forever_free_desc')}
                             </p>
                         </div>
                     </div>
@@ -532,11 +527,10 @@
             class:visible={featuresVisible}
         >
             <h2 class="text-3xl font-bold mb-4 text-text">
-                Everything you need
+                {$t('landing.features.title')}
             </h2>
             <p class="text-muted max-w-2xl mx-auto">
-                Focused on simplicity and flexibility. No bloat, just the
-                essentials to build your perfect page.
+                {$t('landing.features.subtitle')}
             </p>
         </div>
 
@@ -550,10 +544,9 @@
                 >
                     <LayoutGrid size={24} />
                 </div>
-                <h3 class="text-xl font-bold text-text">Smart Grid System</h3>
+                <h3 class="text-xl font-bold text-text">{$t('landing.features.grid_system')}</h3>
                 <p class="text-muted leading-relaxed">
-                    12-column intelligent grid that snaps to place. Drag,
-                    resize, and arrange your blocks freely with zero code.
+                    {$t('landing.features.grid_system_desc')}
                 </p>
             </Card>
 
@@ -566,10 +559,9 @@
                 >
                     <Image size={24} />
                 </div>
-                <h3 class="text-xl font-bold text-text">Rich Media Support</h3>
+                <h3 class="text-xl font-bold text-text">{$t('landing.features.rich_media')}</h3>
                 <p class="text-muted leading-relaxed">
-                    Upload high-res images, embed videos, add links, or write
-                    text. We optimize everything for lightning-fast loading.
+                    {$t('landing.features.rich_media_desc')}
                 </p>
             </Card>
 
@@ -583,12 +575,10 @@
                     <Zap size={24} />
                 </div>
                 <h3 class="text-xl font-bold text-text">
-                    No Limits, No Paywalls
+                    {$t('landing.features.no_limits')}
                 </h3>
                 <p class="text-muted leading-relaxed">
-                    Everything is free. No premium plans, no hidden costs, and
-                    no artificial limits on your creativity. Just you and your
-                    space.
+                    {$t('landing.features.no_limits_desc')}
                 </p>
             </Card>
         </div>

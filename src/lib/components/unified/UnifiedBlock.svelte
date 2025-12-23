@@ -15,6 +15,7 @@
 		gridRows: number;
 		onSelect?: () => void;
 		onUpdate?: (block: Block) => void;
+		onUpdateAndCompact?: (block: Block) => void;
 		onDelete?: () => void;
 		onDragStart?: () => void;
 		onDragEnd?: () => void;
@@ -28,6 +29,7 @@
 		gridRows,
 		onSelect,
 		onUpdate,
+		onUpdateAndCompact,
 		onDelete,
 		onDragStart,
 		onDragEnd
@@ -38,19 +40,27 @@
 	let dragStartPos = $state({ x: 0, y: 0 });
 	let dragStartBlock = $state({ x: 0, y: 0, w: 0, h: 0 });
 
-	// Predefined sizes
-	const presetSizes = [
-		{ w: 3, h: 2, label: 'Petit' },
-		{ w: 4, h: 2, label: 'Small' },
-		{ w: 6, h: 2, label: 'Medium' },
-		{ w: 4, h: 4, label: 'Carré' },
-		{ w: 6, h: 4, label: 'Large' },
-		{ w: 12, h: 2, label: 'Full S' },
-		{ w: 12, h: 4, label: 'Full M' }
+	// Predefined sizes for headings (only width matters, height always 2)
+	const headingSizes = [
+		{ w: 8, h: 2, label: 'Middle' },
+		{ w: 16, h: 2, label: 'Full' }
 	];
 
+	// Predefined sizes for other blocks (matching Bento exact dimensions)
+	const normalSizes = [
+		{ w: 4, h: 4, label: 'Carré' },
+		{ w: 8, h: 2, label: 'Rectangle' },
+		{ w: 8, h: 4, label: 'Rectangle allongé' },
+		{ w: 4, h: 8, label: 'Sur le long' },
+		{ w: 8, h: 8, label: 'Gros carré' }
+	];
+
+	// Choose preset sizes based on block type
+	const presetSizes = $derived(block.type === 'heading' ? headingSizes : normalSizes);
+
 	function changeSize(w: number, h: number) {
-		onUpdate?.({ ...block, w, h });
+		// Use compact version for size changes
+		onUpdateAndCompact?.({ ...block, w, h });
 	}
 
 	// Find closest preset size
@@ -94,7 +104,7 @@
 
 		const rect = gridElement.getBoundingClientRect();
 		const cellWidth = rect.width / gridCols;
-		const cellHeight = 48; // 40px + 8px gap
+		const cellHeight = 50.5; // 26.5px + 24px gap
 
 		const deltaX = e.clientX - dragStartPos.x;
 		const deltaY = e.clientY - dragStartPos.y;
@@ -112,6 +122,12 @@
 
 	function handleDragEnd() {
 		isDragging = false;
+
+		// Compact after drag to organize layout and remove gaps
+		if (onUpdateAndCompact) {
+			onUpdateAndCompact(block);
+		}
+
 		onDragEnd?.();
 		window.removeEventListener('mousemove', handleDragMove);
 		window.removeEventListener('mouseup', handleDragEnd);
@@ -128,6 +144,12 @@
 		const handleMove = (e: MouseEvent) => handleResizeMove(e, direction);
 		const handleEnd = () => {
 			isResizing = false;
+
+			// Compact after resize to organize layout and remove gaps
+			if (onUpdateAndCompact) {
+				onUpdateAndCompact(block);
+			}
+
 			onDragEnd?.();
 			window.removeEventListener('mousemove', handleMove);
 			window.removeEventListener('mouseup', handleEnd);
@@ -143,7 +165,7 @@
 
 		const rect = gridElement.getBoundingClientRect();
 		const cellWidth = rect.width / gridCols;
-		const cellHeight = 48;
+		const cellHeight = 50.5; // 26.5px + 24px gap
 
 		const deltaX = e.clientX - dragStartPos.x;
 		const deltaY = e.clientY - dragStartPos.y;
@@ -205,7 +227,7 @@
 		? isSelected
 			? 'border-2 border-accent'
 			: 'border-2 border-transparent hover:bg-border/50'
-		: 'border-0'} {isDragging || isResizing ? 'opacity-70' : ''}"
+		: 'border-0'} {isDragging || isResizing ? 'z-50 opacity-90' : 'z-0'}"
 	role="button"
 	tabindex={editable ? 0 : -1}
 	onclick={editable ? onSelect : undefined}

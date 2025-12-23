@@ -3,6 +3,7 @@
     import logo from "$lib/assets/images/logos/logo.png";
     import { Container } from "$lib/components/layout";
     import { PUBLIC_GITHUB_URL } from "$env/static/public";
+    import { t } from "svelte-i18n";
 </script>
 
 <footer class="w-full border-t border-border bg-background py-12 mt-20">
@@ -25,13 +26,13 @@
                         class="w-6 h-auto"
                     />
                     <h1 class="text-base font-bold tracking-tight uppercase">
-                        Squar
+                        {$t('common.squar')}
                     </h1>
                 </div>
                 <p
                     class="text-sm text-muted max-w-[200px] text-center md:text-left leading-relaxed"
                 >
-                    Your page, your way.
+                    {$t('landing.footer.tagline')}
                 </p>
             </div>
 
@@ -43,17 +44,17 @@
                         href={PUBLIC_GITHUB_URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="hover:text-text transition-colors">GitHub</a
+                        class="hover:text-text transition-colors">{$t('common.github')}</a
                     >
                     <a href="/signup" class="hover:text-text transition-colors"
-                        >Join Squar</a
+                        >{$t('common.join_squar')}</a
                     >
                 </nav>
 
                 <div
                     class="text-[10px] uppercase tracking-[0.2em] text-muted/60 font-bold"
                 >
-                    © {new Date().getFullYear()} Squar — Built for the open web.
+                    © {new Date().getFullYear()} Squar — {$t('landing.footer.rights')}
                 </div>
             </div>
         </div>

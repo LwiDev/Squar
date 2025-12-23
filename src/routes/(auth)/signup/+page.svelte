@@ -5,6 +5,7 @@
 	import { signUp } from '$lib/auth/client';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { nanoid } from 'nanoid';
+    import { t } from 'svelte-i18n';
 
 	let email = $state('');
 	let password = $state('');
@@ -14,17 +15,17 @@
 
 	async function handleSignup() {
 		if (!email || !password || !confirmPassword) {
-			error = 'All fields are required';
+			error = 'auth.fields_required';
 			return;
 		}
 
 		if (password !== confirmPassword) {
-			error = 'Passwords do not match';
+			error = 'auth.passwords_mismatch';
 			return;
 		}
 
 		if (password.length < 8) {
-			error = 'Password must be at least 8 characters';
+			error = 'auth.password_min_length';
 			return;
 		}
 
@@ -61,7 +62,7 @@
 			await invalidateAll();
 			goto('/editor');
 		} catch (e: any) {
-			error = e.message || 'Failed to create account';
+			error = e.message || 'auth.failed_create';
 		} finally {
 			loading = false;
 		}
@@ -69,20 +70,20 @@
 </script>
 
 <PageHead
-	title="Sign up"
-	description="Create your free Squar account and start building your page"
+	title={$t('auth.create_account')}
+	description={$t('auth.create_account_title')}
 />
 
 <Container size="sm" class="flex items-center justify-center py-10 md:py-20">
 	<Card class="w-full max-w-md p-8">
 		<div class="mb-6">
-			<h1 class="text-3xl font-bold mb-2">Sign up</h1>
-			<p class="text-muted">Create your Squar.me account</p>
+			<h1 class="text-3xl font-bold mb-2">{$t('auth.create_account')}</h1>
+			<p class="text-muted">{$t('auth.create_account_title')}</p>
 		</div>
 
 		<form onsubmit={(e) => { e.preventDefault(); handleSignup(); }} class="space-y-4">
 			<div>
-				<label for="email" class="block text-sm font-medium mb-1.5">Email</label>
+				<label for="email" class="block text-sm font-medium mb-1.5">{$t('auth.email')}</label>
 				<Input
 					id="email"
 					type="email"
@@ -94,7 +95,7 @@
 			</div>
 
 			<div>
-				<label for="password" class="block text-sm font-medium mb-1.5">Password</label>
+				<label for="password" class="block text-sm font-medium mb-1.5">{$t('auth.password')}</label>
 				<Input
 					id="password"
 					type="password"
@@ -107,7 +108,7 @@
 
 			<div>
 				<label for="confirm-password" class="block text-sm font-medium mb-1.5"
-					>Confirm password</label
+					>{$t('auth.confirm_password')}</label
 				>
 				<Input
 					id="confirm-password"
@@ -120,17 +121,17 @@
 			</div>
 
 			{#if error}
-				<p class="text-sm text-red-500">{error}</p>
+				<p class="text-sm text-red-500">{$t(error)}</p>
 			{/if}
 
 			<Button type="submit" class="w-full" disabled={loading}>
-				{loading ? 'Creating account...' : 'Create account'}
+				{loading ? $t('auth.creating_account') : $t('auth.create_account_button')}
 			</Button>
 		</form>
 
 		<p class="mt-6 text-center text-sm text-muted">
-			Already have an account?
-			<a href="/login" class="text-text hover:underline font-medium">Sign in</a>
+			{$t('auth.has_account')}
+			<a href="/login" class="text-text hover:underline font-medium">{$t('auth.sign_in')}</a>
 		</p>
 	</Card>
 </Container>

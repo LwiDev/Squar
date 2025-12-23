@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Modal, Input, Button } from '$lib/components/ui';
 	import { detectLinkInfo } from '$lib/utils/linkDetector';
+    import { t } from 'svelte-i18n';
 
 	interface Props {
 		open: boolean;
@@ -15,33 +16,27 @@
 	let detectedIconSvg = $state<string | undefined>(undefined);
 	let detectedIconHex = $state<string | undefined>(undefined);
 	let socialData = $state<any>(undefined);
-	let fetching = $state(false);
+	let adding = $state(false);
 
-	// Detect link info when URL changes
+	// Just detect basic link info (icon, title) when URL changes
 	$effect(() => {
 		if (url) {
-			const info = detectLinkInfo(url);
-			detectedTitle = info.title;
-			detectedIconSvg = info.iconSvg;
-			detectedIconHex = info.iconHex;
-
-			// Fetch social data for supported platforms (Instagram, TikTok)
-			const hostname = new URL(url).hostname.replace('www.', '');
-			if (hostname === 'instagram.com' || hostname === 'tiktok.com' || hostname === 'vm.tiktok.com') {
-				fetchSocialData(url);
-			} else {
-				socialData = undefined;
+			try {
+				const info = detectLinkInfo(url);
+				detectedTitle = info.title;
+				detectedIconSvg = info.iconSvg;
+				detectedIconHex = info.iconHex;
+			} catch (e) {
+				// Invalid URL, ignore
 			}
 		} else {
 			detectedTitle = '';
 			detectedIconSvg = undefined;
 			detectedIconHex = undefined;
-			socialData = undefined;
 		}
 	});
 
-	async function fetchSocialData(url: string) {
-		fetching = true;
+	async function fetchSocialData(url: string): Promise<any> {
 		try {
 			const response = await fetch('/api/social/fetch', {
 				method: 'POST',
@@ -51,26 +46,43 @@
 
 			if (response.ok) {
 				const data = await response.json();
-				socialData = data;
-				// Update title with username if available
-				if (data.username) {
-					detectedTitle = data.displayName || data.username;
-				}
+				return data;
 			}
 		} catch (e) {
 			console.error('Failed to fetch social data:', e);
-		} finally {
-			fetching = false;
 		}
+		return undefined;
 	}
 
-	function handleAdd() {
-		if (url) {
-			onAdd(url, detectedTitle, detectedIconSvg, detectedIconHex, socialData);
-			url = '';
-			socialData = undefined;
-			onClose();
+	async function handleAdd() {
+		if (!url) return;
+
+		adding = true;
+		let finalSocialData = undefined;
+		let finalTitle = detectedTitle;
+
+		try {
+			// Fetch social/Open Graph data for ALL links
+			finalSocialData = await fetchSocialData(url);
+
+			// Update title if we got better data
+			if (finalSocialData?.displayName) {
+				finalTitle = finalSocialData.displayName;
+			} else if (finalSocialData?.title) {
+				finalTitle = finalSocialData.title;
+			}
+		} catch (e) {
+			console.error('Error processing social data:', e);
 		}
+
+		// Add the link
+		onAdd(url, finalTitle, detectedIconSvg, detectedIconHex, finalSocialData);
+
+		// Reset and close
+		url = '';
+		socialData = undefined;
+		adding = false;
+		onClose();
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
@@ -80,10 +92,10 @@
 	}
 </script>
 
-<Modal {open} {onClose} title="Add Link">
+<Modal {open} {onClose} title={$t('editor.link_modal.title')}>
 	<div class="space-y-4">
 		<div>
-			<label class="block text-sm font-medium text-text mb-2">URL</label>
+			<label class="block text-sm font-medium text-text mb-2">{$t('editor.link_modal.url_label')}</label>
 			<Input
 				type="url"
 				value={url}
@@ -95,44 +107,37 @@
 		</div>
 
 		{#if detectedTitle}
-			<div class="space-y-3">
-				<div class="flex items-center gap-3 p-3 bg-secondary/50 rounded-md border border-border">
-					{#if detectedIconSvg && detectedIconHex}
-						<div
-							class="w-10 h-10 flex items-center justify-center rounded-md"
-							style="background-color: #{detectedIconHex};"
-						>
-							{@html `<svg viewBox="0 0 24 24" class="w-6 h-6" fill="white">${detectedIconSvg}</svg>`}
-						</div>
-					{/if}
-					<div class="flex-1">
-						<p class="text-sm font-medium text-text">{detectedTitle}</p>
-						{#if socialData?.username}
-							<p class="text-xs text-muted">@{socialData.username}</p>
-						{:else}
-							<p class="text-xs text-muted truncate">{url}</p>
-						{/if}
-					</div>
-					{#if fetching}
-						<div class="text-xs text-muted">Loading...</div>
-					{/if}
-				</div>
-
-				{#if socialData?.images && socialData.images.length > 0}
-					<div class="grid grid-cols-3 gap-2">
-						{#each socialData.images.slice(0, 6) as image}
-							<div class="aspect-square bg-secondary/50 rounded overflow-hidden">
-								<img src={`/api/proxy-image?url=${encodeURIComponent(image)}`} alt="" class="w-full h-full object-cover" />
-							</div>
-						{/each}
+			<div class="flex items-center gap-3 p-3 bg-secondary/50 rounded-md border border-border">
+				{#if detectedIconSvg && detectedIconHex}
+					<div
+						class="w-10 h-10 flex items-center justify-center rounded-md"
+						style="background-color: #{detectedIconHex};"
+					>
+						{@html `<svg viewBox="0 0 24 24" class="w-6 h-6" fill="white">${detectedIconSvg}</svg>`}
 					</div>
 				{/if}
+				<div class="flex-1">
+					<p class="text-sm font-medium text-text">{detectedTitle}</p>
+					<p class="text-xs text-muted truncate">{url}</p>
+				</div>
 			</div>
 		{/if}
 
 		<div class="flex justify-end gap-2">
-			<Button variant="secondary" onclick={onClose}>Cancel</Button>
-			<Button onclick={handleAdd} disabled={!url}>Add</Button>
+			<Button variant="secondary" onclick={onClose} disabled={adding}>{$t('common.cancel')}</Button>
+			<Button onclick={handleAdd} disabled={!url || adding}>
+				{#if adding}
+					<span class="flex items-center gap-2">
+						<svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+							<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+							<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+						</svg>
+						{$t('editor.link_modal.adding')}
+					</span>
+				{:else}
+					{$t('common.add')}
+				{/if}
+			</Button>
 		</div>
 	</div>
 </Modal>
