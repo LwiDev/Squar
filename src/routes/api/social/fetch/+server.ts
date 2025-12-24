@@ -40,21 +40,43 @@ async function promiseAllWithLimit<T>(
 	return results;
 }
 
-// Helper to download and upload Instagram image to MinIO
+// Helper to download and upload Instagram image to MinIO with retries
 async function uploadInstagramImageToMinio(imageUrl: string, platform: string): Promise<string | null> {
-	try {
-		console.log('[MinIO] Downloading image:', imageUrl);
-		// Download image with increased timeout (30s)
-		const response = await fetch(imageUrl, {
-			signal: AbortSignal.timeout(30000) // 30 seconds timeout
-		});
-		if (!response.ok) {
-			console.error('[MinIO] Failed to download image:', imageUrl, response.status);
-			return null;
-		}
+	const maxRetries = 3;
 
-		const buffer = Buffer.from(await response.arrayBuffer());
-		console.log('[MinIO] Image downloaded, size:', buffer.length);
+	for (let attempt = 1; attempt <= maxRetries; attempt++) {
+		try {
+			console.log(`[MinIO] Downloading image (attempt ${attempt}/${maxRetries}):`, imageUrl.substring(0, 100));
+
+			// Download image with timeout (30s)
+			const controller = new AbortController();
+			const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+			const response = await fetch(imageUrl, {
+				signal: controller.signal,
+				headers: {
+					'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+					'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+					'Accept-Language': 'en-US,en;q=0.9',
+					'Referer': 'https://www.instagram.com/',
+					'Sec-Fetch-Dest': 'image',
+					'Sec-Fetch-Mode': 'no-cors',
+					'Sec-Fetch-Site': 'cross-site'
+				}
+			}).finally(() => clearTimeout(timeoutId));
+
+			if (!response.ok) {
+				console.error('[MinIO] Failed to download image:', imageUrl.substring(0, 100), response.status);
+				if (attempt < maxRetries) {
+					console.log('[MinIO] Retrying...');
+					await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+					continue;
+				}
+				return null;
+			}
+
+			const buffer = Buffer.from(await response.arrayBuffer());
+			console.log('[MinIO] Image downloaded, size:', buffer.length);
 
 		// Optimize image with Sharp
 		const optimizedBuffer = await sharp(buffer)
@@ -91,12 +113,20 @@ async function uploadInstagramImageToMinio(imageUrl: string, platform: string): 
 
 		console.log('[MinIO] Generated presigned URL:', presignedUrl);
 
-		// Convert to public URL and return
-		return getPublicUrl(presignedUrl);
-	} catch (e) {
-		console.error('[MinIO] Failed to upload image:', e);
-		return null;
+			// Convert to public URL and return
+			return getPublicUrl(presignedUrl);
+		} catch (e) {
+			console.error(`[MinIO] Failed to upload image (attempt ${attempt}/${maxRetries}):`, e instanceof Error ? e.message : e);
+			if (attempt < maxRetries) {
+				console.log('[MinIO] Retrying...');
+				await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+				continue;
+			}
+			return null;
+		}
 	}
+
+	return null; // All retries failed
 }
 
 export const POST: RequestHandler = async ({ request }) => {
