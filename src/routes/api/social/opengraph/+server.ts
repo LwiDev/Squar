@@ -8,14 +8,16 @@ import sharp from 'sharp';
 // Helper to download and upload OG image to MinIO
 async function uploadOGImageToMinio(imageUrl: string): Promise<string | null> {
 	try {
+		console.log('[MinIO] Downloading OG image:', imageUrl);
 		// Download image
 		const response = await fetch(imageUrl);
 		if (!response.ok) {
-			console.error('Failed to download OG image:', imageUrl);
+			console.error('[MinIO] Failed to download OG image:', imageUrl, response.status);
 			return null;
 		}
 
 		const buffer = Buffer.from(await response.arrayBuffer());
+		console.log('[MinIO] OG image downloaded, size:', buffer.length);
 
 		// Optimize image with Sharp
 		const optimizedBuffer = await sharp(buffer)
@@ -26,10 +28,13 @@ async function uploadOGImageToMinio(imageUrl: string): Promise<string | null> {
 			.jpeg({ quality: 85, mozjpeg: true })
 			.toBuffer();
 
+		console.log('[MinIO] OG image optimized, size:', optimizedBuffer.length);
+
 		// Generate unique filename
 		const filename = `social/og/${nanoid()}.jpg`;
 
 		// Upload to MinIO
+		console.log('[MinIO] Uploading OG image to bucket:', MINIO_BUCKET, 'filename:', filename);
 		await minioClient.putObject(
 			MINIO_BUCKET,
 			filename,
@@ -38,17 +43,21 @@ async function uploadOGImageToMinio(imageUrl: string): Promise<string | null> {
 			{ 'Content-Type': 'image/jpeg' }
 		);
 
-		// Generate permanent URL
-		const url = await minioClient.presignedGetObject(
+		console.log('[MinIO] OG image upload successful');
+
+		// Generate presigned URL (7 days expiry)
+		const presignedUrl = await minioClient.presignedGetObject(
 			MINIO_BUCKET,
 			filename,
 			7 * 24 * 60 * 60 // 7 days
 		);
 
-		// Return URL without query params
-		return url.split('?')[0];
+		console.log('[MinIO] Generated presigned URL for OG image');
+
+		// Return presigned URL with query params (needed for auth)
+		return presignedUrl;
 	} catch (e) {
-		console.error('Failed to upload OG image to MinIO:', e);
+		console.error('[MinIO] Failed to upload OG image to MinIO:', e);
 		return null;
 	}
 }

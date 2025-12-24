@@ -31,6 +31,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		const ext = file.name.split('.').pop();
 		const filename = `${locals.user.id}/${nanoid()}.${ext}`;
 
+		console.log('[MinIO] Uploading file:', filename, 'size:', file.size);
+
 		// Convert file to buffer
 		const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -39,12 +41,19 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			'Content-Type': file.type
 		});
 
-		// Generate public URL
-		const url = await minioClient.presignedGetObject(MINIO_BUCKET, filename, 7 * 24 * 60 * 60); // 7 days
+		console.log('[MinIO] File uploaded successfully');
 
-		return json({ url: url.split('?')[0] + `?t=${Date.now()}`, filename });
+		// Generate presigned URL (7 days expiry)
+		const presignedUrl = await minioClient.presignedGetObject(MINIO_BUCKET, filename, 7 * 24 * 60 * 60);
+
+		console.log('[MinIO] Generated presigned URL');
+
+		// Add cache busting timestamp to presigned URL
+		const urlWithTimestamp = presignedUrl + `&t=${Date.now()}`;
+
+		return json({ url: urlWithTimestamp, filename });
 	} catch (e) {
-		console.error('Upload error:', e);
+		console.error('[MinIO] Upload error:', e);
 		throw error(500, 'Failed to upload image');
 	}
 };

@@ -31,6 +31,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	try {
 		// Convert file to buffer
 		const buffer = Buffer.from(await file.arrayBuffer());
+		console.log('[MinIO] Profile photo received, size:', buffer.length);
 
 		// Optimize image with Sharp
 		const optimizedBuffer = await sharp(buffer)
@@ -41,10 +42,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			.jpeg({ quality: 85, mozjpeg: true })
 			.toBuffer();
 
+		console.log('[MinIO] Profile photo optimized, size:', optimizedBuffer.length);
+
 		// Generate unique filename
 		const filename = `${locals.user.id}/profile-${nanoid()}.jpg`;
 
 		// Upload to MinIO
+		console.log('[MinIO] Uploading profile photo to bucket:', MINIO_BUCKET, 'filename:', filename);
 		await minioClient.putObject(
 			MINIO_BUCKET,
 			filename,
@@ -53,29 +57,37 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			{ 'Content-Type': 'image/jpeg' }
 		);
 
+		console.log('[MinIO] Profile photo uploaded successfully');
+
 		// Delete old profile photo if exists
 		if (oldFilename) {
 			try {
+				console.log('[MinIO] Deleting old profile photo:', oldFilename);
 				await minioClient.removeObject(MINIO_BUCKET, oldFilename);
 			} catch (err) {
-				console.error('Failed to delete old profile photo:', err);
+				console.error('[MinIO] Failed to delete old profile photo:', err);
 				// Don't fail the upload if deletion fails
 			}
 		}
 
-		// Generate permanent URL (max 7 days for presigned, but we strip params anyway so it assumes public bucket)
-		const url = await minioClient.presignedGetObject(
+		// Generate presigned URL (7 days expiry)
+		const presignedUrl = await minioClient.presignedGetObject(
 			MINIO_BUCKET,
 			filename,
 			7 * 24 * 60 * 60
 		);
 
+		console.log('[MinIO] Generated presigned URL for profile photo');
+
+		// Add cache busting timestamp to presigned URL
+		const urlWithTimestamp = presignedUrl + `&t=${Date.now()}`;
+
 		return json({
-			url: url.split('?')[0] + `?t=${Date.now()}`,
+			url: urlWithTimestamp,
 			filename
 		});
 	} catch (e) {
-		console.error('Profile photo upload error:', e);
+		console.error('[MinIO] Profile photo upload error:', e);
 		throw error(500, 'Failed to upload profile photo');
 	}
 };

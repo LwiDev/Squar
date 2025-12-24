@@ -28,11 +28,12 @@
         Share,
         GlobeLock,
     } from "lucide-svelte";
-    import { goto } from "$app/navigation";
+    import { goto, invalidateAll } from "$app/navigation";
     import { slide } from "svelte/transition";
     import SettingsModal from "./SettingsModal.svelte";
     import type { PageSettings } from "$lib/types/models";
     import { t } from "svelte-i18n";
+    import { signOut } from "$lib/auth/client";
 
     interface Props {
         onAddText: () => void;
@@ -102,9 +103,16 @@
     let slugError = $state("");
     let savingSlug = $state(false);
 
-    function handleLogout() {
-        // TODO: Implement logout
-        goto("/");
+    async function handleLogout() {
+        try {
+            await signOut();
+            await invalidateAll();
+            goto("/");
+        } catch (error) {
+            console.error("Error during logout:", error);
+            // Redirect anyway to ensure user is logged out
+            goto("/");
+        }
     }
 
     function openChangeUsername() {

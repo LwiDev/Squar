@@ -8,14 +8,16 @@ import sharp from 'sharp';
 // Helper to download and upload Instagram image to MinIO
 async function uploadInstagramImageToMinio(imageUrl: string, platform: string): Promise<string | null> {
 	try {
+		console.log('[MinIO] Downloading image:', imageUrl);
 		// Download image
 		const response = await fetch(imageUrl);
 		if (!response.ok) {
-			console.error('Failed to download image:', imageUrl);
+			console.error('[MinIO] Failed to download image:', imageUrl, response.status);
 			return null;
 		}
 
 		const buffer = Buffer.from(await response.arrayBuffer());
+		console.log('[MinIO] Image downloaded, size:', buffer.length);
 
 		// Optimize image with Sharp
 		const optimizedBuffer = await sharp(buffer)
@@ -26,10 +28,13 @@ async function uploadInstagramImageToMinio(imageUrl: string, platform: string): 
 			.jpeg({ quality: 80, mozjpeg: true })
 			.toBuffer();
 
+		console.log('[MinIO] Image optimized, size:', optimizedBuffer.length);
+
 		// Generate unique filename
 		const filename = `social/${platform}/${nanoid()}.jpg`;
 
 		// Upload to MinIO
+		console.log('[MinIO] Uploading to bucket:', MINIO_BUCKET, 'filename:', filename);
 		await minioClient.putObject(
 			MINIO_BUCKET,
 			filename,
@@ -38,17 +43,21 @@ async function uploadInstagramImageToMinio(imageUrl: string, platform: string): 
 			{ 'Content-Type': 'image/jpeg' }
 		);
 
-		// Generate permanent URL
-		const url = await minioClient.presignedGetObject(
+		console.log('[MinIO] Upload successful');
+
+		// Generate presigned URL (7 days expiry)
+		const presignedUrl = await minioClient.presignedGetObject(
 			MINIO_BUCKET,
 			filename,
 			7 * 24 * 60 * 60 // 7 days
 		);
 
-		// Return URL without query params
-		return url.split('?')[0];
+		console.log('[MinIO] Generated presigned URL:', presignedUrl);
+
+		// Return presigned URL with query params (needed for auth)
+		return presignedUrl;
 	} catch (e) {
-		console.error('Failed to upload image to MinIO:', e);
+		console.error('[MinIO] Failed to upload image:', e);
 		return null;
 	}
 }
@@ -85,10 +94,15 @@ export const POST: RequestHandler = async ({ request }) => {
 // Helper to upload OG image to MinIO
 async function uploadOGImageToMinio(imageUrl: string): Promise<string | null> {
 	try {
+		console.log('[MinIO] Downloading OG image:', imageUrl);
 		const response = await fetch(imageUrl);
-		if (!response.ok) return null;
+		if (!response.ok) {
+			console.error('[MinIO] Failed to download OG image:', imageUrl, response.status);
+			return null;
+		}
 
 		const buffer = Buffer.from(await response.arrayBuffer());
+		console.log('[MinIO] OG image downloaded, size:', buffer.length);
 
 		const optimizedBuffer = await sharp(buffer)
 			.resize(600, 315, {
@@ -98,8 +112,11 @@ async function uploadOGImageToMinio(imageUrl: string): Promise<string | null> {
 			.jpeg({ quality: 85, mozjpeg: true })
 			.toBuffer();
 
+		console.log('[MinIO] OG image optimized, size:', optimizedBuffer.length);
+
 		const filename = `social/og/${nanoid()}.jpg`;
 
+		console.log('[MinIO] Uploading OG image to bucket:', MINIO_BUCKET, 'filename:', filename);
 		await minioClient.putObject(
 			MINIO_BUCKET,
 			filename,
@@ -108,15 +125,20 @@ async function uploadOGImageToMinio(imageUrl: string): Promise<string | null> {
 			{ 'Content-Type': 'image/jpeg' }
 		);
 
+		console.log('[MinIO] OG image upload successful');
+
 		const presignedUrl = await minioClient.presignedGetObject(
 			MINIO_BUCKET,
 			filename,
 			7 * 24 * 60 * 60
 		);
 
-		return presignedUrl.split('?')[0];
+		console.log('[MinIO] Generated presigned URL for OG image');
+
+		// Return presigned URL with query params (needed for auth)
+		return presignedUrl;
 	} catch (e) {
-		console.error('Failed to upload OG image:', e);
+		console.error('[MinIO] Failed to upload OG image:', e);
 		return null;
 	}
 }
@@ -124,10 +146,15 @@ async function uploadOGImageToMinio(imageUrl: string): Promise<string | null> {
 // Helper to upload favicon to MinIO
 async function uploadFaviconToMinio(faviconUrl: string): Promise<string | null> {
 	try {
+		console.log('[MinIO] Downloading favicon:', faviconUrl);
 		const response = await fetch(faviconUrl);
-		if (!response.ok) return null;
+		if (!response.ok) {
+			console.error('[MinIO] Failed to download favicon:', faviconUrl, response.status);
+			return null;
+		}
 
 		const buffer = Buffer.from(await response.arrayBuffer());
+		console.log('[MinIO] Favicon downloaded, size:', buffer.length);
 
 		// Try to process as image, if it fails, it might be SVG or unsupported format
 		let optimizedBuffer;
@@ -142,8 +169,10 @@ async function uploadFaviconToMinio(faviconUrl: string): Promise<string | null> 
 				})
 				.png({ quality: 100, compressionLevel: 9 })
 				.toBuffer();
+			console.log('[MinIO] Favicon optimized, size:', optimizedBuffer.length);
 		} catch (e) {
 			// If sharp fails (e.g., SVG), just use the original
+			console.log('[MinIO] Favicon optimization failed, using original');
 			optimizedBuffer = buffer;
 			ext = faviconUrl.endsWith('.svg') ? 'svg' : 'png';
 		}
@@ -151,6 +180,7 @@ async function uploadFaviconToMinio(faviconUrl: string): Promise<string | null> 
 		const filename = `social/favicon/${nanoid()}.${ext}`;
 		const contentType = ext === 'svg' ? 'image/svg+xml' : 'image/png';
 
+		console.log('[MinIO] Uploading favicon to bucket:', MINIO_BUCKET, 'filename:', filename);
 		await minioClient.putObject(
 			MINIO_BUCKET,
 			filename,
@@ -159,15 +189,20 @@ async function uploadFaviconToMinio(faviconUrl: string): Promise<string | null> 
 			{ 'Content-Type': contentType }
 		);
 
+		console.log('[MinIO] Favicon upload successful');
+
 		const presignedUrl = await minioClient.presignedGetObject(
 			MINIO_BUCKET,
 			filename,
 			7 * 24 * 60 * 60
 		);
 
-		return presignedUrl.split('?')[0];
+		console.log('[MinIO] Generated presigned URL for favicon');
+
+		// Return presigned URL with query params (needed for auth)
+		return presignedUrl;
 	} catch (e) {
-		console.error('Failed to upload favicon:', e);
+		console.error('[MinIO] Failed to upload favicon:', e);
 		return null;
 	}
 }
