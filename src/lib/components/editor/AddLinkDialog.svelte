@@ -133,8 +133,9 @@
 <Modal {open} {onClose} title={$t('editor.link_modal.title')}>
 	<div class="space-y-4">
 		<div>
-			<label class="block text-sm font-medium text-text mb-2">{$t('editor.link_modal.url_label')}</label>
+			<label for="link-url" class="block text-sm font-medium text-text mb-2">{$t('editor.link_modal.url_label')}</label>
 			<Input
+				id="link-url"
 				type="url"
 				value={url}
 				oninput={(e) => (url = e.currentTarget.value)}

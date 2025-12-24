@@ -49,10 +49,13 @@
 					settings: {
 						title: 'My Page',
 						description: '',
-						theme: {
-							background: '#ffffff',
-							text: '#111111',
-							accent: '#000000'
+						theme: 'light',
+						profilePhoto: {
+							position: 'left',
+							size: 'medium',
+							shape: 'circle',
+							visibility: 'letter',
+							layout: 'vertical'
 						}
 					},
 					layout: [],

@@ -65,90 +65,92 @@
 </script>
 
 {#if isSidebar}
-    <!-- SIDEBAR PROFILE CARD CONTENT (will be wrapped in card by parent) -->
-    <!-- Profile Photo -->
-    {#if showProfilePhoto}
-        <button
-            onclick={editable ? onPhotoClick : undefined}
-            class="{editable
-                ? 'cursor-pointer hover:opacity-80 transition-opacity'
-                : 'cursor-default'} outline-none w-full flex justify-center mb-6"
-            disabled={!editable}
-        >
-            <ProfilePhotoPreview
-                photoUrl={currentProfilePhoto.url}
-                visibility={currentProfilePhoto.visibility}
-                size={currentProfilePhoto.size}
-                shape={currentProfilePhoto.shape}
-                {username}
-                {userEmail}
-            />
-        </button>
-    {:else if editable}
-        <button
-            onclick={onPhotoClick}
-            class="w-full px-4 py-3 text-sm text-muted hover:text-text border-2 border-dashed border-border hover:border-text rounded-lg transition-colors mb-6"
-        >
-            Add profile photo
-        </button>
-    {/if}
-
-    <!-- Title & Description -->
-    <div class="space-y-3 text-center">
-        {#if editable}
-            <div class="relative group">
-                <div
-                    contenteditable="true"
-                    role="textbox"
-                    tabindex="0"
-                    class="{titleClasses} font-heading font-bold border-0 bg-transparent rounded-lg focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none"
-                    style="padding: 0.5rem; margin: -0.5rem;"
-                    data-placeholder="My Page"
-                    oninput={(e) => {
-                        title = e.currentTarget.innerText;
-                    }}
-                    onblur={() => onTitleUpdate?.(title)}
-                >
-                    {title}
-                </div>
-
+    <!-- SIDEBAR PROFILE CARD CONTENT -->
+    <div class="flex {currentLayout === 'vertical' ? 'flex-col items-center text-center' : 'flex-row items-center gap-4'} {currentLayout === 'horizontal-right' ? 'flex-row-reverse text-right' : ''} w-full">
+        <!-- Profile Photo -->
+        <div class="shrink-0 {currentLayout === 'vertical' ? 'mb-6' : ''}">
+            {#if showProfilePhoto}
                 <button
-                    onclick={onTitleSettingsClick}
-                    class="absolute {currentProfilePhoto.position === 'right'
-                        ? 'left-0 -translate-x-full mr-2'
-                        : 'right-0 translate-x-full ml-2'} top-1/2 -translate-y-1/2 p-1.5 text-muted hover:text-text bg-background border border-border rounded-md shadow-sm opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                    title="Title Settings"
+                    onclick={editable ? onPhotoClick : undefined}
+                    class="{editable
+                        ? 'cursor-pointer hover:opacity-80 transition-opacity'
+                        : 'cursor-default'} outline-none flex justify-center"
+                    disabled={!editable}
                 >
-                    <Settings size={14} />
+                    <ProfilePhotoPreview
+                        photoUrl={'url' in currentProfilePhoto ? currentProfilePhoto.url : undefined}
+                        visibility={currentProfilePhoto.visibility}
+                        size={currentProfilePhoto.size}
+                        shape={currentProfilePhoto.shape}
+                        {username}
+                        {userEmail}
+                    />
                 </button>
-            </div>
-
-            {#if description !== undefined}
-                <div
-                    contenteditable="true"
-                    role="textbox"
-                    tabindex="0"
-                    class="text-base text-muted border-0 bg-transparent rounded-lg focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none"
-                    style="padding: 0.5rem; margin: -0.5rem;"
-                    data-placeholder="Add a description..."
-                    oninput={(e) => {
-                        description = e.currentTarget.innerText;
-                    }}
-                    onblur={() => onDescriptionUpdate?.(description)}
+            {:else if editable}
+                <button
+                    onclick={onPhotoClick}
+                    class="px-4 py-3 text-sm text-muted hover:text-text border-2 border-dashed border-border hover:border-text rounded-lg transition-colors"
                 >
-                    {description}
+                    +
+                </button>
+            {/if}
+        </div>
+
+        <!-- Title & Description -->
+        <div class="flex-1 space-y-2 {currentLayout === 'vertical' ? 'text-center' : currentLayout === 'horizontal-left' ? 'text-left' : 'text-right'} min-w-0">
+            {#if editable}
+                <div class="relative group">
+                    <div
+                        contenteditable="true"
+                        role="textbox"
+                        tabindex="0"
+                        class="{titleClasses} font-heading font-bold border-0 bg-transparent rounded-lg focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none truncate"
+                        style="padding: 0.25rem; margin: -0.25rem;"
+                        data-placeholder="My Page"
+                        oninput={(e) => {
+                            title = e.currentTarget.innerText;
+                        }}
+                        onblur={() => onTitleUpdate?.(title)}
+                    >
+                        {title}
+                    </div>
+
+                    <button
+                        onclick={onTitleSettingsClick}
+                        class="absolute {currentLayout === 'horizontal-right' ? 'right-0' : 'right-0'} top-1/2 -translate-y-1/2 p-1 text-muted hover:text-text bg-background border border-border rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                        title="Title Settings"
+                    >
+                        <Settings size={12} />
+                    </button>
                 </div>
+
+                {#if description !== undefined}
+                    <div
+                        contenteditable="true"
+                        role="textbox"
+                        tabindex="0"
+                        class="text-sm text-muted border-0 bg-transparent rounded-lg focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none line-clamp-2"
+                        style="padding: 0.25rem; margin: -0.25rem;"
+                        data-placeholder="Add a description..."
+                        oninput={(e) => {
+                            description = e.currentTarget.innerText;
+                        }}
+                        onblur={() => onDescriptionUpdate?.(description)}
+                    >
+                        {description}
+                    </div>
+                {/if}
+            {:else}
+                <h1 class="{titleClasses} font-heading font-bold truncate">
+                    {title}
+                </h1>
+                {#if description}
+                    <p class="text-sm text-muted line-clamp-3">
+                        {description}
+                    </p>
+                {/if}
             {/if}
-        {:else}
-            <h1 class="{titleClasses} font-heading font-bold">
-                {title}
-            </h1>
-            {#if description}
-                <p class="text-base text-muted">
-                    {description}
-                </p>
-            {/if}
-        {/if}
+        </div>
     </div>
 {:else}
     <!-- CENTER/HEADER LAYOUT - Hero banner style with layout options -->
@@ -169,7 +171,7 @@
                             disabled={!editable}
                         >
                             <ProfilePhotoPreview
-                                photoUrl={currentProfilePhoto.url}
+                                photoUrl={'url' in currentProfilePhoto ? currentProfilePhoto.url : undefined}
                                 visibility={currentProfilePhoto.visibility}
                                 size={currentProfilePhoto.size}
                                 shape={currentProfilePhoto.shape}
@@ -261,7 +263,7 @@
                                 disabled={!editable}
                             >
                                 <ProfilePhotoPreview
-                                    photoUrl={currentProfilePhoto.url}
+                                    photoUrl={'url' in currentProfilePhoto ? currentProfilePhoto.url : undefined}
                                     visibility={currentProfilePhoto.visibility}
                                     size={currentProfilePhoto.size}
                                     shape={currentProfilePhoto.shape}
@@ -411,7 +413,7 @@
                                 disabled={!editable}
                             >
                                 <ProfilePhotoPreview
-                                    photoUrl={currentProfilePhoto.url}
+                                    photoUrl={'url' in currentProfilePhoto ? currentProfilePhoto.url : undefined}
                                     visibility={currentProfilePhoto.visibility}
                                     size={currentProfilePhoto.size}
                                     shape={currentProfilePhoto.shape}

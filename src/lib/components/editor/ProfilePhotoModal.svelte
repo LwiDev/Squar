@@ -27,17 +27,12 @@
 
     const currentPhoto = $derived(
         profilePhoto || {
-            position: "center" as const,
+            position: "left" as const,
             size: "medium" as const,
             shape: "circle" as const,
             visibility: "letter" as const,
             layout: "vertical" as const,
         },
-    );
-
-    // Check if in sidebar mode (layout option not applicable)
-    const isSidebar = $derived(
-        currentPhoto.position === "left" || currentPhoto.position === "right",
     );
 
     function handleFileSelect(e: Event) {
@@ -66,7 +61,7 @@
     <div class="space-y-6">
         <!-- Upload/Remove Actions -->
         <div class="space-y-3">
-            <label class="text-sm font-medium text-text">{$t('editor.profile_modal.photo_label')}</label>
+            <span class="block text-sm font-medium text-text">{$t('editor.profile_modal.photo_label')}</span>
             <div class="flex gap-2">
                 <Button
                     variant="secondary"
@@ -96,7 +91,7 @@
 
         <!-- Display Mode -->
         <div class="space-y-3">
-            <label class="text-sm font-medium text-text">{$t('editor.profile_modal.display_label')}</label>
+            <span class="block text-sm font-medium text-text">{$t('editor.profile_modal.display_label')}</span>
             <div class="grid grid-cols-3 gap-2">
                 <button
                     class="px-3 py-2 text-sm rounded border-2 transition-colors {currentPhoto.visibility ===
@@ -129,93 +124,10 @@
             </div>
         </div>
 
-        <!-- Position -->
-        <div class="space-y-3">
-            <label class="text-sm font-medium text-text">{$t('editor.profile_modal.position_label')}</label>
-            <div class="grid grid-cols-3 gap-2">
-                <button
-                    class="px-3 py-2 text-sm rounded border-2 transition-colors {currentPhoto.position ===
-                    'left'
-                        ? 'border-accent bg-accent/10 text-accent'
-                        : 'border-border hover:border-text'}"
-                    onclick={() => updateSettings({ position: "left" })}
-                >
-                    {$t('editor.profile_modal.position_left')}
-                </button>
-                <button
-                    class="px-3 py-2 text-sm rounded border-2 transition-colors {currentPhoto.position ===
-                    'center'
-                        ? 'border-accent bg-accent/10 text-accent'
-                        : 'border-border hover:border-text'}"
-                    onclick={() => updateSettings({ position: "center" })}
-                >
-                    {$t('editor.profile_modal.position_center')}
-                </button>
-                <button
-                    class="px-3 py-2 text-sm rounded border-2 transition-colors {currentPhoto.position ===
-                    'right'
-                        ? 'border-accent bg-accent/10 text-accent'
-                        : 'border-border hover:border-text'}"
-                    onclick={() => updateSettings({ position: "right" })}
-                >
-                    {$t('editor.profile_modal.position_right')}
-                </button>
-            </div>
-        </div>
-
-        <!-- Header Layout (only for center position) -->
-        {#if !isSidebar}
-            <div class="space-y-3">
-                <label class="text-sm font-medium text-text"
-                    >{$t('editor.profile_modal.layout_label')}</label
-                >
-                <div class="grid grid-cols-3 gap-2">
-                    <button
-                        class="px-3 py-2 text-sm rounded border-2 transition-colors {(currentPhoto.layout ||
-                            'vertical') === 'vertical'
-                            ? 'border-accent bg-accent/10 text-accent'
-                            : 'border-border hover:border-text'}"
-                        onclick={() => updateSettings({ layout: "vertical" })}
-                    >
-                        <div class="font-medium">{$t('editor.profile_modal.layout_vertical')}</div>
-                        <div class="text-xs text-muted mt-0.5">
-                            {$t('editor.profile_modal.layout_vertical_desc')}
-                        </div>
-                    </button>
-                    <button
-                        class="px-3 py-2 text-sm rounded border-2 transition-colors {currentPhoto.layout ===
-                        'horizontal-left'
-                            ? 'border-accent bg-accent/10 text-accent'
-                            : 'border-border hover:border-text'}"
-                        onclick={() =>
-                            updateSettings({ layout: "horizontal-left" })}
-                    >
-                        <div class="font-medium">{$t('editor.profile_modal.layout_photo_left')}</div>
-                        <div class="text-xs text-muted mt-0.5">
-                            {$t('editor.profile_modal.layout_photo_left_desc')}
-                        </div>
-                    </button>
-                    <button
-                        class="px-3 py-2 text-sm rounded border-2 transition-colors {currentPhoto.layout ===
-                        'horizontal-right'
-                            ? 'border-accent bg-accent/10 text-accent'
-                            : 'border-border hover:border-text'}"
-                        onclick={() =>
-                            updateSettings({ layout: "horizontal-right" })}
-                    >
-                        <div class="font-medium">{$t('editor.profile_modal.layout_photo_right')}</div>
-                        <div class="text-xs text-muted mt-0.5">
-                            {$t('editor.profile_modal.layout_photo_right_desc')}
-                        </div>
-                    </button>
-                </div>
-            </div>
-        {/if}
-
         {#if currentPhoto.visibility !== "hidden"}
             <!-- Size -->
             <div class="space-y-3">
-                <label class="text-sm font-medium text-text">{$t('editor.profile_modal.size_label')}</label>
+                <span class="block text-sm font-medium text-text">{$t('editor.profile_modal.size_label')}</span>
                 <div class="grid grid-cols-3 gap-2">
                     {#each [{ id: "small", key: "editor.title_modal.sizes.small" }, { id: "medium", key: "editor.title_modal.sizes.medium" }, { id: "large", key: "editor.title_modal.sizes.large" }] as size}
                         <button
@@ -239,7 +151,7 @@
 
             <!-- Shape -->
             <div class="space-y-3">
-                <label class="text-sm font-medium text-text">{$t('editor.profile_modal.shape_label')}</label>
+                <span class="block text-sm font-medium text-text">{$t('editor.profile_modal.shape_label')}</span>
                 <div class="grid grid-cols-3 gap-2">
                     {#each ["circle", "square", "rounded"] as shp}
                         <button

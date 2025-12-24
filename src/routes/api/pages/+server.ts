@@ -49,10 +49,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		settings: {
 			title: settings.title,
 			description: settings.description || '',
-			theme: settings.theme || {
-				background: '#ffffff',
-				text: '#111111',
-				accent: '#000000'
+			theme: settings.theme || 'light',
+			profilePhoto: {
+				position: 'left',
+				size: 'medium',
+				shape: 'circle',
+				visibility: 'letter',
+				layout: 'vertical'
 			},
 			titleSize: 'medium',
 			seo: settings.seo || {}
