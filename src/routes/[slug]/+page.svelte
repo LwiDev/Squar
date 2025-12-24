@@ -178,7 +178,16 @@
             });
 
             if (!response.ok) {
-                throw new Error("Upload failed");
+                // Try to get error message from response
+                let errorMsg = "Upload failed";
+                try {
+                    const errorData = await response.json();
+                    errorMsg = errorData.message || errorMsg;
+                } catch {
+                    // If response is not JSON, use status text
+                    errorMsg = response.statusText || errorMsg;
+                }
+                throw new Error(errorMsg);
             }
 
             const { url, filename } = await response.json();
@@ -191,7 +200,8 @@
             };
         } catch (err) {
             console.error("Upload error:", err);
-            alert("Failed to upload photo");
+            const errorMessage = err instanceof Error ? err.message : "Failed to upload photo";
+            alert(`Failed to upload photo: ${errorMessage}`);
         } finally {
             uploading = false;
         }
