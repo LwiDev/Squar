@@ -60,6 +60,7 @@
     "how_it_works": {
       "title": "Cómo funciona",
       "subtitle": "Tres pasos sencillos para crear tu página perfecta.",
+      "step": "Paso",
       "step1_title": "Elige tus bloques",
       "step1_desc": "Añade enlaces, imágenes, texto o bloques sociales. Arrástralos y suéltalos en tu cuadrícula.",
       "step2_title": "Personaliza tu estilo",

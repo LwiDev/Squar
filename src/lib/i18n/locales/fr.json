@@ -60,6 +60,7 @@
     "how_it_works": {
       "title": "Comment ça marche",
       "subtitle": "Trois étapes simples pour créer votre page parfaite.",
+      "step": "Étape",
       "step1_title": "Choisissez vos blocs",
       "step1_desc": "Ajoutez des liens, images, textes ou blocs sociaux. Glissez-déposez les sur votre grille.",
       "step2_title": "Personnalisez votre style",

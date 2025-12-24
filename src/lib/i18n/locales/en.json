@@ -60,6 +60,7 @@
     "how_it_works": {
       "title": "How it works",
       "subtitle": "Three simple steps to create your perfect page.",
+      "step": "Step",
       "step1_title": "Choose your blocks",
       "step1_desc": "Add links, images, text, or social media blocks. Drag and drop them into place on your grid.",
       "step2_title": "Customize your style",

@@ -117,7 +117,7 @@
 
 <main class="relative">
     <!-- Hero -->
-    <Container id="hero" class="pb-20 md:pb-32 md:pt-30 text-center">
+    <Container id="hero" class="pb-20 pt-10 md:pb-32 md:pt-25 text-center">
         <div class="fade-in stagger-1" class:visible={heroVisible}>
             <div
                 class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-sm font-medium mb-6"
@@ -382,43 +382,54 @@
                     <div
                         class="absolute -left-[5px] top-2 w-2.5 h-2.5 rounded-full bg-accent ring-4 ring-background"
                     ></div>
+
                     <span
                         class="text-xs font-bold text-muted uppercase tracking-widest mb-2 block"
-                        >Step 01</span
+                        >{$t("landing.how_it_works.step")} 01</span
                     >
+
                     <h3 class="text-xl font-bold text-text mb-2">
                         {$t("landing.how_it_works.step1_title")}
                     </h3>
+
                     <p class="text-muted text-sm leading-relaxed">
                         {$t("landing.how_it_works.step1_desc")}
                     </p>
                 </div>
+
                 <div class="relative pl-8 md:pl-12">
                     <div
                         class="absolute -left-[5px] top-2 w-2.5 h-2.5 rounded-full bg-accent ring-4 ring-background"
                     ></div>
+
                     <span
                         class="text-xs font-bold text-muted uppercase tracking-widest mb-2 block"
-                        >Step 02</span
+                        >{$t("landing.how_it_works.step")} 02</span
                     >
+
                     <h3 class="text-xl font-bold text-text mb-2">
                         {$t("landing.how_it_works.step2_title")}
                     </h3>
+
                     <p class="text-muted text-sm leading-relaxed">
                         {$t("landing.how_it_works.step2_desc")}
                     </p>
                 </div>
+
                 <div class="relative pl-8 md:pl-12">
                     <div
                         class="absolute -left-[5px] top-2 w-2.5 h-2.5 rounded-full bg-accent ring-4 ring-background"
                     ></div>
+
                     <span
                         class="text-xs font-bold text-muted uppercase tracking-widest mb-2 block"
-                        >Step 03</span
+                        >{$t("landing.how_it_works.step")} 03</span
                     >
+
                     <h3 class="text-xl font-bold text-text mb-2">
                         {$t("landing.how_it_works.step3_title")}
                     </h3>
+
                     <p class="text-muted text-sm leading-relaxed">
                         {$t("landing.how_it_works.step3_desc")}
                     </p>
