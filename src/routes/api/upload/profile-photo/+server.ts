@@ -70,23 +70,11 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			}
 		}
 
-		// Generate presigned URL (7 days expiry)
-		const presignedUrl = await minioClient.presignedGetObject(
-			MINIO_BUCKET,
-			filename,
-			7 * 24 * 60 * 60
-		);
-
-		console.log('[MinIO] Generated presigned URL for profile photo');
-
-		// Convert to public URL
-		const publicUrl = getPublicUrl(presignedUrl);
-
-		// Add cache busting timestamp to presigned URL
-		const urlWithTimestamp = publicUrl + `&t=${Date.now()}`;
+		// Generate direct public URL (bucket must be public)
+		const publicUrl = getPublicUrl(filename);
 
 		return json({
-			url: urlWithTimestamp,
+			url: publicUrl,
 			filename
 		});
 	} catch (e) {

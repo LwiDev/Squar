@@ -43,15 +43,8 @@ export const POST: RequestHandler = async ({ request }) => {
 			{ 'Content-Type': 'image/jpeg' }
 		);
 
-		// Generate presigned URL
-		const presignedUrl = await minioClient.presignedGetObject(
-			MINIO_BUCKET,
-			filename,
-			7 * 24 * 60 * 60
-		);
-
-		// Convert to public URL
-		const publicUrl = getPublicUrl(presignedUrl);
+		// Generate direct public URL (bucket must be public)
+		const publicUrl = getPublicUrl(filename);
 
 		return json({ url: publicUrl });
 	} catch (e) {

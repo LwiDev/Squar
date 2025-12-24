@@ -43,18 +43,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 		console.log('[MinIO] File uploaded successfully');
 
-		// Generate presigned URL (7 days expiry)
-		const presignedUrl = await minioClient.presignedGetObject(MINIO_BUCKET, filename, 7 * 24 * 60 * 60);
+		// Generate direct public URL (bucket must be public)
+		const publicUrl = getPublicUrl(filename);
 
-		console.log('[MinIO] Generated presigned URL');
-
-		// Convert to public URL
-		const publicUrl = getPublicUrl(presignedUrl);
-
-		// Add cache busting timestamp to presigned URL
-		const urlWithTimestamp = publicUrl + `&t=${Date.now()}`;
-
-		return json({ url: urlWithTimestamp, filename });
+		return json({ url: publicUrl, filename });
 	} catch (e) {
 		console.error('[MinIO] Upload error:', e);
 		throw error(500, 'Failed to upload image');

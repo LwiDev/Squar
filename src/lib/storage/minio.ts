@@ -58,32 +58,24 @@ export async function ensureBucketExists() {
 }
 
 /**
- * Converts an internal MinIO URL to a publicly accessible URL
- * by replacing the internal hostname with the public URL if configured
+ * Generates a direct public URL for a MinIO object
+ * Bucket must be public for this to work
  */
-export function getPublicUrl(internalUrl: string): string {
+export function getPublicUrl(objectKey: string): string {
   if (!MINIO_PUBLIC_URL) {
-    console.warn('[MinIO] MINIO_PUBLIC_URL not configured, using internal URL');
-    return internalUrl;
+    console.warn('[MinIO] MINIO_PUBLIC_URL not configured');
+    return '';
   }
 
   try {
-    const url = new URL(internalUrl);
-    const publicUrl = new URL(MINIO_PUBLIC_URL);
+    const baseUrl = MINIO_PUBLIC_URL.endsWith('/')
+      ? MINIO_PUBLIC_URL.slice(0, -1)
+      : MINIO_PUBLIC_URL;
 
-    // Replace the hostname and port with the public URL
-    url.hostname = publicUrl.hostname;
-    url.protocol = publicUrl.protocol;
-    if (publicUrl.port) {
-      url.port = publicUrl.port;
-    } else {
-      // Remove port if public URL doesn't have one
-      url.port = '';
-    }
-
-    return url.toString();
+    // Direct URL format: https://minio-api.lwidev.com/bucket/path/to/object.jpg
+    return `${baseUrl}/${BUCKET_NAME}/${objectKey}`;
   } catch (e) {
-    console.error('[MinIO] Failed to convert URL:', e);
-    return internalUrl;
+    console.error('[MinIO] Failed to generate public URL:', e);
+    return '';
   }
 }

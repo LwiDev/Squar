@@ -45,17 +45,8 @@ async function uploadOGImageToMinio(imageUrl: string): Promise<string | null> {
 
 		console.log('[MinIO] OG image upload successful');
 
-		// Generate presigned URL (7 days expiry)
-		const presignedUrl = await minioClient.presignedGetObject(
-			MINIO_BUCKET,
-			filename,
-			7 * 24 * 60 * 60 // 7 days
-		);
-
-		console.log('[MinIO] Generated presigned URL for OG image');
-
-		// Convert to public URL and return
-		return getPublicUrl(presignedUrl);
+		// Generate direct public URL (bucket must be public)
+		return getPublicUrl(filename);
 	} catch (e) {
 		console.error('[MinIO] Failed to upload OG image to MinIO:', e);
 		return null;

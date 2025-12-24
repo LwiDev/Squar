@@ -94,15 +94,8 @@ async function uploadInstagramImageToMinio(imageUrl: string, platform: string): 
 			{ 'Content-Type': 'image/jpeg' }
 		);
 
-		// Generate presigned URL (7 days expiry)
-		const presignedUrl = await minioClient.presignedGetObject(
-			MINIO_BUCKET,
-			filename,
-			7 * 24 * 60 * 60 // 7 days
-		);
-
-			// Convert to public URL and return
-			return getPublicUrl(presignedUrl);
+		// Generate direct public URL (bucket must be public)
+		return getPublicUrl(filename);
 		} catch (e) {
 			if (attempt < maxRetries) {
 				await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
@@ -181,16 +174,8 @@ async function uploadOGImageToMinio(imageUrl: string): Promise<string | null> {
 
 		console.log('[MinIO] OG image upload successful');
 
-		const presignedUrl = await minioClient.presignedGetObject(
-			MINIO_BUCKET,
-			filename,
-			7 * 24 * 60 * 60
-		);
-
-		console.log('[MinIO] Generated presigned URL for OG image');
-
-		// Convert to public URL and return
-		return getPublicUrl(presignedUrl);
+		// Generate direct public URL (bucket must be public)
+		return getPublicUrl(filename);
 	} catch (e) {
 		console.error('[MinIO] Failed to upload OG image:', e);
 		return null;
@@ -245,16 +230,8 @@ async function uploadFaviconToMinio(faviconUrl: string): Promise<string | null> 
 
 		console.log('[MinIO] Favicon upload successful');
 
-		const presignedUrl = await minioClient.presignedGetObject(
-			MINIO_BUCKET,
-			filename,
-			7 * 24 * 60 * 60
-		);
-
-		console.log('[MinIO] Generated presigned URL for favicon');
-
-		// Convert to public URL and return
-		return getPublicUrl(presignedUrl);
+		// Generate direct public URL (bucket must be public)
+		return getPublicUrl(filename);
 	} catch (e) {
 		console.error('[MinIO] Failed to upload favicon:', e);
 		return null;
