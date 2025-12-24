@@ -13,33 +13,23 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 
 	try {
-		// Download image
+		// Use images.weserv.nl as a proxy to bypass Instagram IP blocking
+		// This service downloads the image for us and optimizes it
+		const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(imageUrl)}&w=400&h=400&fit=cover&output=jpg&q=80`;
+
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-		const response = await fetch(imageUrl, {
-			signal: controller.signal,
-			headers: {
-				'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-				'Accept': 'image/*',
-				'Referer': 'https://www.instagram.com/'
-			}
+		const response = await fetch(proxyUrl, {
+			signal: controller.signal
 		}).finally(() => clearTimeout(timeoutId));
 
 		if (!response.ok) {
 			throw error(500, 'Failed to download image');
 		}
 
-		const buffer = Buffer.from(await response.arrayBuffer());
-
-		// Optimize image
-		const optimizedBuffer = await sharp(buffer)
-			.resize(400, 400, {
-				fit: 'cover',
-				position: 'center'
-			})
-			.jpeg({ quality: 80, mozjpeg: true })
-			.toBuffer();
+		// Image is already optimized by weserv.nl, just get the buffer
+		const optimizedBuffer = Buffer.from(await response.arrayBuffer());
 
 		// Generate unique filename
 		const filename = `social/${platform}/${nanoid()}.jpg`;
