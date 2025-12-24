@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { minioClient } from '$lib/storage/minio';
+import { minioClient, getPublicUrl } from '$lib/storage/minio';
 import { MINIO_BUCKET, X_BEARER_TOKEN } from '$env/static/private';
 import { nanoid } from 'nanoid';
 import sharp from 'sharp';
@@ -54,8 +54,8 @@ async function uploadInstagramImageToMinio(imageUrl: string, platform: string): 
 
 		console.log('[MinIO] Generated presigned URL:', presignedUrl);
 
-		// Return presigned URL with query params (needed for auth)
-		return presignedUrl;
+		// Convert to public URL and return
+		return getPublicUrl(presignedUrl);
 	} catch (e) {
 		console.error('[MinIO] Failed to upload image:', e);
 		return null;
@@ -135,8 +135,8 @@ async function uploadOGImageToMinio(imageUrl: string): Promise<string | null> {
 
 		console.log('[MinIO] Generated presigned URL for OG image');
 
-		// Return presigned URL with query params (needed for auth)
-		return presignedUrl;
+		// Convert to public URL and return
+		return getPublicUrl(presignedUrl);
 	} catch (e) {
 		console.error('[MinIO] Failed to upload OG image:', e);
 		return null;
@@ -199,8 +199,8 @@ async function uploadFaviconToMinio(faviconUrl: string): Promise<string | null> 
 
 		console.log('[MinIO] Generated presigned URL for favicon');
 
-		// Return presigned URL with query params (needed for auth)
-		return presignedUrl;
+		// Convert to public URL and return
+		return getPublicUrl(presignedUrl);
 	} catch (e) {
 		console.error('[MinIO] Failed to upload favicon:', e);
 		return null;

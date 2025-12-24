@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { minioClient } from '$lib/storage/minio';
+import { minioClient, getPublicUrl } from '$lib/storage/minio';
 import { MINIO_BUCKET } from '$env/static/private';
 import { nanoid } from 'nanoid';
 
@@ -48,8 +48,11 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 		console.log('[MinIO] Generated presigned URL');
 
+		// Convert to public URL
+		const publicUrl = getPublicUrl(presignedUrl);
+
 		// Add cache busting timestamp to presigned URL
-		const urlWithTimestamp = presignedUrl + `&t=${Date.now()}`;
+		const urlWithTimestamp = publicUrl + `&t=${Date.now()}`;
 
 		return json({ url: urlWithTimestamp, filename });
 	} catch (e) {

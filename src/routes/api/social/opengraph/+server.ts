@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { minioClient } from '$lib/storage/minio';
+import { minioClient, getPublicUrl } from '$lib/storage/minio';
 import { MINIO_BUCKET } from '$env/static/private';
 import { nanoid } from 'nanoid';
 import sharp from 'sharp';
@@ -54,8 +54,8 @@ async function uploadOGImageToMinio(imageUrl: string): Promise<string | null> {
 
 		console.log('[MinIO] Generated presigned URL for OG image');
 
-		// Return presigned URL with query params (needed for auth)
-		return presignedUrl;
+		// Convert to public URL and return
+		return getPublicUrl(presignedUrl);
 	} catch (e) {
 		console.error('[MinIO] Failed to upload OG image to MinIO:', e);
 		return null;

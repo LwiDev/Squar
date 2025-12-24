@@ -4,6 +4,7 @@ import {
   MINIO_ACCESS_KEY,
   MINIO_SECRET_KEY,
   MINIO_BUCKET,
+  MINIO_PUBLIC_URL,
 } from "$env/static/private";
 
 if (
@@ -53,5 +54,39 @@ export async function ensureBucketExists() {
   if (!exists) {
     await minioClient.makeBucket(BUCKET_NAME, "us-east-1");
     console.log(`Bucket ${BUCKET_NAME} created`);
+  }
+}
+
+/**
+ * Converts an internal MinIO URL to a publicly accessible URL
+ * by replacing the internal hostname with the public URL if configured
+ */
+export function getPublicUrl(internalUrl: string): string {
+  if (!MINIO_PUBLIC_URL) {
+    // No public URL configured, return as is
+    console.warn('[MinIO] MINIO_PUBLIC_URL not configured, using internal URL');
+    return internalUrl;
+  }
+
+  try {
+    const url = new URL(internalUrl);
+    const publicUrl = new URL(MINIO_PUBLIC_URL);
+
+    // Replace the hostname and port with the public URL
+    url.hostname = publicUrl.hostname;
+    url.protocol = publicUrl.protocol;
+    if (publicUrl.port) {
+      url.port = publicUrl.port;
+    } else {
+      // Remove port if public URL doesn't have one
+      url.port = '';
+    }
+
+    const finalUrl = url.toString();
+    console.log('[MinIO] Converted URL:', { internal: internalUrl.substring(0, 100), public: finalUrl.substring(0, 100) });
+    return finalUrl;
+  } catch (e) {
+    console.error('[MinIO] Failed to convert URL:', e);
+    return internalUrl;
   }
 }
