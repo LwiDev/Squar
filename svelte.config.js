@@ -8,10 +8,7 @@ const config = {
 	preprocess: vitePreprocess(),
 
 	kit: {
-		adapter: adapter({
-			// Increase body size limit to 10MB for image uploads
-			bodySize: 10 * 1024 * 1024
-		})
+		adapter: adapter()
 	}
 };
 
