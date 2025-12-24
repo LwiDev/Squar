@@ -5,7 +5,7 @@
 	import ImageBlock from '../editor/ImageBlock.svelte';
 	import HeadingBlock from '../editor/HeadingBlock.svelte';
 	import VideoBlock from '../editor/VideoBlock.svelte';
-	import { Trash2, GripVertical } from 'lucide-svelte';
+	import { Trash2 } from 'lucide-svelte';
 
 	interface Props {
 		block: Block;
@@ -36,9 +36,9 @@
 	}: Props = $props();
 
 	let isDragging = $state(false);
-	let isResizing = $state(false);
 	let dragStartPos = $state({ x: 0, y: 0 });
 	let dragStartBlock = $state({ x: 0, y: 0, w: 0, h: 0 });
+	let hasMoved = $state(false);
 
 	// Predefined sizes for headings (only width matters, height always 2)
 	const headingSizes = [
@@ -85,12 +85,31 @@
 	}
 
 	function handleDragStart(e: MouseEvent) {
-		if (!isSelected || !editable) return;
-		e.stopPropagation();
+		if (!editable) return;
+
+		// Only prevent drag if clicking on actual input fields being edited
+		const target = e.target as HTMLElement;
+		if (
+			target.tagName === 'INPUT' ||
+			target.tagName === 'TEXTAREA' ||
+			target.isContentEditable ||
+			target.closest('input') ||
+			target.closest('textarea') ||
+			target.closest('[contenteditable="true"]')
+		) {
+			return;
+		}
+
+		// Prevent native image drag behavior
+		if (target.tagName === 'IMG' || target.tagName === 'SVG') {
+			e.preventDefault();
+		}
+
+		// Start listening for drag immediately
 		isDragging = true;
+		hasMoved = false;
 		dragStartPos = { x: e.clientX, y: e.clientY };
 		dragStartBlock = { x: block.x, y: block.y, w: block.w, h: block.h };
-		onDragStart?.();
 
 		window.addEventListener('mousemove', handleDragMove);
 		window.addEventListener('mouseup', handleDragEnd);
@@ -99,15 +118,32 @@
 	function handleDragMove(e: MouseEvent) {
 		if (!isDragging) return;
 
-		const gridElement = (e.target as HTMLElement).closest('[data-grid]');
+		const deltaX = e.clientX - dragStartPos.x;
+		const deltaY = e.clientY - dragStartPos.y;
+
+		// Threshold to distinguish between click and drag (3px)
+		if (!hasMoved && (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3)) {
+			hasMoved = true;
+			// Now that we're actually dragging, prevent default behaviors
+			e.preventDefault();
+			// Auto-select when we start actually dragging
+			if (!isSelected) {
+				onSelect?.();
+			}
+			onDragStart?.();
+		}
+
+		if (!hasMoved) return;
+
+		// Prevent default while dragging
+		e.preventDefault();
+
+		const gridElement = document.querySelector('[data-grid]');
 		if (!gridElement) return;
 
 		const rect = gridElement.getBoundingClientRect();
 		const cellWidth = rect.width / gridCols;
 		const cellHeight = 50.5; // 26.5px + 24px gap
-
-		const deltaX = e.clientX - dragStartPos.x;
-		const deltaY = e.clientY - dragStartPos.y;
 
 		const cellsX = Math.round(deltaX / cellWidth);
 		const cellsY = Math.round(deltaY / cellHeight);
@@ -121,99 +157,26 @@
 	}
 
 	function handleDragEnd() {
+		window.removeEventListener('mousemove', handleDragMove);
+		window.removeEventListener('mouseup', handleDragEnd);
+
+		// If we didn't move, it was just a click to select
+		if (!hasMoved) {
+			isDragging = false;
+			onSelect?.();
+			return;
+		}
+
 		isDragging = false;
 
-		// Compact after drag to organize layout and remove gaps
+		// Compact after drag to organize layout (Bento-style with sections)
 		if (onUpdateAndCompact) {
 			onUpdateAndCompact(block);
 		}
 
 		onDragEnd?.();
-		window.removeEventListener('mousemove', handleDragMove);
-		window.removeEventListener('mouseup', handleDragEnd);
 	}
 
-	function handleResizeStart(e: MouseEvent, direction: string) {
-		if (!isSelected || !editable) return;
-		e.stopPropagation();
-		isResizing = true;
-		dragStartPos = { x: e.clientX, y: e.clientY };
-		dragStartBlock = { x: block.x, y: block.y, w: block.w, h: block.h };
-		onDragStart?.();
-
-		const handleMove = (e: MouseEvent) => handleResizeMove(e, direction);
-		const handleEnd = () => {
-			isResizing = false;
-
-			// Compact after resize to organize layout and remove gaps
-			if (onUpdateAndCompact) {
-				onUpdateAndCompact(block);
-			}
-
-			onDragEnd?.();
-			window.removeEventListener('mousemove', handleMove);
-			window.removeEventListener('mouseup', handleEnd);
-		};
-
-		window.addEventListener('mousemove', handleMove);
-		window.addEventListener('mouseup', handleEnd);
-	}
-
-	function handleResizeMove(e: MouseEvent, direction: string) {
-		const gridElement = (e.target as HTMLElement).closest('[data-grid]');
-		if (!gridElement) return;
-
-		const rect = gridElement.getBoundingClientRect();
-		const cellWidth = rect.width / gridCols;
-		const cellHeight = 50.5; // 26.5px + 24px gap
-
-		const deltaX = e.clientX - dragStartPos.x;
-		const deltaY = e.clientY - dragStartPos.y;
-
-		const cellsX = Math.round(deltaX / cellWidth);
-		const cellsY = Math.round(deltaY / cellHeight);
-
-		let newX = dragStartBlock.x;
-		let newY = dragStartBlock.y;
-		let newW = dragStartBlock.w;
-		let newH = dragStartBlock.h;
-
-		if (direction.includes('e')) {
-			newW = Math.max(2, Math.min(gridCols - newX, dragStartBlock.w + cellsX));
-		}
-		if (direction.includes('s')) {
-			newH = Math.max(2, Math.min(gridRows - newY, dragStartBlock.h + cellsY));
-		}
-		if (direction.includes('w')) {
-			const maxShift = dragStartBlock.w - 2;
-			const shift = Math.max(-maxShift, Math.min(cellsX, dragStartBlock.x));
-			newX = dragStartBlock.x + shift;
-			newW = dragStartBlock.w - shift;
-		}
-		if (direction.includes('n')) {
-			const maxShift = dragStartBlock.h - 2;
-			const shift = Math.max(-maxShift, Math.min(cellsY, dragStartBlock.y));
-			newY = dragStartBlock.y + shift;
-			newH = dragStartBlock.h - shift;
-		}
-
-		// Snap to closest preset size
-		const snapped = findClosestPreset(newW, newH);
-		newW = snapped.w;
-		newH = snapped.h;
-
-		// Adjust position if size change would go out of bounds
-		if (newX + newW > gridCols) {
-			newX = gridCols - newW;
-		}
-		if (newY + newH > gridRows) {
-			newY = gridRows - newH;
-		}
-
-		if (newX !== block.x || newY !== block.y || newW !== block.w || newH !== block.h) {
-			onUpdate?.({ ...block, x: newX, y: newY, w: newW, h: newH });
-		}
-	}
 
 	const gridStyle = $derived(`
 		grid-column: ${block.x + 1} / span ${block.w};
@@ -221,29 +184,30 @@
 	`);
 </script>
 
+<style>
+	/* Force grab cursor on all children when editable, except inputs/textareas */
+	.force-grab-cursor :global(*:not(input):not(textarea):not([contenteditable="true"])) {
+		cursor: grab !important;
+	}
+
+	/* When dragging, show grabbing cursor */
+	:global(.cursor-grabbing) .force-grab-cursor :global(*:not(input):not(textarea):not([contenteditable="true"])) {
+		cursor: grabbing !important;
+	}
+</style>
+
 <div
 	style={gridStyle}
 	class="relative transition-colors rounded-md overflow-visible bg-background group {editable
 		? isSelected
 			? 'border-2 border-accent'
 			: 'border-2 border-transparent hover:bg-border/50'
-		: 'border-0'} {isDragging || isResizing ? 'z-50 opacity-90' : 'z-0'}"
+		: 'border-0'} {isDragging && hasMoved ? 'z-50 opacity-90 cursor-grabbing' : editable ? 'cursor-grab z-0' : 'z-0'}"
 	role="button"
 	tabindex={editable ? 0 : -1}
-	onclick={editable ? onSelect : undefined}
 	onkeydown={editable ? (e) => e.key === 'Enter' && onSelect?.() : undefined}
+	onmousedowncapture={editable ? handleDragStart : undefined}
 >
-	<!-- Drag handle (only in editable mode when selected) -->
-	{#if editable && isSelected}
-		<button
-			onmousedown={handleDragStart}
-			class="absolute top-2 left-2 z-20 p-1 bg-background border border-border rounded cursor-move hover:bg-border transition-colors"
-			aria-label="Déplacer le bloc"
-			title="Déplacer le bloc"
-		>
-			<GripVertical size={16} class="text-text" />
-		</button>
-	{/if}
 
 	<!-- Delete button (only in editable mode when selected) -->
 	{#if editable && isSelected}
@@ -282,55 +246,9 @@
 		</div>
 	{/if}
 
-	<!-- Resize handles (only in editable mode when selected) -->
-	{#if editable && isSelected}
-		<!-- Corners -->
-		<button
-			onmousedown={(e) => handleResizeStart(e, 'se')}
-			class="absolute -bottom-1 -right-1 w-3 h-3 bg-accent rounded-full cursor-se-resize z-20"
-			aria-label="Redimensionner sud-est"
-		></button>
-		<button
-			onmousedown={(e) => handleResizeStart(e, 'ne')}
-			class="absolute -top-1 -right-1 w-3 h-3 bg-accent rounded-full cursor-ne-resize z-20"
-			aria-label="Redimensionner nord-est"
-		></button>
-		<button
-			onmousedown={(e) => handleResizeStart(e, 'sw')}
-			class="absolute -bottom-1 -left-1 w-3 h-3 bg-accent rounded-full cursor-sw-resize z-20"
-			aria-label="Redimensionner sud-ouest"
-		></button>
-		<button
-			onmousedown={(e) => handleResizeStart(e, 'nw')}
-			class="absolute -top-1 -left-1 w-3 h-3 bg-accent rounded-full cursor-nw-resize z-20"
-			aria-label="Redimensionner nord-ouest"
-		></button>
-
-		<!-- Edges -->
-		<button
-			onmousedown={(e) => handleResizeStart(e, 'e')}
-			class="absolute top-1/2 -translate-y-1/2 -right-1 w-3 h-8 bg-accent rounded-full cursor-e-resize z-20"
-			aria-label="Redimensionner est"
-		></button>
-		<button
-			onmousedown={(e) => handleResizeStart(e, 's')}
-			class="absolute left-1/2 -translate-x-1/2 -bottom-1 w-8 h-3 bg-accent rounded-full cursor-s-resize z-20"
-			aria-label="Redimensionner sud"
-		></button>
-		<button
-			onmousedown={(e) => handleResizeStart(e, 'w')}
-			class="absolute top-1/2 -translate-y-1/2 -left-1 w-3 h-8 bg-accent rounded-full cursor-w-resize z-20"
-			aria-label="Redimensionner ouest"
-		></button>
-		<button
-			onmousedown={(e) => handleResizeStart(e, 'n')}
-			class="absolute left-1/2 -translate-x-1/2 -top-1 w-8 h-3 bg-accent rounded-full cursor-n-resize z-20"
-			aria-label="Redimensionner nord"
-		></button>
-	{/if}
 
 	<!-- Block content -->
-	<div class="h-full w-full overflow-hidden rounded-md">
+	<div class="h-full w-full overflow-hidden rounded-md {editable ? 'force-grab-cursor' : ''}">
 		{#if block.type === 'text'}
 			<TextBlock {block} {editable} onUpdate={handleBlockUpdate} onResize={changeSize} />
 		{:else if block.type === 'link'}

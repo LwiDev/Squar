@@ -33,6 +33,8 @@
 	// Determine display mode based on block size
 	const socialData = $derived(block.data.socialData);
 	const hasImages = $derived(socialData?.images && socialData.images.length > 0);
+	const isSingleImage = $derived(socialData?.images && socialData.images.length === 1);
+	const isMultipleImages = $derived(socialData?.images && socialData.images.length > 1);
 
 	// Display modes (like Bento):
 	// - Small square (4x4): Vertical centered (icon on top, title below, NO photos)
@@ -118,8 +120,44 @@
 			{/if}
 			<p class="font-semibold text-text text-sm leading-tight">{title}</p>
 		</a>
-	{:else if showPhotos}
-		<!-- With photos: Show icon + title + photo grid -->
+	{:else if showPhotos && isSingleImage}
+		<!-- Single image (Open Graph): Show icon + title + large image -->
+		<a
+			href={editable ? undefined : url}
+			target={editable ? undefined : '_blank'}
+			rel={editable ? undefined : 'noopener noreferrer'}
+			onclick={editable ? startEditing : undefined}
+			class="h-full w-full p-4 flex flex-col gap-3 cursor-pointer hover:bg-border/30 transition-colors text-left block"
+		>
+			<div class="flex items-center gap-3">
+				{#if iconSvg && iconHex}
+					<div
+						class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-md"
+						style="background-color: #{iconHex};"
+					>
+						{@html `<svg viewBox="0 0 24 24" class="w-6 h-6" fill="white">${iconSvg}</svg>`}
+					</div>
+				{:else if favicon}
+					<div class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-md bg-secondary/50">
+						<img src={favicon} alt="" class="w-6 h-6 object-contain" loading="lazy" style="image-rendering: -webkit-optimize-contrast;" />
+					</div>
+				{/if}
+				<div class="flex-1 min-w-0">
+					<p class="font-semibold text-text truncate">{title}</p>
+					{#if socialData?.description}
+						<p class="text-xs text-muted line-clamp-1">{socialData.description}</p>
+					{/if}
+				</div>
+				<ExternalLink size={18} class="text-muted flex-shrink-0" />
+			</div>
+
+			<!-- Single large image taking full width -->
+			<div class="flex-1 bg-secondary/50 rounded overflow-hidden min-h-0 flex items-center justify-center">
+				<img src={socialData.images[0]} alt="" class="w-full h-full object-contain" loading="lazy" />
+			</div>
+		</a>
+	{:else if showPhotos && isMultipleImages}
+		<!-- Multiple images (Instagram): Show icon + title + photo grid -->
 		<a
 			href={editable ? undefined : url}
 			target={editable ? undefined : '_blank'}

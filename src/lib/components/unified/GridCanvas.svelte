@@ -123,10 +123,8 @@
     function updateBlock(updatedBlock: Block) {
         if (!editable || !onUpdate) return;
 
-        // Check for collisions before updating
-        if (wouldCollide(updatedBlock)) {
-            return; // Don't allow overlapping blocks
-        }
+        // Allow overlaps during drag - we'll compact at the end
+        // This gives a better UX like Bento
 
         // Update without compacting (live drag/resize)
         const newBlocks = blocks.map((b) =>
