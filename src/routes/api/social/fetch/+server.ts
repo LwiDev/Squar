@@ -5,12 +5,49 @@ import { MINIO_BUCKET, X_BEARER_TOKEN } from '$env/static/private';
 import { nanoid } from 'nanoid';
 import sharp from 'sharp';
 
+// Helper to limit concurrent promises
+async function promiseAllWithLimit<T>(
+	items: T[],
+	limit: number,
+	fn: (item: T) => Promise<any>
+): Promise<any[]> {
+	const results: any[] = new Array(items.length);
+	const executing: Promise<any>[] = [];
+
+	for (const [index, item] of items.entries()) {
+		const promise = Promise.resolve().then(() => fn(item)).then(result => {
+			results[index] = result;
+			// Remove from executing list
+			const idx = executing.indexOf(promise);
+			if (idx > -1) executing.splice(idx, 1);
+		}).catch(err => {
+			results[index] = null;
+			// Remove from executing list on error too
+			const idx = executing.indexOf(promise);
+			if (idx > -1) executing.splice(idx, 1);
+		});
+
+		executing.push(promise);
+
+		// Wait for one to complete if we've hit the limit
+		if (executing.length >= limit) {
+			await Promise.race(executing);
+		}
+	}
+
+	// Wait for all remaining promises to complete
+	await Promise.all(executing);
+	return results;
+}
+
 // Helper to download and upload Instagram image to MinIO
 async function uploadInstagramImageToMinio(imageUrl: string, platform: string): Promise<string | null> {
 	try {
 		console.log('[MinIO] Downloading image:', imageUrl);
-		// Download image
-		const response = await fetch(imageUrl);
+		// Download image with increased timeout (30s)
+		const response = await fetch(imageUrl, {
+			signal: AbortSignal.timeout(30000) // 30 seconds timeout
+		});
 		if (!response.ok) {
 			console.error('[MinIO] Failed to download image:', imageUrl, response.status);
 			return null;
@@ -419,12 +456,13 @@ async function fetchInstagramData(url: string) {
 
 				console.log('Extracted images:', instagramImageUrls.length);
 
-				// Upload images to MinIO
+				// Upload images to MinIO (limit to 2 concurrent uploads)
 				console.log('Uploading images to MinIO...');
-				const uploadPromises = instagramImageUrls.map(url =>
-					uploadInstagramImageToMinio(url, 'instagram')
+				const minioUrls = await promiseAllWithLimit(
+					instagramImageUrls,
+					2, // Max 2 concurrent uploads
+					url => uploadInstagramImageToMinio(url, 'instagram')
 				);
-				const minioUrls = await Promise.all(uploadPromises);
 				const images = minioUrls.filter(Boolean) as string[];
 
 				console.log('Uploaded to MinIO:', images.length);
