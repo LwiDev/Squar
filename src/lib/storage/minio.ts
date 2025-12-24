@@ -63,7 +63,6 @@ export async function ensureBucketExists() {
  */
 export function getPublicUrl(internalUrl: string): string {
   if (!MINIO_PUBLIC_URL) {
-    // No public URL configured, return as is
     console.warn('[MinIO] MINIO_PUBLIC_URL not configured, using internal URL');
     return internalUrl;
   }
@@ -82,9 +81,7 @@ export function getPublicUrl(internalUrl: string): string {
       url.port = '';
     }
 
-    const finalUrl = url.toString();
-    console.log('[MinIO] Converted URL:', { internal: internalUrl.substring(0, 100), public: finalUrl.substring(0, 100) });
-    return finalUrl;
+    return url.toString();
   } catch (e) {
     console.error('[MinIO] Failed to convert URL:', e);
     return internalUrl;

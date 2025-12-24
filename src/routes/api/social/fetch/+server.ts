@@ -46,8 +46,6 @@ async function uploadInstagramImageToMinio(imageUrl: string, platform: string): 
 
 	for (let attempt = 1; attempt <= maxRetries; attempt++) {
 		try {
-			console.log(`[MinIO] Downloading image (attempt ${attempt}/${maxRetries}):`, imageUrl.substring(0, 100));
-
 			// Download image with timeout (30s)
 			const controller = new AbortController();
 			const timeoutId = setTimeout(() => controller.abort(), 30000);
@@ -66,17 +64,14 @@ async function uploadInstagramImageToMinio(imageUrl: string, platform: string): 
 			}).finally(() => clearTimeout(timeoutId));
 
 			if (!response.ok) {
-				console.error('[MinIO] Failed to download image:', imageUrl.substring(0, 100), response.status);
 				if (attempt < maxRetries) {
-					console.log('[MinIO] Retrying...');
-					await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+					await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
 					continue;
 				}
 				return null;
 			}
 
 			const buffer = Buffer.from(await response.arrayBuffer());
-			console.log('[MinIO] Image downloaded, size:', buffer.length);
 
 		// Optimize image with Sharp
 		const optimizedBuffer = await sharp(buffer)
@@ -87,13 +82,10 @@ async function uploadInstagramImageToMinio(imageUrl: string, platform: string): 
 			.jpeg({ quality: 80, mozjpeg: true })
 			.toBuffer();
 
-		console.log('[MinIO] Image optimized, size:', optimizedBuffer.length);
-
 		// Generate unique filename
 		const filename = `social/${platform}/${nanoid()}.jpg`;
 
 		// Upload to MinIO
-		console.log('[MinIO] Uploading to bucket:', MINIO_BUCKET, 'filename:', filename);
 		await minioClient.putObject(
 			MINIO_BUCKET,
 			filename,
@@ -102,8 +94,6 @@ async function uploadInstagramImageToMinio(imageUrl: string, platform: string): 
 			{ 'Content-Type': 'image/jpeg' }
 		);
 
-		console.log('[MinIO] Upload successful');
-
 		// Generate presigned URL (7 days expiry)
 		const presignedUrl = await minioClient.presignedGetObject(
 			MINIO_BUCKET,
@@ -111,17 +101,14 @@ async function uploadInstagramImageToMinio(imageUrl: string, platform: string): 
 			7 * 24 * 60 * 60 // 7 days
 		);
 
-		console.log('[MinIO] Generated presigned URL:', presignedUrl);
-
 			// Convert to public URL and return
 			return getPublicUrl(presignedUrl);
 		} catch (e) {
-			console.error(`[MinIO] Failed to upload image (attempt ${attempt}/${maxRetries}):`, e instanceof Error ? e.message : e);
 			if (attempt < maxRetries) {
-				console.log('[MinIO] Retrying...');
-				await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+				await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
 				continue;
 			}
+			console.error('[MinIO] Failed to upload image after all retries:', e instanceof Error ? e.message : e);
 			return null;
 		}
 	}
@@ -486,23 +473,14 @@ async function fetchInstagramData(url: string) {
 
 				console.log('Extracted images:', instagramImageUrls.length);
 
-				// Upload images to MinIO (limit to 2 concurrent uploads)
-				console.log('Uploading images to MinIO...');
-				const minioUrls = await promiseAllWithLimit(
-					instagramImageUrls,
-					2, // Max 2 concurrent uploads
-					url => uploadInstagramImageToMinio(url, 'instagram')
-				);
-				const images = minioUrls.filter(Boolean) as string[];
-
-				console.log('Uploaded to MinIO:', images.length);
-
+				// Return raw Instagram URLs - client will handle upload to MinIO
 				return json({
 					platform: 'instagram',
 					username: userData.username,
 					displayName: userData.displayName,
 					bio: userData.bio,
-					images: images
+					images: instagramImageUrls, // Raw Instagram URLs
+					shouldUploadToMinio: true // Signal to client to upload
 				});
 			}
 		}

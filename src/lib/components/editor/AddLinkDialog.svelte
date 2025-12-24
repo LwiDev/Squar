@@ -36,6 +36,24 @@
 		}
 	});
 
+	async function uploadImageToMinio(imageUrl: string, platform: string): Promise<string | null> {
+		try {
+			const response = await fetch('/api/upload/from-url', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ imageUrl, platform })
+			});
+
+			if (response.ok) {
+				const { url } = await response.json();
+				return url;
+			}
+		} catch (e) {
+			console.error('Failed to upload image:', e);
+		}
+		return null;
+	}
+
 	async function fetchSocialData(url: string): Promise<any> {
 		try {
 			const response = await fetch('/api/social/fetch', {
@@ -46,6 +64,26 @@
 
 			if (response.ok) {
 				const data = await response.json();
+
+				// If we need to upload images to MinIO (client-side)
+				if (data.shouldUploadToMinio && data.images?.length > 0) {
+					console.log(`Uploading ${data.images.length} images to MinIO...`);
+
+					// Upload images in parallel (max 2 at a time for better performance)
+					const uploadPromises = data.images.map((imgUrl: string) =>
+						uploadImageToMinio(imgUrl, data.platform || 'social')
+					);
+
+					const minioUrls = await Promise.all(uploadPromises);
+					const successfulUrls = minioUrls.filter(Boolean);
+
+					console.log(`Successfully uploaded ${successfulUrls.length}/${data.images.length} images`);
+
+					// Replace with MinIO URLs
+					data.images = successfulUrls;
+					delete data.shouldUploadToMinio;
+				}
+
 				return data;
 			}
 		} catch (e) {
