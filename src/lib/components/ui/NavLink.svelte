@@ -7,6 +7,7 @@
         href?: string;
         icon?: ComponentType;
         external?: boolean;
+        active?: boolean;
     }
 
     let {
@@ -15,6 +16,7 @@
         href,
         icon: Icon,
         external = false,
+        active = false,
     }: Props = $props();
 </script>
 
@@ -23,7 +25,9 @@
         {href}
         target="_blank"
         rel="noopener noreferrer"
-        class="px-3 py-1.5 text-sm text-muted hover:text-text transition-colors rounded-md hover:bg-accent/5 flex items-center gap-1.5"
+        class="px-3 py-1.5 text-sm transition-colors rounded-md flex items-center gap-1.5 {active
+            ? 'bg-accent/10 text-text'
+            : 'text-muted hover:text-text hover:bg-accent/5'}"
     >
         {#if Icon}
             <Icon size={14} />
@@ -33,7 +37,9 @@
 {:else if onclick}
     <button
         {onclick}
-        class="px-3 py-1.5 text-sm text-muted hover:text-text transition-colors rounded-md hover:bg-accent/5"
+        class="px-3 py-1.5 text-sm transition-colors rounded-md {active
+            ? 'bg-accent/10 text-text font-bold'
+            : 'text-muted hover:text-text hover:bg-accent/5'}"
     >
         {label}
     </button>

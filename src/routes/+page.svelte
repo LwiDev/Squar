@@ -15,7 +15,7 @@
         GripVertical,
         MousePointer2,
         Palette,
-        Share2,
+        Share,
         Check,
     } from "lucide-svelte";
     import { PUBLIC_GITHUB_URL } from "$env/static/public";
@@ -130,7 +130,7 @@
                         class="relative inline-flex rounded-full h-2 w-2 bg-accent"
                     ></span>
                 </span>
-                {$t('landing.hero.tagline')}
+                {$t("landing.hero.tagline")}
             </div>
         </div>
 
@@ -138,14 +138,14 @@
             class="text-5xl md:text-7xl font-bold tracking-tight text-text mb-6 leading-tight fade-in stagger-2"
             class:visible={heroVisible}
         >
-            {$t('landing.hero.title')}
+            {$t("landing.hero.title")}
         </h1>
 
         <p
             class="text-xl text-muted max-w-2xl mx-auto mb-10 fade-in stagger-3"
             class:visible={heroVisible}
         >
-            {$t('landing.hero.subtitle')}
+            {$t("landing.hero.subtitle")}
         </p>
 
         <div
@@ -157,7 +157,7 @@
                 onclick={() => goto("/signup")}
                 class="w-full sm:w-auto px-8 h-12 text-base transition-transform hover:scale-[1.02]"
             >
-                {$t('landing.hero.cta')}
+                {$t("landing.hero.cta")}
             </Button>
             <a
                 href={PUBLIC_GITHUB_URL}
@@ -171,7 +171,7 @@
                     class="w-full gap-2 h-12 text-base transition-transform hover:scale-[1.02]"
                 >
                     <Github size={20} />
-                    {$t('landing.hero.star_github')}
+                    {$t("landing.hero.star_github")}
                 </Button>
             </a>
         </div>
@@ -358,229 +358,191 @@
     </Container>
 
     <!-- How it works -->
-    <Container id="how-it-works" class="py-24 border-t border-border">
+    <Container id="how-it-works" class="py-24 ">
         <div
             class="text-center mb-16 fade-in stagger-1"
             class:visible={howItWorksVisible}
         >
-            <h2 class="text-3xl font-bold mb-4 text-text">{$t('landing.how_it_works.title')}</h2>
+            <h2 class="text-3xl font-bold mb-4 text-text">
+                {$t("landing.how_it_works.title")}
+            </h2>
             <p class="text-muted max-w-2xl mx-auto">
-                {$t('landing.how_it_works.subtitle')}
+                {$t("landing.how_it_works.subtitle")}
             </p>
         </div>
 
-        <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <Card
-                class={`text-center p-8 fade-in stagger-2 ${howItWorksVisible ? "visible" : ""}`}
-                variant="hover"
+        <div
+            class="max-w-3xl mx-auto fade-in stagger-2"
+            class:visible={howItWorksVisible}
+        >
+            <div
+                class="relative border-l border-border ml-6 md:ml-12 space-y-12"
             >
-                <div
-                    class="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center text-accent mx-auto mb-6"
-                >
-                    <MousePointer2 size={28} />
+                <div class="relative pl-8 md:pl-12">
+                    <div
+                        class="absolute -left-[5px] top-2 w-2.5 h-2.5 rounded-full bg-accent ring-4 ring-background"
+                    ></div>
+                    <span
+                        class="text-xs font-bold text-muted uppercase tracking-widest mb-2 block"
+                        >Step 01</span
+                    >
+                    <h3 class="text-xl font-bold text-text mb-2">
+                        {$t("landing.how_it_works.step1_title")}
+                    </h3>
+                    <p class="text-muted text-sm leading-relaxed">
+                        {$t("landing.how_it_works.step1_desc")}
+                    </p>
                 </div>
-                <h3 class="text-xl font-bold mb-3 text-text">
-                    {$t('landing.how_it_works.step1_title')}
-                </h3>
-                <p class="text-muted leading-relaxed">
-                    {$t('landing.how_it_works.step1_desc')}
-                </p>
-            </Card>
-
-            <Card
-                class={`text-center p-8 fade-in stagger-3 ${howItWorksVisible ? "visible" : ""}`}
-                variant="hover"
-            >
-                <div
-                    class="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center text-accent mx-auto mb-6"
-                >
-                    <Palette size={28} />
+                <div class="relative pl-8 md:pl-12">
+                    <div
+                        class="absolute -left-[5px] top-2 w-2.5 h-2.5 rounded-full bg-accent ring-4 ring-background"
+                    ></div>
+                    <span
+                        class="text-xs font-bold text-muted uppercase tracking-widest mb-2 block"
+                        >Step 02</span
+                    >
+                    <h3 class="text-xl font-bold text-text mb-2">
+                        {$t("landing.how_it_works.step2_title")}
+                    </h3>
+                    <p class="text-muted text-sm leading-relaxed">
+                        {$t("landing.how_it_works.step2_desc")}
+                    </p>
                 </div>
-                <h3 class="text-xl font-bold mb-3 text-text">
-                    {$t('landing.how_it_works.step2_title')}
-                </h3>
-                <p class="text-muted leading-relaxed">
-                    {$t('landing.how_it_works.step2_desc')}
-                </p>
-            </Card>
-
-            <Card
-                class={`text-center p-8 fade-in stagger-4 ${howItWorksVisible ? "visible" : ""}`}
-                variant="hover"
-            >
-                <div
-                    class="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center text-accent mx-auto mb-6"
-                >
-                    <Share2 size={28} />
+                <div class="relative pl-8 md:pl-12">
+                    <div
+                        class="absolute -left-[5px] top-2 w-2.5 h-2.5 rounded-full bg-accent ring-4 ring-background"
+                    ></div>
+                    <span
+                        class="text-xs font-bold text-muted uppercase tracking-widest mb-2 block"
+                        >Step 03</span
+                    >
+                    <h3 class="text-xl font-bold text-text mb-2">
+                        {$t("landing.how_it_works.step3_title")}
+                    </h3>
+                    <p class="text-muted text-sm leading-relaxed">
+                        {$t("landing.how_it_works.step3_desc")}
+                    </p>
                 </div>
-                <h3 class="text-xl font-bold mb-3 text-text">
-                    {$t('landing.how_it_works.step3_title')}
-                </h3>
-                <p class="text-muted leading-relaxed">
-                    {$t('landing.how_it_works.step3_desc')}
-                </p>
-            </Card>
+            </div>
         </div>
     </Container>
 
     <!-- Actually Free -->
-    <Container id="actually-free" class="py-24 border-t border-border">
+    <Container id="actually-free" class="py-24 ">
         <div
             class="text-center mb-16 fade-in stagger-1"
             class:visible={actuallyFreeVisible}
         >
             <h2 class="text-3xl font-bold mb-4 text-text">
-                {$t('landing.pricing.title')}
+                {$t("landing.pricing.title")}
             </h2>
             <p class="text-muted max-w-2xl mx-auto">
-                {$t('landing.pricing.subtitle')}
+                {$t("landing.pricing.subtitle")}
             </p>
         </div>
 
-        <div class="max-w-2xl mx-auto">
-            <Card
-                class={`p-8 fade-in stagger-2 ${actuallyFreeVisible ? "visible" : ""}`}
-            >
-                <div class="space-y-4">
-                    <div class="flex items-start gap-3">
-                        <div class="mt-1">
-                            <Check size={20} class="text-accent" />
+        <!-- Modern List Design -->
+        <div
+            class="max-w-3xl mx-auto fade-in stagger-2"
+            class:visible={actuallyFreeVisible}
+        >
+            <div class="grid gap-4">
+                {#each [{ t: "landing.pricing.unlimited_blocks", d: "landing.pricing.unlimited_blocks_desc" }, { t: "landing.pricing.themes_included", d: "landing.pricing.themes_included_desc" }, { t: "landing.pricing.profile_customization", d: "landing.pricing.profile_customization_desc" }, { t: "landing.pricing.no_watermark", d: "landing.pricing.no_watermark_desc" }, { t: "landing.pricing.forever_free", d: "landing.pricing.forever_free_desc" }] as item}
+                    <div
+                        class="flex items-center gap-4 p-4 bg-background rounded-xl border border-border/50 hover:border-accent/50 transition-colors"
+                    >
+                        <div
+                            class="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center shrink-0"
+                        >
+                            <Check size={16} strokeWidth={3} />
                         </div>
-                        <div>
-                            <p class="text-text font-medium">
-                                {$t('landing.pricing.unlimited_blocks')}
-                            </p>
-                            <p class="text-muted text-sm mt-1">
-                                {$t('landing.pricing.unlimited_blocks_desc')}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="h-px bg-border"></div>
-
-                    <div class="flex items-start gap-3">
-                        <div class="mt-1">
-                            <Check size={20} class="text-accent" />
-                        </div>
-                        <div>
-                            <p class="text-text font-medium">
-                                {$t('landing.pricing.themes_included')}
-                            </p>
-                            <p class="text-muted text-sm mt-1">
-                                {$t('landing.pricing.themes_included_desc')}
-                            </p>
+                        <div class="text-left">
+                            <span class="font-bold text-text">{$t(item.t)}</span
+                            >
+                            <span class="hidden md:inline text-muted mx-2"
+                                >—</span
+                            >
+                            <span class="block md:inline text-sm text-muted"
+                                >{$t(item.d)}</span
+                            >
                         </div>
                     </div>
-
-                    <div class="h-px bg-border"></div>
-
-                    <div class="flex items-start gap-3">
-                        <div class="mt-1">
-                            <Check size={20} class="text-accent" />
-                        </div>
-                        <div>
-                            <p class="text-text font-medium">
-                                {$t('landing.pricing.profile_customization')}
-                            </p>
-                            <p class="text-muted text-sm mt-1">
-                                {$t('landing.pricing.profile_customization_desc')}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="h-px bg-border"></div>
-
-                    <div class="flex items-start gap-3">
-                        <div class="mt-1">
-                            <Check size={20} class="text-accent" />
-                        </div>
-                        <div>
-                            <p class="text-text font-medium">{$t('landing.pricing.no_watermark')}</p>
-                            <p class="text-muted text-sm mt-1">
-                                {$t('landing.pricing.no_watermark_desc')}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="h-px bg-border"></div>
-
-                    <div class="flex items-start gap-3">
-                        <div class="mt-1">
-                            <Check size={20} class="text-accent" />
-                        </div>
-                        <div>
-                            <p class="text-text font-medium">{$t('landing.pricing.forever_free')}</p>
-                            <p class="text-muted text-sm mt-1">
-                                {$t('landing.pricing.forever_free_desc')}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </Card>
+                {/each}
+            </div>
         </div>
     </Container>
 
     <!-- Features -->
-    <Container id="features" class="py-24 border-t border-border">
+    <Container id="features" class="py-24 ">
         <div
             class="text-center mb-16 fade-in stagger-1"
             class:visible={featuresVisible}
         >
             <h2 class="text-3xl font-bold mb-4 text-text">
-                {$t('landing.features.title')}
+                {$t("landing.features.title")}
             </h2>
             <p class="text-muted max-w-2xl mx-auto">
-                {$t('landing.features.subtitle')}
+                {$t("landing.features.subtitle")}
             </p>
         </div>
 
-        <div class="grid md:grid-cols-3 gap-10">
-            <Card
-                variant="hover"
-                class={`space-y-4 p-8 fade-in stagger-2 ${featuresVisible ? "visible" : ""}`}
-            >
+        <div
+            class="max-w-3xl mx-auto fade-in stagger-2"
+            class:visible={featuresVisible}
+        >
+            <div class="grid gap-4">
                 <div
-                    class="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center text-accent mb-2"
+                    class="flex items-center gap-6 p-6 bg-background rounded-2xl border border-border/50 hover:border-accent/50 transition-colors"
                 >
-                    <LayoutGrid size={24} />
+                    <div
+                        class="w-12 h-12 rounded-xl bg-accent/5 flex items-center justify-center text-accent shrink-0"
+                    >
+                        <LayoutGrid size={24} />
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-lg font-bold text-text mb-1">
+                            {$t("landing.features.grid_system")}
+                        </h3>
+                        <p class="text-muted text-sm leading-relaxed">
+                            {$t("landing.features.grid_system_desc")}
+                        </p>
+                    </div>
                 </div>
-                <h3 class="text-xl font-bold text-text">{$t('landing.features.grid_system')}</h3>
-                <p class="text-muted leading-relaxed">
-                    {$t('landing.features.grid_system_desc')}
-                </p>
-            </Card>
-
-            <Card
-                variant="hover"
-                class={`space-y-4 p-8 fade-in stagger-3 ${featuresVisible ? "visible" : ""}`}
-            >
                 <div
-                    class="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center text-accent mb-2"
+                    class="flex items-center gap-6 p-6 bg-background rounded-2xl border border-border/50 hover:border-accent/50 transition-colors"
                 >
-                    <Image size={24} />
+                    <div
+                        class="w-12 h-12 rounded-xl bg-accent/5 flex items-center justify-center text-accent shrink-0"
+                    >
+                        <Image size={24} />
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-lg font-bold text-text mb-1">
+                            {$t("landing.features.rich_media")}
+                        </h3>
+                        <p class="text-muted text-sm leading-relaxed">
+                            {$t("landing.features.rich_media_desc")}
+                        </p>
+                    </div>
                 </div>
-                <h3 class="text-xl font-bold text-text">{$t('landing.features.rich_media')}</h3>
-                <p class="text-muted leading-relaxed">
-                    {$t('landing.features.rich_media_desc')}
-                </p>
-            </Card>
-
-            <Card
-                variant="hover"
-                class={`space-y-4 p-8 fade-in stagger-4 ${featuresVisible ? "visible" : ""}`}
-            >
                 <div
-                    class="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center text-accent mb-2"
+                    class="flex items-center gap-6 p-6 bg-background rounded-2xl border border-border/50 hover:border-accent/50 transition-colors"
                 >
-                    <Zap size={24} />
+                    <div
+                        class="w-12 h-12 rounded-xl bg-accent/5 flex items-center justify-center text-accent shrink-0"
+                    >
+                        <Zap size={24} />
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-lg font-bold text-text mb-1">
+                            {$t("landing.features.no_limits")}
+                        </h3>
+                        <p class="text-muted text-sm leading-relaxed">
+                            {$t("landing.features.no_limits_desc")}
+                        </p>
+                    </div>
                 </div>
-                <h3 class="text-xl font-bold text-text">
-                    {$t('landing.features.no_limits')}
-                </h3>
-                <p class="text-muted leading-relaxed">
-                    {$t('landing.features.no_limits_desc')}
-                </p>
-            </Card>
+            </div>
         </div>
     </Container>
 </main>

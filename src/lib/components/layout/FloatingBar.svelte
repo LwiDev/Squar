@@ -105,7 +105,7 @@
 <div class={classes} {...rest}>
     <div
         class="relative bg-background/70 backdrop-blur-xl border border-border rounded-sm px-4 py-2 shadow-sm pointer-events-auto transition-all duration-200 ease-in-out {adaptive
-            ? 'w-fit'
+            ? 'w-full md:w-fit'
             : 'w-full max-w-2xl'}"
     >
         {#if showSavingBar}
