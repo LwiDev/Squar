@@ -40,11 +40,12 @@
 			});
 
 			// Create empty page for the user
+			const slug = `user-${nanoid(8)}`;
 			await fetch('/api/pages', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					slug: '', // Will be set on first publish
+					slug,
 					settings: {
 						title: 'My Page',
 						description: '',
@@ -60,7 +61,7 @@
 			});
 
 			await invalidateAll();
-			goto('/editor');
+			goto(`/${slug}`);
 		} catch (e: any) {
 			error = e.message || 'auth.failed_create';
 		} finally {

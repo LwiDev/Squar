@@ -57,12 +57,16 @@
             </nav>
 
             <div class="flex items-center">
-                {#if $page.data.user}
-                    <a href="/editor">
+                {#if $page.data.user && $page.data.page?.slug}
+                    <a href="/{$page.data.page.slug}">
                         <Button variant="primary" size="sm" class="h-8 text-xs"
                             >{$t('landing.nav.my_squar')}</Button
                         >
                     </a>
+                {:else if $page.data.user}
+                    <Button variant="primary" size="sm" class="h-8 text-xs" disabled
+                        >{$t('landing.nav.my_squar')}</Button
+                    >
                 {:else}
                     <Button
                         size="sm"

@@ -4,6 +4,7 @@
     import PageHead from "$lib/components/PageHead.svelte";
     import { signIn } from "$lib/auth/client";
     import { goto, invalidateAll } from "$app/navigation";
+    import { page } from "$app/stores";
     import { t } from "svelte-i18n";
 
     let email = $state("");
@@ -26,7 +27,10 @@
                 password,
             });
             await invalidateAll();
-            goto("/editor");
+            // Redirect to user's page after login
+            if ($page.data.page?.slug) {
+                goto(`/${$page.data.page.slug}`);
+            }
         } catch (e) {
             error = "auth.invalid_credentials";
         } finally {
