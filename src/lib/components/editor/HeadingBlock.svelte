@@ -70,9 +70,10 @@
 <div bind:this={containerRef} class="h-full w-full p-4 flex items-center">
 	<div
 		bind:this={editableRef}
-		contenteditable={editable}
+		contenteditable={editable && editing}
 		onfocus={handleFocus}
-		class="w-full outline-none text-text text-2xl font-bold"
+		ondblclick={handleFocus}
+		class="w-full outline-none text-text text-2xl font-bold {editable && !editing ? 'cursor-grab' : ''}"
 	>
 		{block.data.text || (editable ? $t('blocks.heading.placeholder') : '')}
 	</div>

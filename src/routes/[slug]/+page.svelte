@@ -10,6 +10,7 @@
     import { nanoid } from "nanoid";
     import type { Block, PageSettings } from "$lib/types/models";
     import type { PageData } from "./$types";
+    import { DEFAULT_BLOCK_SIZE } from "$lib/constants/blockSizes";
     import logo from "$lib/assets/images/logos/logo.png";
 
     let { data }: { data: PageData } = $props();
@@ -106,22 +107,8 @@
                 layout.length > 0
                     ? Math.max(...layout.map((b) => b.y + b.h))
                     : 0,
-            w:
-                type === "heading"
-                    ? 12
-                    : type === "text"
-                      ? 6
-                      : type === "video"
-                        ? 6
-                        : 4,
-            h:
-                type === "heading"
-                    ? 2
-                    : type === "text"
-                      ? 3
-                      : type === "video"
-                        ? 4
-                        : 2,
+            w: DEFAULT_BLOCK_SIZE[type].w,
+            h: DEFAULT_BLOCK_SIZE[type].h,
             data: blockData,
         };
         updateLayout([...layout, newBlock]);

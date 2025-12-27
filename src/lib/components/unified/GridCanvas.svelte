@@ -3,6 +3,7 @@
     import UnifiedBlock from "./UnifiedBlock.svelte";
     import { Plus } from "lucide-svelte";
     import { t } from "svelte-i18n";
+    import { GRID_CONFIG } from "$lib/constants/blockSizes";
 
     interface Props {
         blocks: Block[];
@@ -13,8 +14,10 @@
     let { blocks = [], editable = false, onUpdate }: Props = $props();
 
     let selectedBlockId = $state<string | null>(null);
+    let draggingBlockId = $state<string | null>(null);
+    let dragPreviewPos = $state<{ x: number; y: number; w: number; h: number } | null>(null);
 
-    const GRID_COLS = 16;
+    const GRID_COLS = GRID_CONFIG.cols;
 
     // Calculate grid rows dynamically based on content
     const maxRow = $derived(
@@ -45,62 +48,49 @@
         );
     }
 
-    // Compact blocks - organize in horizontal bands (like Bento)
-    // Each band is 4 rows tall (height of a Carré)
+    // Simple compacting: place blocks from top to bottom, avoiding collisions
+    // No section logic - headings are just blocks like any other
     function compactBlocks(blocksList: Block[]): Block[] {
-        // Sort blocks by Y position first, then X position (reading order)
+        if (blocksList.length === 0) return [];
+
+        // Sort by Y, then X (respects user's intended order)
         const sorted = [...blocksList].sort((a, b) => {
             if (a.y !== b.y) return a.y - b.y;
             return a.x - b.x;
         });
 
-        const compacted: Block[] = [];
+        const placed: Block[] = [];
 
         for (const block of sorted) {
-            let bestY = block.y;
-            let bestX = block.x;
-            let foundBetter = false;
+            let finalY = block.y;
+            const finalX = block.x;
 
-            // Try to place in horizontal bands (prefer Y at band boundaries)
-            // Band height = 4 (one Carré height)
-            const maxBands = Math.ceil(block.y / 4) + 5;
+            // Try to place at current Y, or find first non-colliding position
+            let attempts = 0;
+            while (attempts < 100) {
+                const testBlock = { ...block, x: finalX, y: finalY };
 
-            for (let band = 0; band < maxBands; band++) {
-                // Try positions within this band and adjacent rows
-                const bandY = band * 4;
+                // Check collision with already placed blocks
+                const collision = placed.find(p => blocksOverlap(testBlock, p));
 
-                // For small blocks (h=2), can be placed at any Y
-                // For medium blocks (h=4), prefer band boundaries (Y = 0, 4, 8...)
-                // For large blocks (h=8), must align to even bands
-                const yPositions = block.h <= 2
-                    ? [bandY, bandY + 1, bandY + 2]
-                    : block.h <= 4
-                        ? [bandY]
-                        : [bandY];
-
-                for (const testY of yPositions) {
-                    // Try each column from left to right
-                    for (let testX = 0; testX <= GRID_COLS - block.w; testX++) {
-                        const testBlock = { ...block, x: testX, y: testY };
-
-                        if (!wouldCollide(testBlock, compacted)) {
-                            // Found a valid position
-                            bestY = testY;
-                            bestX = testX;
-                            foundBetter = true;
-                            break;
-                        }
-                    }
-                    if (foundBetter) break;
+                if (!collision) {
+                    // No collision - place here
+                    placed.push({ ...block, x: finalX, y: finalY });
+                    break;
                 }
-                if (foundBetter) break;
+
+                // Collision - try next Y position
+                finalY = collision.y + collision.h;
+                attempts++;
             }
 
-            // Add the block at the best position found
-            compacted.push({ ...block, x: bestX, y: bestY });
+            // Fallback if couldn't place
+            if (attempts >= 100) {
+                placed.push({ ...block, x: finalX, y: finalY });
+            }
         }
 
-        return compacted;
+        return placed;
     }
 
     // Find next available position for a new block (used when adding blocks)
@@ -123,28 +113,114 @@
     function updateBlock(updatedBlock: Block) {
         if (!editable || !onUpdate) return;
 
-        // Allow overlaps during drag - we'll compact at the end
-        // This gives a better UX like Bento
+        // During drag, compact OTHER blocks around the dragged one
+        if (draggingBlockId === updatedBlock.id) {
+            // Update preview position for placeholder
+            dragPreviewPos = { x: updatedBlock.x, y: updatedBlock.y, w: updatedBlock.w, h: updatedBlock.h };
 
-        // Update without compacting (live drag/resize)
-        const newBlocks = blocks.map((b) =>
-            b.id === updatedBlock.id ? updatedBlock : b,
-        );
+            // Get all blocks except the one being dragged
+            const otherBlocks = blocks.filter(b => b.id !== updatedBlock.id);
 
-        onUpdate(newBlocks);
+            // Compact other blocks, treating the dragged block as an obstacle
+            const compactedOthers = compactBlocksAround(otherBlocks, updatedBlock);
+
+            // Combine: dragged block at cursor position + compacted others
+            onUpdate([...compactedOthers, updatedBlock]);
+        } else {
+            // Regular update without compacting
+            const newBlocks = blocks.map((b) =>
+                b.id === updatedBlock.id ? updatedBlock : b,
+            );
+            onUpdate(newBlocks);
+        }
+    }
+
+    // Compact blocks around an obstacle (the dragged block)
+    // Try to place each block as high as possible
+    function compactBlocksAround(blocksList: Block[], obstacle: Block): Block[] {
+        if (blocksList.length === 0) return [];
+
+        // Sort by Y, then X
+        const sorted = [...blocksList].sort((a, b) => {
+            if (a.y !== b.y) return a.y - b.y;
+            return a.x - b.x;
+        });
+
+        const placed: Block[] = [];
+
+        for (const block of sorted) {
+            const finalX = block.x;
+            let finalY = 0; // Start from the top to fill gaps
+
+            // Find the first position from top that doesn't collide
+            let attempts = 0;
+            while (attempts < 100) {
+                const testBlock = { ...block, x: finalX, y: finalY };
+
+                // Check collision with already placed blocks AND the obstacle
+                const collidesWithPlaced = placed.find(p => blocksOverlap(testBlock, p));
+                const collidesWithObstacle = blocksOverlap(testBlock, obstacle);
+
+                if (!collidesWithPlaced && !collidesWithObstacle) {
+                    placed.push({ ...block, x: finalX, y: finalY });
+                    break;
+                }
+
+                // Jump to just below the collision
+                if (collidesWithObstacle) {
+                    finalY = Math.max(finalY + 1, obstacle.y + obstacle.h);
+                } else if (collidesWithPlaced) {
+                    finalY = Math.max(finalY + 1, collidesWithPlaced.y + collidesWithPlaced.h);
+                }
+
+                attempts++;
+            }
+
+            if (attempts >= 100) {
+                placed.push({ ...block, x: finalX, y: finalY });
+            }
+        }
+
+        return placed;
     }
 
     function updateBlockAndCompact(updatedBlock: Block) {
         if (!editable || !onUpdate) return;
 
-        // Update the block position
-        const newBlocks = blocks.map((b) =>
-            b.id === updatedBlock.id ? updatedBlock : b,
-        );
+        // Simple approach: just update the block, don't compact
+        // Only push down blocks that would overlap
+        const newBlocks = blocks.map((b) => b.id === updatedBlock.id ? updatedBlock : b);
 
-        // Compact to remove gaps and organize layout
-        const compactedBlocks = compactBlocks(newBlocks);
-        onUpdate(compactedBlocks);
+        // Check for overlaps and push overlapping blocks down
+        const fixed = pushOverlappingBlocks(newBlocks, updatedBlock.id);
+        onUpdate(fixed);
+    }
+
+    // Simple collision resolution: push overlapping blocks down
+    function pushOverlappingBlocks(blocksList: Block[], movedBlockId: string): Block[] {
+        const movedBlock = blocksList.find(b => b.id === movedBlockId);
+        if (!movedBlock) return blocksList;
+
+        let result = [...blocksList];
+        let changed = true;
+
+        // Keep pushing down until no more overlaps
+        while (changed) {
+            changed = false;
+            for (let i = 0; i < result.length; i++) {
+                const block = result[i];
+                if (block.id === movedBlockId) continue;
+
+                // Check if this block overlaps with the moved block
+                if (blocksOverlap(block, movedBlock)) {
+                    // Push it down below the moved block
+                    result[i] = { ...block, y: movedBlock.y + movedBlock.h };
+                    changed = true;
+                }
+            }
+        }
+
+        return result;
     }
 
     async function deleteBlock(id: string) {
@@ -187,13 +263,32 @@
             selectedBlockId = null;
         }
     }
+
+    function handleDragStart(blockId: string) {
+        draggingBlockId = blockId;
+        const block = blocks.find(b => b.id === blockId);
+        if (block) {
+            dragPreviewPos = { x: block.x, y: block.y, w: block.w, h: block.h };
+        }
+    }
+
+    function handleDragEnd() {
+        // Final compact of all blocks when drag ends
+        if (draggingBlockId) {
+            const compacted = compactBlocks(blocks);
+            onUpdate(compacted);
+        }
+
+        draggingBlockId = null;
+        dragPreviewPos = null;
+    }
 </script>
 
-<!-- Grid avec espacement moderne - pas de max-width ici, c'est géré par le parent -->
+<!-- Grid avec espacement moderne - tailles fixes comme Bento -->
 <div
     data-grid
-    class="relative"
-    style="display: grid; grid-template-columns: repeat({GRID_COLS}, 26.5px); grid-template-rows: repeat({GRID_ROWS}, 26.5px); gap: 24px;"
+    class="relative mx-auto select-none"
+    style="display: grid; grid-template-columns: repeat({GRID_COLS}, {GRID_CONFIG.cellWidth}px); grid-template-rows: repeat({GRID_ROWS}, {GRID_CONFIG.cellHeight}px); gap: {GRID_CONFIG.gap}px; width: fit-content;"
     onclick={handleGridClick}
 >
     {#if editable && blocks.length === 0}
@@ -212,17 +307,29 @@
         </div>
     {/if}
 
+    <!-- Placeholder pour le bloc en drag -->
+    {#if draggingBlockId && dragPreviewPos}
+        <div
+            style="grid-column: {dragPreviewPos.x + 1} / span {dragPreviewPos.w}; grid-row: {dragPreviewPos.y + 1} / span {dragPreviewPos.h};"
+            class="rounded-md border-2 border-dashed border-accent bg-accent/10 pointer-events-none"
+        ></div>
+    {/if}
+
     {#each blocks as block (block.id)}
         <UnifiedBlock
             {block}
             {editable}
             gridCols={GRID_COLS}
             gridRows={GRID_ROWS}
+            allBlocks={blocks}
             isSelected={selectedBlockId === block.id}
+            isDragging={draggingBlockId === block.id}
             onSelect={editable ? () => (selectedBlockId = block.id) : undefined}
             onUpdate={editable ? updateBlock : undefined}
             onUpdateAndCompact={editable ? updateBlockAndCompact : undefined}
             onDelete={editable ? () => deleteBlock(block.id) : undefined}
+            onDragStart={editable ? () => handleDragStart(block.id) : undefined}
+            onDragEnd={editable ? handleDragEnd : undefined}
         />
     {/each}
 </div>
