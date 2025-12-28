@@ -37,10 +37,10 @@
 	const isMultipleImages = $derived(socialData?.images && socialData.images.length > 1);
 
 	// Display modes (like Bento):
-	// - Small square (4x4): Vertical centered (icon on top, title below, NO photos)
-	// - Small rectangles (any width x 2): Icon + title horizontal (NO photos)
+	// - Small squares (w=1 OR 4x4): Vertical centered (icon on top, title below, NO photos)
+	// - Rectangles (w=2): Icon + title horizontal (NO photos)
 	// - Medium/Large squares (8x4+): Icon + title + photos
-	const isSquareMode = $derived(block.w === 4 && block.h === 4);
+	const isSquareMode = $derived(block.w === 1 || (block.w === 4 && block.h === 4));
 	const showPhotos = $derived(!isSquareMode && hasImages && block.h >= 4);
 
 	function startEditing() {
@@ -98,13 +98,13 @@
 	</div>
 {:else}
 	{#if isSquareMode}
-		<!-- Square mode (4x4): Vertical centered layout with icon on top, title below -->
+		<!-- Square mode (w=1 or 4x4): Vertical centered layout with icon on top, title below -->
 		<a
 			href={editable ? undefined : url}
 			target={editable ? undefined : '_blank'}
 			rel={editable ? undefined : 'noopener noreferrer'}
 			onclick={editable ? startEditing : undefined}
-			class="h-full w-full p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-border/30 transition-colors text-center"
+			class="h-full w-full p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-border/30 transition-colors"
 		>
 			{#if iconSvg && iconHex}
 				<div
@@ -118,7 +118,7 @@
 					<img src={favicon} alt="" class="w-10 h-10 object-contain" loading="lazy" style="image-rendering: -webkit-optimize-contrast;" />
 				</div>
 			{/if}
-			<p class="font-semibold text-text text-sm leading-tight">{title}</p>
+			<p class="font-semibold text-text text-sm leading-tight text-center text-balance w-full">{title}</p>
 		</a>
 	{:else if showPhotos && isSingleImage}
 		<!-- Single image (Open Graph): Show icon + title + large image -->
