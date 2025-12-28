@@ -7,6 +7,7 @@
     import VideoBlock from "../editor/VideoBlock.svelte";
     import { Trash2 } from "lucide-svelte";
     import { AVAILABLE_SIZES, GRID_CONFIG } from "$lib/constants/blockSizes";
+    import { spring } from "svelte/motion";
 
     interface Props {
         block: Block;
@@ -45,6 +46,15 @@
     let dragStartBlock = $state({ x: 0, y: 0, w: 0, h: 0 });
     let hasMoved = $state(false);
     let dragOffset = $state({ x: 0, y: 0 }); // Pixel offset for smooth cursor following
+
+    // Spring animation for smooth momentum/physics effect (like Bento)
+    const springOffset = spring(
+        { x: 0, y: 0, rotation: 0 },
+        {
+            stiffness: 0.1,
+            damping: 0.5,
+        },
+    );
 
     // Choose preset sizes based on block type
     const presetSizes = $derived(
@@ -135,8 +145,13 @@
         // Prevent default while dragging
         e.preventDefault();
 
-        // Block follows cursor directly (no grid snapping during drag)
+        // Calculate rotation based on horizontal velocity (Bento-style physics)
+        const velocityX = deltaX - (dragOffset.x || 0);
+        const rotation = Math.max(-12, Math.min(12, velocityX * 0.3));
+
+        // Block follows cursor with spring physics for smooth momentum
         dragOffset = { x: deltaX, y: deltaY };
+        springOffset.set({ x: deltaX, y: deltaY, rotation });
 
         // Calculate grid position for placeholder
         const gridElement = document.querySelector("[data-grid]");
@@ -174,6 +189,7 @@
 
         dragInProgress = false;
         dragOffset = { x: 0, y: 0 }; // Reset visual offset
+        springOffset.set({ x: 0, y: 0, rotation: 0 }, { hard: true }); // Reset spring instantly
 
         // Don't compact again - already compacted in real-time
         onDragEnd?.();
@@ -182,7 +198,7 @@
     const gridStyle = $derived(`
 		grid-column: ${block.x + 1} / span ${block.w};
 		grid-row: ${block.y + 1} / span ${block.h};
-		${isDragging && hasMoved ? `transform: translate(${dragOffset.x}px, ${dragOffset.y}px);` : ''}
+		${isDragging && hasMoved ? `transform: translate(${$springOffset.x}px, ${$springOffset.y}px) rotate(${$springOffset.rotation}deg) scale(1.05);` : ''}
 	`);
 </script>
 

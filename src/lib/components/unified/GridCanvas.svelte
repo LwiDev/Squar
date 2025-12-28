@@ -109,26 +109,19 @@
 
         // During drag, show real-time preview of where blocks will end up
         if (draggingBlockId === updatedBlock.id) {
-            // Simulate dropping the block at hover position
+            // Place dragged block first to give it priority
             const blocksWithoutDragged = blocks.filter(b => b.id !== updatedBlock.id);
-            const blocksWithHover = [...blocksWithoutDragged, updatedBlock];
 
-            // Compact to see final positions
-            const compacted = compactBlocks(blocksWithHover);
+            // Compact with dragged block already at its hover position
+            const compacted = compactBlocksAround(blocksWithoutDragged, updatedBlock);
 
-            // Find where the dragged block ended up after compacting
-            const finalDraggedBlock = compacted.find(b => b.id === updatedBlock.id);
-            if (finalDraggedBlock) {
-                dragPreviewPos = { x: finalDraggedBlock.x, y: finalDraggedBlock.y, w: finalDraggedBlock.w, h: finalDraggedBlock.h };
-            }
-
-            // Remove dragged block from display (it's rendered with transform)
-            const otherBlocks = compacted.filter(b => b.id !== updatedBlock.id);
+            // Placeholder is exactly where user is dragging
+            dragPreviewPos = { x: updatedBlock.x, y: updatedBlock.y, w: updatedBlock.w, h: updatedBlock.h };
 
             // Get original dragged block to keep it at its visual position
             const originalDragged = blocks.find(b => b.id === updatedBlock.id);
             if (originalDragged) {
-                onUpdate([...otherBlocks, originalDragged]);
+                onUpdate([...compacted, originalDragged]);
             }
         } else {
             // Regular update without compacting
@@ -277,15 +270,19 @@
     }
 
     function handleDragEnd() {
-        // Move dragged block to placeholder position and compact
+        // Place dragged block exactly at placeholder position and push others around it
         if (draggingBlockId && dragPreviewPos) {
-            const newBlocks = blocks.map(b =>
-                b.id === draggingBlockId
-                    ? { ...b, x: dragPreviewPos.x, y: dragPreviewPos.y }
-                    : b
-            );
-            const compacted = compactBlocks(newBlocks);
-            onUpdate(compacted);
+            const draggedBlock = blocks.find(b => b.id === draggingBlockId);
+            if (draggedBlock) {
+                // Block at final position
+                const finalBlock = { ...draggedBlock, x: dragPreviewPos.x, y: dragPreviewPos.y };
+
+                // Compact others around it
+                const otherBlocks = blocks.filter(b => b.id !== draggingBlockId);
+                const compacted = compactBlocksAround(otherBlocks, finalBlock);
+
+                onUpdate([...compacted, finalBlock]);
+            }
         }
 
         draggingBlockId = null;
