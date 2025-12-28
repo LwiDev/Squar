@@ -35,6 +35,8 @@
 			if (newText && newText !== initialText) {
 				onUpdate?.({ text: newText });
 			}
+			// Properly blur the element
+			editableRef.blur();
 		}
 		editing = false;
 	}
@@ -50,6 +52,22 @@
 				editableRef.textContent = '';
 				initialText = '';
 			}
+		}
+	}
+
+	function handleKeydown(e: KeyboardEvent) {
+		// Prevent Enter key from creating new lines in headings
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			saveAndClose();
+			// Deselect the block by clicking on the grid background
+			setTimeout(() => {
+				const grid = document.querySelector('[data-grid]') as HTMLElement;
+				if (grid) {
+					grid.click();
+					grid.blur(); // Remove focus to avoid dotted outline
+				}
+			}, 0);
 		}
 	}
 
@@ -71,9 +89,28 @@
 	<div
 		bind:this={editableRef}
 		contenteditable={editable && editing}
+		onclick={(e) => {
+			if (editable && !editing) {
+				e.stopPropagation();
+				handleFocus();
+				// Focus and place cursor at the end
+				setTimeout(() => {
+					if (editableRef) {
+						editableRef.focus();
+						const range = document.createRange();
+						const sel = window.getSelection();
+						range.selectNodeContents(editableRef);
+						range.collapse(false);
+						sel?.removeAllRanges();
+						sel?.addRange(range);
+					}
+				}, 0);
+			}
+		}}
 		onfocus={handleFocus}
 		ondblclick={handleFocus}
-		class="w-full outline-none text-text text-2xl font-bold {editable && !editing ? 'cursor-grab' : ''}"
+		onkeydown={editing ? handleKeydown : undefined}
+		class="w-full outline-none text-text text-2xl font-bold {editable && !editing ? 'cursor-grab' : editing ? 'cursor-text' : ''}"
 	>
 		{block.data.text || (editable ? $t('blocks.heading.placeholder') : '')}
 	</div>

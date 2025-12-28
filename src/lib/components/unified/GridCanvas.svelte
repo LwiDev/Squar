@@ -48,12 +48,11 @@
         );
     }
 
-    // Simple compacting: place blocks from top to bottom, avoiding collisions
-    // No section logic - headings are just blocks like any other
+    // Compact blocks: place from top-left, left to right, no gaps
     function compactBlocks(blocksList: Block[]): Block[] {
         if (blocksList.length === 0) return [];
 
-        // Sort by Y, then X (respects user's intended order)
+        // Sort by Y, then X (respects order)
         const sorted = [...blocksList].sort((a, b) => {
             if (a.y !== b.y) return a.y - b.y;
             return a.x - b.x;
@@ -62,32 +61,27 @@
         const placed: Block[] = [];
 
         for (const block of sorted) {
-            let finalY = block.y;
-            const finalX = block.x;
+            let finalX = 0;
+            let finalY = 0;
+            let found = false;
 
-            // Try to place at current Y, or find first non-colliding position
-            let attempts = 0;
-            while (attempts < 100) {
-                const testBlock = { ...block, x: finalX, y: finalY };
+            // Try to find the first available position from top-left
+            for (let testY = 0; testY < 100 && !found; testY++) {
+                for (let testX = 0; testX <= GRID_COLS - block.w && !found; testX++) {
+                    const testBlock = { ...block, x: testX, y: testY };
 
-                // Check collision with already placed blocks
-                const collision = placed.find(p => blocksOverlap(testBlock, p));
+                    // Check if this position is free
+                    const collision = placed.find(p => blocksOverlap(testBlock, p));
 
-                if (!collision) {
-                    // No collision - place here
-                    placed.push({ ...block, x: finalX, y: finalY });
-                    break;
+                    if (!collision) {
+                        finalX = testX;
+                        finalY = testY;
+                        found = true;
+                    }
                 }
-
-                // Collision - try next Y position
-                finalY = collision.y + collision.h;
-                attempts++;
             }
 
-            // Fallback if couldn't place
-            if (attempts >= 100) {
-                placed.push({ ...block, x: finalX, y: finalY });
-            }
+            placed.push({ ...block, x: finalX, y: finalY });
         }
 
         return placed;
@@ -113,19 +107,29 @@
     function updateBlock(updatedBlock: Block) {
         if (!editable || !onUpdate) return;
 
-        // During drag, compact OTHER blocks around the dragged one
+        // During drag, show real-time preview of where blocks will end up
         if (draggingBlockId === updatedBlock.id) {
-            // Update preview position for placeholder
-            dragPreviewPos = { x: updatedBlock.x, y: updatedBlock.y, w: updatedBlock.w, h: updatedBlock.h };
+            // Simulate dropping the block at hover position
+            const blocksWithoutDragged = blocks.filter(b => b.id !== updatedBlock.id);
+            const blocksWithHover = [...blocksWithoutDragged, updatedBlock];
 
-            // Get all blocks except the one being dragged
-            const otherBlocks = blocks.filter(b => b.id !== updatedBlock.id);
+            // Compact to see final positions
+            const compacted = compactBlocks(blocksWithHover);
 
-            // Compact other blocks, treating the dragged block as an obstacle
-            const compactedOthers = compactBlocksAround(otherBlocks, updatedBlock);
+            // Find where the dragged block ended up after compacting
+            const finalDraggedBlock = compacted.find(b => b.id === updatedBlock.id);
+            if (finalDraggedBlock) {
+                dragPreviewPos = { x: finalDraggedBlock.x, y: finalDraggedBlock.y, w: finalDraggedBlock.w, h: finalDraggedBlock.h };
+            }
 
-            // Combine: dragged block at cursor position + compacted others
-            onUpdate([...compactedOthers, updatedBlock]);
+            // Remove dragged block from display (it's rendered with transform)
+            const otherBlocks = compacted.filter(b => b.id !== updatedBlock.id);
+
+            // Get original dragged block to keep it at its visual position
+            const originalDragged = blocks.find(b => b.id === updatedBlock.id);
+            if (originalDragged) {
+                onUpdate([...otherBlocks, originalDragged]);
+            }
         } else {
             // Regular update without compacting
             const newBlocks = blocks.map((b) =>
@@ -273,9 +277,14 @@
     }
 
     function handleDragEnd() {
-        // Final compact of all blocks when drag ends
-        if (draggingBlockId) {
-            const compacted = compactBlocks(blocks);
+        // Move dragged block to placeholder position and compact
+        if (draggingBlockId && dragPreviewPos) {
+            const newBlocks = blocks.map(b =>
+                b.id === draggingBlockId
+                    ? { ...b, x: dragPreviewPos.x, y: dragPreviewPos.y }
+                    : b
+            );
+            const compacted = compactBlocks(newBlocks);
             onUpdate(compacted);
         }
 
@@ -287,7 +296,7 @@
 <!-- Grid avec espacement moderne - tailles fixes comme Bento -->
 <div
     data-grid
-    class="relative mx-auto select-none"
+    class="relative mx-auto select-none outline-none"
     style="display: grid; grid-template-columns: repeat({GRID_COLS}, {GRID_CONFIG.cellWidth}px); grid-template-rows: repeat({GRID_ROWS}, {GRID_CONFIG.cellHeight}px); gap: {GRID_CONFIG.gap}px; width: fit-content;"
     onclick={handleGridClick}
 >
@@ -311,7 +320,7 @@
     {#if draggingBlockId && dragPreviewPos}
         <div
             style="grid-column: {dragPreviewPos.x + 1} / span {dragPreviewPos.w}; grid-row: {dragPreviewPos.y + 1} / span {dragPreviewPos.h};"
-            class="rounded-md border-2 border-dashed border-accent bg-accent/10 pointer-events-none"
+            class="rounded-md bg-border/30 pointer-events-none"
         ></div>
     {/if}
 

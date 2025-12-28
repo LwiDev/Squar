@@ -44,6 +44,7 @@
     let dragStartPos = $state({ x: 0, y: 0 });
     let dragStartBlock = $state({ x: 0, y: 0, w: 0, h: 0 });
     let hasMoved = $state(false);
+    let dragOffset = $state({ x: 0, y: 0 }); // Pixel offset for smooth cursor following
 
     // Choose preset sizes based on block type
     const presetSizes = $derived(
@@ -96,10 +97,8 @@
             return;
         }
 
-        // Prevent native image drag behavior
-        if (target.tagName === "IMG" || target.tagName === "SVG") {
-            e.preventDefault();
-        }
+        // Prevent default behavior (including focus outline)
+        e.preventDefault();
 
         // Start listening for drag immediately
         dragInProgress = true;
@@ -107,8 +106,7 @@
         dragStartPos = { x: e.clientX, y: e.clientY };
         dragStartBlock = { x: block.x, y: block.y, w: block.w, h: block.h };
 
-        // Notify parent that drag started
-        onDragStart?.();
+        // DON'T notify parent yet - wait for actual movement
 
         window.addEventListener("mousemove", handleDragMove);
         window.addEventListener("mouseup", handleDragEnd);
@@ -137,32 +135,30 @@
         // Prevent default while dragging
         e.preventDefault();
 
+        // Block follows cursor directly (no grid snapping during drag)
+        dragOffset = { x: deltaX, y: deltaY };
+
+        // Calculate grid position for placeholder
         const gridElement = document.querySelector("[data-grid]");
         if (!gridElement) return;
 
-        const rect = gridElement.getBoundingClientRect();
-        // Fixed cell sizes like Bento
         const cellWidth = GRID_CONFIG.cellWidth + GRID_CONFIG.gap;
         const cellHeight = GRID_CONFIG.cellHeight + GRID_CONFIG.gap;
 
         const cellsX = Math.round(deltaX / cellWidth);
         const cellsY = Math.round(deltaY / cellHeight);
 
-        const newX = Math.max(
+        const hoverX = Math.max(
             0,
             Math.min(gridCols - block.w, dragStartBlock.x + cellsX),
         );
-        const newY = Math.max(
+        const hoverY = Math.max(
             0,
             Math.min(gridRows - block.h, dragStartBlock.y + cellsY),
         );
 
-        // Allow crossing over headings to move between sections
-        // The compacting algorithm will handle section placement
-
-        if (newX !== block.x || newY !== block.y) {
-            onUpdate?.({ ...block, x: newX, y: newY });
-        }
+        // Send hover position to parent for placeholder (grid doesn't update during drag)
+        onUpdate?.({ ...block, x: hoverX, y: hoverY });
     }
 
     function handleDragEnd() {
@@ -177,6 +173,7 @@
         }
 
         dragInProgress = false;
+        dragOffset = { x: 0, y: 0 }; // Reset visual offset
 
         // Don't compact again - already compacted in real-time
         onDragEnd?.();
@@ -185,26 +182,24 @@
     const gridStyle = $derived(`
 		grid-column: ${block.x + 1} / span ${block.w};
 		grid-row: ${block.y + 1} / span ${block.h};
+		${isDragging && hasMoved ? `transform: translate(${dragOffset.x}px, ${dragOffset.y}px);` : ''}
 	`);
 </script>
 
 <div
     style={gridStyle}
-    class="relative transition-colors rounded-md overflow-visible bg-background group {editable
+    class="relative transition-colors rounded-md overflow-visible bg-background group [&_*]:outline-none {editable
         ? isSelected
             ? 'border-2 border-accent'
             : 'border-2 border-transparent hover:bg-border/50'
         : 'border-0'} {isDragging && hasMoved
-        ? 'z-[100] opacity-90 cursor-grabbing'
+        ? 'z-[100] opacity-50 cursor-grabbing'
         : block.type === 'heading'
           ? 'z-60'
           : editable
             ? 'cursor-grab z-0'
             : 'z-0'}"
-    role="button"
-    tabindex={editable ? 0 : -1}
-    onkeydown={editable ? (e) => e.key === "Enter" && onSelect?.() : undefined}
-    onmousedowncapture={editable ? handleDragStart : undefined}
+    onmousedown={editable ? handleDragStart : undefined}
 >
     <!-- Delete button (only in editable mode when selected) -->
     {#if editable && isSelected}

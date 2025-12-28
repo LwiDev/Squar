@@ -28,7 +28,7 @@
 
 {#if open}
 	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-accent/50"
+		class="fixed inset-0 z-[9999] flex items-center justify-center bg-accent/50"
 		onclick={handleBackdropClick}
 		onkeydown={(e) => e.key === 'Enter' && handleBackdropClick(e as any)}
 		transition:fade={{ duration: 200 }}
