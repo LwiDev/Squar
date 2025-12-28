@@ -163,7 +163,7 @@
         const cellsX = Math.round(deltaX / cellWidth);
         const cellsY = Math.round(deltaY / cellHeight);
 
-        const hoverX = Math.max(
+        let hoverX = Math.max(
             0,
             Math.min(gridCols - block.w, dragStartBlock.x + cellsX),
         );
@@ -171,6 +171,13 @@
             0,
             Math.min(gridRows - block.h, dragStartBlock.y + cellsY),
         );
+
+        // Rectangles (w=2) must snap to even positions (0, 2), w=4 to 0 only
+        if (block.w === 2) {
+            hoverX = Math.round(hoverX / 2) * 2; // Snap to nearest even position
+        } else if (block.w === 4) {
+            hoverX = 0; // Always at 0
+        }
 
         // Send hover position to parent for placeholder (grid doesn't update during drag)
         onUpdate?.({ ...block, x: hoverX, y: hoverY });

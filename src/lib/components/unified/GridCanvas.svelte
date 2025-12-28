@@ -65,9 +65,12 @@
             let finalY = 0;
             let found = false;
 
+            // Rectangles (w=2) must be at even positions (0, 2), w=4 at 0 only
+            const step = block.w === 2 ? 2 : block.w === 4 ? 4 : 1;
+
             // Try to find the first available position from top-left
             for (let testY = 0; testY < 100 && !found; testY++) {
-                for (let testX = 0; testX <= GRID_COLS - block.w && !found; testX++) {
+                for (let testX = 0; testX <= GRID_COLS - block.w && !found; testX += step) {
                     const testBlock = { ...block, x: testX, y: testY };
 
                     // Check if this position is free
@@ -89,9 +92,12 @@
 
     // Find next available position for a new block (used when adding blocks)
     function findNextAvailablePosition(w: number, h: number, existingBlocks: Block[]): { x: number; y: number } {
+        // Rectangles (w=2) must be at even positions (0, 2), w=4 at 0 only
+        const step = w === 2 ? 2 : w === 4 ? 4 : 1;
+
         // Try to place the block row by row, left to right
         for (let testY = 0; testY < 50; testY++) {
-            for (let testX = 0; testX <= GRID_COLS - w; testX++) {
+            for (let testX = 0; testX <= GRID_COLS - w; testX += step) {
                 const testBlock = { id: 'temp', type: 'temp', x: testX, y: testY, w, h, data: {} } as Block;
 
                 if (!wouldCollide(testBlock, existingBlocks)) {
@@ -109,13 +115,11 @@
 
         // During drag, show real-time preview of where blocks will end up
         if (draggingBlockId === updatedBlock.id) {
-            // Place dragged block first to give it priority
+            // Compact all other blocks around the dragged block (treated as fixed obstacle)
             const blocksWithoutDragged = blocks.filter(b => b.id !== updatedBlock.id);
+            const compacted = compactBlocksWithObstacle(blocksWithoutDragged, updatedBlock);
 
-            // Compact with dragged block already at its hover position
-            const compacted = compactBlocksAround(blocksWithoutDragged, updatedBlock);
-
-            // Placeholder is exactly where user is dragging
+            // Placeholder stays exactly where user is dragging
             dragPreviewPos = { x: updatedBlock.x, y: updatedBlock.y, w: updatedBlock.w, h: updatedBlock.h };
 
             // Get original dragged block to keep it at its visual position
@@ -130,6 +134,49 @@
             );
             onUpdate(newBlocks);
         }
+    }
+
+    // Compact blocks completely (find first position from top-left) while avoiding an obstacle
+    function compactBlocksWithObstacle(blocksList: Block[], obstacle: Block): Block[] {
+        if (blocksList.length === 0) return [];
+
+        // Sort by Y, then X
+        const sorted = [...blocksList].sort((a, b) => {
+            if (a.y !== b.y) return a.y - b.y;
+            return a.x - b.x;
+        });
+
+        const placed: Block[] = [];
+
+        for (const block of sorted) {
+            let finalX = 0;
+            let finalY = 0;
+            let found = false;
+
+            // Rectangles (w=2) must be at even positions (0, 2), w=4 at 0 only
+            const step = block.w === 2 ? 2 : block.w === 4 ? 4 : 1;
+
+            // Find first available position from top-left, avoiding obstacle
+            for (let testY = 0; testY < 100 && !found; testY++) {
+                for (let testX = 0; testX <= GRID_COLS - block.w && !found; testX += step) {
+                    const testBlock = { ...block, x: testX, y: testY };
+
+                    // Check collision with placed blocks AND obstacle
+                    const collisionWithPlaced = placed.find(p => blocksOverlap(testBlock, p));
+                    const collisionWithObstacle = blocksOverlap(testBlock, obstacle);
+
+                    if (!collisionWithPlaced && !collisionWithObstacle) {
+                        finalX = testX;
+                        finalY = testY;
+                        found = true;
+                    }
+                }
+            }
+
+            placed.push({ ...block, x: finalX, y: finalY });
+        }
+
+        return placed;
     }
 
     // Compact blocks around an obstacle (the dragged block)
@@ -190,7 +237,10 @@
 
         // Check for overlaps and push overlapping blocks down
         const fixed = pushOverlappingBlocks(newBlocks, updatedBlock.id);
-        onUpdate(fixed);
+
+        // Compact to remove any horizontal gaps (prevent 3 columns)
+        const compacted = compactBlocks(fixed);
+        onUpdate(compacted);
     }
 
     // Simple collision resolution: push overlapping blocks down
@@ -274,12 +324,12 @@
         if (draggingBlockId && dragPreviewPos) {
             const draggedBlock = blocks.find(b => b.id === draggingBlockId);
             if (draggedBlock) {
-                // Block at final position
+                // Block at final position (same as placeholder)
                 const finalBlock = { ...draggedBlock, x: dragPreviewPos.x, y: dragPreviewPos.y };
 
-                // Compact others around it
+                // Compact others around it (same logic as during drag)
                 const otherBlocks = blocks.filter(b => b.id !== draggingBlockId);
-                const compacted = compactBlocksAround(otherBlocks, finalBlock);
+                const compacted = compactBlocksWithObstacle(otherBlocks, finalBlock);
 
                 onUpdate([...compacted, finalBlock]);
             }
