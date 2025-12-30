@@ -187,7 +187,8 @@
             };
         } catch (err) {
             console.error("Upload error:", err);
-            const errorMessage = err instanceof Error ? err.message : "Failed to upload photo";
+            const errorMessage =
+                err instanceof Error ? err.message : "Failed to upload photo";
             alert(`Failed to upload photo: ${errorMessage}`);
         } finally {
             uploading = false;
@@ -338,10 +339,41 @@
     // Default to light if theme is missing or object (legacy)
     const themeName = $derived(typeof theme === "string" ? theme : "light");
 
-    // Derive if sidebar layout is being used
-    const isSidebarLayout = $derived(
-        profilePhoto.position === "left" || profilePhoto.position === "right",
-    );
+    // Derive layout configuration
+    const layoutConfig = $derived.by(() => {
+        const position = profilePhoto.position;
+        const isSidebar = position === "left" || position === "right";
+
+        if (position === "left") {
+            return {
+                isSidebar: true,
+                container:
+                    "max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8 lg:gap-12 mb-12",
+                profileWrapper: "lg:sticky lg:top-8 lg:self-start",
+                // Mobile: Profile first (default order)
+                contentWrapper: "min-h-[200px]",
+            };
+        } else if (position === "right") {
+            return {
+                isSidebar: true,
+                container:
+                    "max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 lg:gap-12 mb-12",
+                // Mobile: Profile first (order-1), Content second (order-2)
+                // Desktop: Profile right (order-2), Content left (order-1)
+                profileWrapper:
+                    "lg:sticky lg:top-8 lg:self-start order-1 lg:order-2",
+                contentWrapper: "min-h-[200px] order-2 lg:order-1",
+            };
+        } else {
+            // Center/Top layout
+            return {
+                isSidebar: false,
+                container: "max-w-6xl mx-auto",
+                profileWrapper: "mb-12",
+                contentWrapper: "",
+            };
+        }
+    });
 </script>
 
 <svelte:head>
@@ -377,111 +409,54 @@
 <div
     class="min-h-screen w-full p-4 theme-{themeName} bg-background text-text transition-colors"
 >
-    {#if isSidebarLayout}
-        <!-- For sidebar layouts, use full width and let PageHeader handle the grid -->
-        <div class="max-w-7xl mx-auto">
-            {#if profilePhoto.position === "left"}
-                <!-- LEFT SIDEBAR LAYOUT -->
+    <div class={layoutConfig.container}>
+        <!-- Profile Section -->
+        <aside class={layoutConfig.profileWrapper}>
+            {#if layoutConfig.isSidebar}
                 <div
-                    class="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8 lg:gap-12 mb-12"
+                    class="bg-background border-2 border-border rounded-2xl p-8 shadow-sm"
                 >
-                    <!-- Sticky Profile Card -->
-                    <aside class="lg:sticky lg:top-8 lg:self-start">
-                        <div
-                            class="bg-background border-2 border-border rounded-2xl p-8 shadow-sm"
-                        >
-                            <PageHeader
-                                {editable}
-                                bind:title
-                                bind:profilePhoto
-                                bind:description
-                                {titleSize}
-                                username={slug}
-                                userEmail={user?.email}
-                                onTitleUpdate={(t) => (title = t)}
-                                onDescriptionUpdate={(d) => (description = d)}
-                                onPhotoClick={() =>
-                                    (showProfilePhotoModal = true)}
-                                onTitleSettingsClick={() =>
-                                    (showTitleSettingsModal = true)}
-                            />
-                        </div>
-                    </aside>
-
-                    <!-- Content column -->
-                    <div class="min-h-[200px]">
-                        <GridCanvas
-                            blocks={layout}
-                            {editable}
-                            onUpdate={editable ? updateLayout : undefined}
-                        />
-                    </div>
+                    <PageHeader
+                        {editable}
+                        bind:title
+                        bind:profilePhoto
+                        bind:description
+                        {titleSize}
+                        username={slug}
+                        userEmail={user?.email}
+                        onTitleUpdate={(t) => (title = t)}
+                        onDescriptionUpdate={(d) => (description = d)}
+                        onPhotoClick={() => (showProfilePhotoModal = true)}
+                        onTitleSettingsClick={() =>
+                            (showTitleSettingsModal = true)}
+                    />
                 </div>
             {:else}
-                <!-- RIGHT SIDEBAR LAYOUT -->
-                <div
-                    class="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 lg:gap-12 mb-12"
-                >
-                    <!-- Content column -->
-                    <div class="min-h-[200px] order-2 lg:order-1">
-                        <GridCanvas
-                            blocks={layout}
-                            {editable}
-                            onUpdate={editable ? updateLayout : undefined}
-                        />
-                    </div>
-
-                    <!-- Sticky Profile Card -->
-                    <aside
-                        class="lg:sticky lg:top-8 lg:self-start order-1 lg:order-2"
-                    >
-                        <div
-                            class="bg-background border-2 border-border rounded-2xl p-8 shadow-sm"
-                        >
-                            <PageHeader
-                                {editable}
-                                bind:title
-                                bind:profilePhoto
-                                bind:description
-                                {titleSize}
-                                username={slug}
-                                userEmail={user?.email}
-                                onTitleUpdate={(t) => (title = t)}
-                                onDescriptionUpdate={(d) => (description = d)}
-                                onPhotoClick={() =>
-                                    (showProfilePhotoModal = true)}
-                                onTitleSettingsClick={() =>
-                                    (showTitleSettingsModal = true)}
-                            />
-                        </div>
-                    </aside>
-                </div>
+                <PageHeader
+                    {editable}
+                    bind:title
+                    bind:profilePhoto
+                    bind:description
+                    {titleSize}
+                    username={slug}
+                    userEmail={user?.email}
+                    onTitleUpdate={(t) => (title = t)}
+                    onDescriptionUpdate={(d) => (description = d)}
+                    onPhotoClick={() => (showProfilePhotoModal = true)}
+                    onTitleSettingsClick={() => (showTitleSettingsModal = true)}
+                />
             {/if}
-        </div>
-    {:else}
-        <!-- For center layout, use the standard centered container -->
-        <div class="max-w-6xl mx-auto">
-            <PageHeader
-                {editable}
-                bind:title
-                bind:profilePhoto
-                bind:description
-                {titleSize}
-                username={slug}
-                userEmail={user?.email}
-                onTitleUpdate={(t) => (title = t)}
-                onDescriptionUpdate={(d) => (description = d)}
-                onPhotoClick={() => (showProfilePhotoModal = true)}
-                onTitleSettingsClick={() => (showTitleSettingsModal = true)}
-            />
+        </aside>
 
+        <!-- Content Section -->
+        <main class={layoutConfig.contentWrapper}>
             <GridCanvas
                 blocks={layout}
                 {editable}
                 onUpdate={editable ? updateLayout : undefined}
             />
-        </div>
-    {/if}
+        </main>
+    </div>
 </div>
 
 {#if isOwner}

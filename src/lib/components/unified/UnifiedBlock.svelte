@@ -202,16 +202,21 @@
         onDragEnd?.();
     }
 
+    const pixelHeight = $derived(
+        block.h * GRID_CONFIG.cellHeight + (block.h - 1) * GRID_CONFIG.gap,
+    );
+
     const gridStyle = $derived(`
 		grid-column: ${block.x + 1} / span ${block.w};
 		grid-row: ${block.y + 1} / span ${block.h};
-		${isDragging && hasMoved ? `transform: translate(${$springOffset.x}px, ${$springOffset.y}px) rotate(${$springOffset.rotation}deg) scale(1.05);` : ''}
+        height: ${pixelHeight}px;
+		${isDragging && hasMoved ? `transform: translate(${$springOffset.x}px, ${$springOffset.y}px) rotate(${$springOffset.rotation}deg) scale(1.05);` : ""}
 	`);
 </script>
 
 <div
     style={gridStyle}
-    class="relative transition-colors rounded-md overflow-visible bg-background group [&_*]:outline-none {editable
+    class="relative transition-colors rounded-md overflow-visible bg-background group w-full md:w-auto md:h-full [&_*]:outline-none {editable
         ? isSelected
             ? 'border-2 border-accent'
             : 'border-2 border-transparent hover:bg-border/50'

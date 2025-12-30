@@ -193,13 +193,16 @@
     adaptive={true}
     saving={autoSaving}
 >
-    <div class="flex items-center justify-between h-12 gap-2">
-        <div class="flex items-center gap-1 sm:gap-3">
+    <div
+        class="flex items-center justify-between w-full h-12 px-1 sm:px-2 gap-2"
+    >
+        <!-- LEFT: User -->
+        <div class="flex items-center gap-2 sm:gap-3 shrink-0">
             <!-- Menu -->
             <div class="relative">
                 <button
                     onclick={() => (showMenu = !showMenu)}
-                    class="flex items-center gap-1 sm:gap-2 px-1 sm:px-3 py-1.5 rounded hover:bg-border/50 transition-colors -ml-2"
+                    class="flex items-center gap-1 sm:gap-2 px-1 py-1.5 rounded hover:bg-border/50 transition-colors"
                 >
                     <div
                         class="h-8 w-8 min-w-[32px] rounded-full bg-accent text-white flex items-center justify-center font-bold text-sm"
@@ -213,7 +216,7 @@
 
                 {#if showMenu}
                     <div
-                        class="absolute bottom-full left-0 mb-2 w-52 bg-background border border-border rounded-lg shadow-lg"
+                        class="absolute bottom-full left-0 mb-2 w-52 bg-background border border-border rounded-lg shadow-lg z-50"
                         onmouseleave={() => (showMenu = false)}
                         role="menu"
                         tabindex="-1"
@@ -244,9 +247,16 @@
             </div>
 
             <Separator />
+        </div>
 
+        <!-- CENTER: Tools -->
+
+        <div
+            class="flex-1 flex items-center justify-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar mask-fade px-2"
+        >
             <!-- Add blocks -->
-            <div class="flex items-center gap-1">
+
+            <div class="flex items-center gap-1 shrink-0">
                 <Tooltip text={$t("editor.toolbar.add_title")}>
                     <button
                         onclick={onAddHeading}
@@ -300,7 +310,7 @@
 
             <!-- Undo/Redo -->
             <div
-                class="flex gap-0.5 sm:gap-1 {!canUndo && !canRedo
+                class="flex gap-0.5 sm:gap-1 shrink-0 {!canUndo && !canRedo
                     ? 'hidden sm:flex'
                     : 'flex'}"
             >
@@ -319,84 +329,85 @@
                     />
                 </Tooltip>
             </div>
+        </div>
 
+        <!-- RIGHT: Actions -->
+        <div class="flex items-center gap-2 sm:gap-3 shrink-0 justify-end">
             <Separator />
 
-            <div class="flex items-center">
-                <!-- Preview Mode Toggle -->
-                {#if onPreviewToggle}
-                    <div class="flex items-center gap-1 sm:gap-2 mr-1 sm:mr-2">
-                        <Tooltip
-                            text={previewMode
-                                ? $t("editor.toolbar.exit_preview")
-                                : $t("editor.toolbar.preview")}
-                        >
-                            <IconButton
-                                icon={previewMode ? EyeOff : Eye}
-                                onclick={onPreviewToggle}
-                                class={previewMode
-                                    ? "bg-accent/20 text-accent"
-                                    : ""}
-                            />
-                        </Tooltip>
-                    </div>
-                {/if}
-
-                {#if published && viewUrl}
-                    <div
-                        class="flex items-center gap-1 sm:gap-2 mr-1 sm:mr-2"
-                        transition:slide={{ axis: "x", duration: 200 }}
-                    >
-                        <!-- Share -->
-                        <Tooltip text={$t("editor.toolbar.share")}>
-                            <IconButton icon={Share} onclick={handleShare} />
-                        </Tooltip>
-
-                        <!-- View (deprecated in new unified mode, but kept for compatibility) -->
-                        {#if viewUrl !== `/${username}`}
-                            <Tooltip text={$t("editor.toolbar.view")}>
-                                <a href={viewUrl} target="_blank">
-                                    <IconButton icon={Eye} onclick={() => {}} />
-                                </a>
-                            </Tooltip>
-                        {/if}
-                    </div>
-                {/if}
-
-                <!-- Publish -->
-                <div class="sm:hidden flex items-center">
+            <!-- Preview Mode Toggle -->
+            {#if onPreviewToggle}
+                <div class="flex items-center">
                     <Tooltip
-                        text={published
-                            ? $t("editor.toolbar.unpublish")
-                            : $t("editor.toolbar.publish")}
+                        text={previewMode
+                            ? $t("editor.toolbar.exit_preview")
+                            : $t("editor.toolbar.preview")}
                     >
                         <IconButton
-                            icon={published ? GlobeLock : Globe}
-                            onclick={onPublish}
-                            disabled={saving || previewMode}
-                            class="bg-accent text-white hover:bg-accent/80 active:bg-accent"
+                            icon={previewMode ? EyeOff : Eye}
+                            onclick={onPreviewToggle}
+                            class={previewMode
+                                ? "bg-accent/20 text-accent"
+                                : ""}
                         />
                     </Tooltip>
                 </div>
+            {/if}
 
-                <div class="hidden sm:block">
-                    <Button
-                        size="sm"
-                        variant="primary"
+            {#if published && viewUrl}
+                <div
+                    class="flex items-center gap-1 sm:gap-2"
+                    transition:slide={{ axis: "x", duration: 200 }}
+                >
+                    <!-- Share -->
+                    <Tooltip text={$t("editor.toolbar.share")}>
+                        <IconButton icon={Share} onclick={handleShare} />
+                    </Tooltip>
+
+                    <!-- View (deprecated in new unified mode, but kept for compatibility) -->
+                    {#if viewUrl !== `/${username}`}
+                        <Tooltip text={$t("editor.toolbar.view")}>
+                            <a href={viewUrl} target="_blank">
+                                <IconButton icon={Eye} onclick={() => {}} />
+                            </a>
+                        </Tooltip>
+                    {/if}
+                </div>
+            {/if}
+
+            <!-- Publish -->
+            <div class="sm:hidden flex items-center">
+                <Tooltip
+                    text={published
+                        ? $t("editor.toolbar.unpublish")
+                        : $t("editor.toolbar.publish")}
+                >
+                    <IconButton
+                        icon={published ? GlobeLock : Globe}
                         onclick={onPublish}
                         disabled={saving || previewMode}
-                        class="px-3"
-                    >
-                        {#if published}
-                            <GlobeLock size={16} class="mr-1.5" />
-                        {:else}
-                            <Globe size={16} class="mr-1.5" />
-                        {/if}
-                        {published
-                            ? $t("editor.toolbar.unpublish")
-                            : $t("editor.toolbar.publish")}
-                    </Button>
-                </div>
+                        class="bg-accent text-white hover:bg-accent/80 active:bg-accent"
+                    />
+                </Tooltip>
+            </div>
+
+            <div class="hidden sm:block">
+                <Button
+                    size="sm"
+                    variant="primary"
+                    onclick={onPublish}
+                    disabled={saving || previewMode}
+                    class="px-3"
+                >
+                    {#if published}
+                        <GlobeLock size={16} class="mr-1.5" />
+                    {:else}
+                        <Globe size={16} class="mr-1.5" />
+                    {/if}
+                    {published
+                        ? $t("editor.toolbar.unpublish")
+                        : $t("editor.toolbar.publish")}
+                </Button>
             </div>
         </div>
     </div>
