@@ -1,5 +1,11 @@
 <script lang="ts">
-    import { Button, Card } from "$lib/components/ui";
+    import {
+        Button,
+        Card,
+        IconButton,
+        Separator,
+        Tooltip,
+    } from "$lib/components/ui";
     import { Container } from "$lib/components/layout";
     import PageHead from "$lib/components/PageHead.svelte";
     import { goto } from "$app/navigation";
@@ -12,20 +18,71 @@
         Type,
         Link as LinkIcon,
         Image as ImageIcon,
-        GripVertical,
-        MousePointer2,
-        Palette,
+        Video as VideoIcon,
+        Undo2,
+        Redo2,
+        Eye,
         Share,
+        Globe,
         Check,
+        Heading,
+        User,
     } from "lucide-svelte";
     import { PUBLIC_GITHUB_URL } from "$env/static/public";
     import { t } from "svelte-i18n";
+    import GridCanvas from "$lib/components/unified/GridCanvas.svelte";
+    import PageHeader from "$lib/components/unified/PageHeader.svelte";
+    import type { Block } from "$lib/types/models";
 
     let heroVisible = $state(false);
     let demoVisible = $state(false);
     let howItWorksVisible = $state(false);
     let actuallyFreeVisible = $state(false);
     let featuresVisible = $state(false);
+
+    // Demo Data
+    let demoTitle = $state("John Doe");
+    let demoDescription = $state("Digital Creator & Developer");
+    let demoProfile = $state({
+        position: "center" as const,
+        size: "medium" as const,
+        shape: "circle" as const,
+        visibility: "letter" as const,
+        layout: "vertical" as const,
+    });
+
+    let demoBlocks = $state<Block[]>([
+        {
+            id: "1",
+            type: "heading",
+            x: 0,
+            y: 0,
+            w: 2,
+            h: 1,
+            data: { text: "My Portfolio" },
+        },
+        {
+            id: "2",
+            type: "text",
+            x: 0,
+            y: 1,
+            w: 2,
+            h: 1,
+            data: { text: "Passionate about building great user experiences." },
+        },
+        {
+            id: "3",
+            type: "image",
+            x: 2,
+            y: 0,
+            w: 2,
+            h: 2,
+            data: {
+                imageUrl:
+                    "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=800&auto=format&fit=crop",
+            },
+        },
+    ]);
 
     $effect(() => {
         const observer = new IntersectionObserver(
@@ -185,171 +242,142 @@
             ></div>
 
             <Card
-                class="relative shadow-2xl overflow-hidden flex flex-col h-[500px] md:h-[600px]"
+                class="relative shadow-2xl overflow-hidden flex flex-col h-[600px] md:h-[700px] bg-background"
             >
-                <div
-                    class="h-14 border-b border-border flex items-center justify-between px-4 bg-background z-10"
-                >
-                    <div class="flex items-center gap-2">
-                        <div
-                            class="h-8 w-8 rounded-full bg-accent text-white flex items-center justify-center font-bold"
-                        >
-                            L
+                <!-- Browser Content Area -->
+                <div class="flex-1 overflow-hidden relative no-scrollbar">
+                    <div class="max-w-6xl mx-auto p-4 md:p-8 pb-32 h-full">
+                        <PageHeader
+                            editable={false}
+                            bind:title={demoTitle}
+                            bind:description={demoDescription}
+                            bind:profilePhoto={demoProfile}
+                            username="johndoe"
+                        />
+
+                        <div class="mt-8">
+                            <GridCanvas blocks={demoBlocks} editable={false} />
                         </div>
-                        <span class="text-sm font-medium">@lwi</span>
-                    </div>
-
-                    <div
-                        class="hidden md:flex items-center gap-1 bg-secondary/50 p-1 rounded-lg"
-                    >
-                        <button
-                            class="p-1.5 hover:bg-background rounded-md text-text transition-colors"
-                        >
-                            <Plus size={18} />
-                        </button>
-                        <div class="w-px h-4 bg-border mx-1"></div>
-                        <button
-                            class="p-1.5 hover:bg-background rounded-md text-muted hover:text-text transition-colors"
-                        >
-                            <Type size={18} />
-                        </button>
-                        <button
-                            class="p-1.5 hover:bg-background rounded-md text-muted hover:text-text transition-colors"
-                        >
-                            <LinkIcon size={18} />
-                        </button>
-                        <button
-                            class="p-1.5 hover:bg-background rounded-md text-muted hover:text-text transition-colors"
-                        >
-                            <ImageIcon size={18} />
-                        </button>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <Button
-                            size="sm"
-                            variant="ghost"
-                            class="hidden sm:inline-flex">Preview</Button
-                        >
-                        <Button size="sm">Publish</Button>
                     </div>
                 </div>
 
+                <!-- Fake Toolbar (Replica of EditorToolbar) -->
                 <div
-                    class="flex-1 bg-secondary/10 relative p-4 md:p-8 overflow-hidden"
+                    class="absolute bottom-6 left-1/2 -translate-x-1/2 w-full max-w-xl px-4 z-40 pointer-events-none"
                 >
                     <div
-                        class="absolute inset-0"
-                        style="background-image: radial-gradient(#888888 1px, transparent 1px); background-size: 24px 24px; opacity: 0.1;"
-                    ></div>
-
-                    <div
-                        class="grid grid-cols-2 md:grid-cols-4 gap-4 h-full relative z-0"
+                        class="relative bg-background/70 backdrop-blur-xl border border-border rounded-sm px-4 py-2 shadow-sm w-full pointer-events-auto"
                     >
-                        <div class="col-span-2 row-span-2 relative group">
+                        <div
+                            class="flex items-center justify-between w-full h-12 px-1 sm:px-2 gap-2"
+                        >
+                            <!-- LEFT: User -->
                             <div
-                                class="absolute -inset-0.5 border-2 border-accent rounded-xl z-20 pointer-events-none"
+                                class="flex items-center gap-2 sm:gap-3 shrink-0"
                             >
-                                <div
-                                    class="absolute -top-1.5 -left-1.5 w-3 h-3 bg-accent rounded-full border border-background"
-                                ></div>
-                                <div
-                                    class="absolute -top-1.5 -right-1.5 w-3 h-3 bg-accent rounded-full border border-background"
-                                ></div>
-                                <div
-                                    class="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-accent rounded-full border border-background"
-                                ></div>
-                                <div
-                                    class="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-accent rounded-full border border-background"
-                                ></div>
-                                <div
-                                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-accent text-white rounded px-2 py-0.5 text-[10px] font-bold"
+                                <button
+                                    class="flex items-center gap-1 sm:gap-2 px-1 py-1.5 rounded hover:bg-border/50 transition-colors"
                                 >
-                                    Selected
+                                    <div
+                                        class="h-8 w-8 min-w-[32px] rounded-full bg-accent text-white flex items-center justify-center font-bold text-sm"
+                                    >
+                                        J
+                                    </div>
+                                    <span
+                                        class="text-sm font-medium hidden sm:block"
+                                        >@johndoe</span
+                                    >
+                                </button>
+                                <Separator />
+                            </div>
+
+                            <!-- CENTER: Tools -->
+                            <div
+                                class="flex-1 flex items-center justify-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar mask-fade px-2"
+                            >
+                                <div class="flex items-center gap-1 shrink-0">
+                                    <Tooltip
+                                        text={$t("editor.toolbar.add_title")}
+                                    >
+                                        <button
+                                            class="p-1.5 hover:bg-border/50 rounded-md text-muted hover:text-text transition-colors"
+                                        >
+                                            <Heading size={18} />
+                                        </button>
+                                    </Tooltip>
+                                    <Tooltip
+                                        text={$t("editor.toolbar.add_text")}
+                                    >
+                                        <button
+                                            class="p-1.5 hover:bg-border/50 rounded-md text-muted hover:text-text transition-colors"
+                                        >
+                                            <Type size={18} />
+                                        </button>
+                                    </Tooltip>
+                                    <Tooltip
+                                        text={$t("editor.toolbar.add_link")}
+                                    >
+                                        <button
+                                            class="p-1.5 hover:bg-border/50 rounded-md text-muted hover:text-text transition-colors"
+                                        >
+                                            <LinkIcon size={18} />
+                                        </button>
+                                    </Tooltip>
+                                    <Tooltip
+                                        text={$t("editor.toolbar.add_image")}
+                                    >
+                                        <button
+                                            class="p-1.5 hover:bg-border/50 rounded-md text-muted hover:text-text transition-colors"
+                                        >
+                                            <ImageIcon size={18} />
+                                        </button>
+                                    </Tooltip>
+                                    <Tooltip
+                                        text={$t("editor.toolbar.add_video")}
+                                    >
+                                        <button
+                                            class="p-1.5 hover:bg-border/50 rounded-md text-muted hover:text-text transition-colors"
+                                        >
+                                            <VideoIcon size={18} />
+                                        </button>
+                                    </Tooltip>
+                                </div>
+
+                                <Separator />
+
+                                <div class="flex gap-0.5 sm:gap-1 shrink-0">
+                                    <Tooltip text={$t("editor.toolbar.undo")}>
+                                        <IconButton
+                                            icon={Undo2}
+                                            disabled={true}
+                                        />
+                                    </Tooltip>
+                                    <Tooltip text={$t("editor.toolbar.redo")}>
+                                        <IconButton
+                                            icon={Redo2}
+                                            disabled={true}
+                                        />
+                                    </Tooltip>
                                 </div>
                             </div>
 
-                            <Card
-                                variant="glass"
-                                class="h-full flex flex-col justify-between p-6 relative overflow-hidden"
-                            >
-                                <div class="absolute top-3 left-3 opacity-50">
-                                    <GripVertical size={16} />
-                                </div>
-                                <div class="mt-4">
-                                    <h3 class="text-2xl font-bold">
-                                        Hi, I'm Squar.
-                                    </h3>
-                                    <p class="text-muted mt-2">
-                                        Building open source tools for everyone.
-                                    </p>
-                                </div>
-                            </Card>
-                        </div>
-
-                        <div
-                            class="col-span-1 row-span-1 relative group cursor-grab active:cursor-grabbing"
-                        >
+                            <!-- RIGHT: Actions -->
                             <div
-                                class="absolute inset-0 border-2 border-transparent group-hover:border-accent/50 rounded-xl transition-colors pointer-events-none z-10"
-                            ></div>
-                            <Card
-                                variant="glass"
-                                class="h-full bg-blue-500 text-white flex items-center justify-center relative"
+                                class="flex items-center gap-2 sm:gap-3 shrink-0 justify-end"
                             >
-                                <span class="font-bold">Twitter</span>
-                            </Card>
-                        </div>
-
-                        <div
-                            class="col-span-1 row-span-2 relative group cursor-grab active:cursor-grabbing"
-                        >
-                            <div
-                                class="absolute inset-0 border-2 border-transparent group-hover:border-accent/50 rounded-xl transition-colors pointer-events-none z-10"
-                            ></div>
-                            <Card
-                                variant="glass"
-                                class="h-full bg-zinc-900 text-white relative overflow-hidden flex flex-col justify-end p-4"
-                            >
-                                <img
-                                    src="https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=800&auto=format&fit=crop"
-                                    alt="Cover"
-                                    class="absolute inset-0 w-full h-full object-cover opacity-50"
-                                />
-                                <div class="relative z-10">
-                                    <p
-                                        class="text-[10px] font-bold text-green-400 uppercase tracking-wider mb-1"
-                                    >
-                                        Now Playing
-                                    </p>
-                                    <p
-                                        class="font-semibold leading-tight text-sm"
-                                    >
-                                        Squar Theme
-                                    </p>
-                                </div>
-                            </Card>
-                        </div>
-
-                        <div
-                            class="col-span-1 row-span-1 relative group cursor-grab active:cursor-grabbing"
-                        >
-                            <div
-                                class="absolute inset-0 border-2 border-transparent group-hover:border-accent/50 rounded-xl transition-colors pointer-events-none z-10"
-                            ></div>
-                            <Card
-                                variant="glass"
-                                class="h-full bg-pink-500 text-white flex items-center justify-center"
-                            >
-                                <span class="font-bold">Instagram</span>
-                            </Card>
-                        </div>
-
-                        <div
-                            class="col-span-2 md:col-span-1 row-span-1 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center text-muted hover:border-accent hover:text-accent hover:bg-accent/5 transition-colors cursor-pointer gap-2"
-                        >
-                            <Plus size={24} />
-                            <span class="text-xs font-medium">Add Block</span>
+                                <Separator />
+                                <Tooltip text={$t("editor.toolbar.preview")}>
+                                    <IconButton icon={Eye} />
+                                </Tooltip>
+                                <Button
+                                    size="sm"
+                                    variant="primary"
+                                    class="hidden sm:flex px-3"
+                                >
+                                    <Globe size={16} class="mr-1.5" />
+                                    {$t("editor.toolbar.publish")}
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </div>
