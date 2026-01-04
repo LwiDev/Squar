@@ -207,16 +207,21 @@
     );
 
     const gridStyle = $derived(`
-		grid-column: ${block.x + 1} / span ${block.w};
-		grid-row: ${block.y + 1} / span ${block.h};
-        height: ${pixelHeight}px;
+		--col-start: ${block.x + 1};
+		--col-span: ${block.w};
+		--row-start: ${block.y + 1};
+		--row-span: ${block.h};
+        --desktop-height: ${pixelHeight}px;
 		${isDragging && hasMoved ? `transform: translate(${$springOffset.x}px, ${$springOffset.y}px) rotate(${$springOffset.rotation}deg) scale(1.05);` : ""}
 	`);
 </script>
 
 <div
     style={gridStyle}
-    class="relative transition-colors rounded-md overflow-visible bg-background group w-full md:w-auto md:h-full [&_*]:outline-none {editable
+    class="relative transition-colors rounded-md overflow-visible bg-background group w-full md:w-auto md:h-full {block.w ===
+    1
+        ? 'col-span-1 aspect-square'
+        : 'col-span-2'} [&_*]:outline-none {editable
         ? isSelected
             ? 'border-2 border-accent'
             : 'border-2 border-transparent hover:bg-border/50'
@@ -302,6 +307,14 @@
 </div>
 
 <style>
+    @media (min-width: 768px) {
+        div {
+            grid-column: var(--col-start) / span var(--col-span);
+            grid-row: var(--row-start) / span var(--row-span);
+            height: var(--desktop-height);
+        }
+    }
+
     /* Force grab cursor on all children when editable, except inputs/textareas */
     .force-grab-cursor
         :global(*:not(input):not(textarea):not([contenteditable="true"])) {

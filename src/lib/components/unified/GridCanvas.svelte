@@ -429,7 +429,7 @@
 <!-- Mobile: Flex column stack / Desktop: CSS Grid -->
 <div
     data-grid
-    class="relative mx-auto select-none outline-none flex flex-col gap-6 w-full md:grid md:w-fit"
+    class="relative mx-auto select-none outline-none grid grid-cols-2 gap-3 w-full md:grid md:w-fit"
     style="--grid-cols: {GRID_COLS}; --grid-rows: {GRID_ROWS}; --cell-width: {GRID_CONFIG.cellWidth}px; --cell-height: {GRID_CONFIG.cellHeight}px; --gap: {GRID_CONFIG.gap}px;"
     onclick={handleGridClick}
 >

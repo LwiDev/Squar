@@ -68,7 +68,7 @@
             aria-label="Change language"
         >
             <span
-                >{locales.find((l) => l.code === $locale)?.label ||
+                >{locales.find((l) => $locale?.startsWith(l.code))?.label ||
                     "English"}</span
             >
             {#if direction === "up"}
@@ -94,13 +94,14 @@
             {#each locales as l}
                 <button
                     onclick={() => selectLocale(l.code)}
-                    class="w-full text-left px-4 py-2.5 text-sm hover:bg-secondary/50 transition-colors flex items-center justify-between {l.code ===
-                    $locale
+                    class="w-full text-left px-4 py-2.5 text-sm hover:bg-secondary/50 transition-colors flex items-center justify-between {$locale?.startsWith(
+                        l.code,
+                    )
                         ? 'text-accent font-medium'
                         : 'text-muted hover:text-text'}"
                 >
                     <span>{l.label}</span>
-                    {#if l.code === $locale}
+                    {#if $locale?.startsWith(l.code)}
                         <Check size={14} />
                     {/if}
                 </button>
