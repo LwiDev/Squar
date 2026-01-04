@@ -3,7 +3,7 @@
 
     interface Props {
         icon: ComponentType;
-        onclick: () => void;
+        onclick?: () => void | undefined;
         disabled?: boolean;
         size?: number;
         class?: string;

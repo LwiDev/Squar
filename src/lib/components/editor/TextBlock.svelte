@@ -72,6 +72,13 @@
         }
     }
 
+    function handleKeydown(e: KeyboardEvent) {
+        if (!editing && editable && (e.key === "Enter" || e.key === " ")) {
+            e.preventDefault();
+            handleFocus();
+        }
+    }
+
     onMount(() => {
         if (!editable) return;
 
@@ -95,12 +102,15 @@
     <div
         bind:this={editableRef}
         contenteditable={editable && editing}
+        role="textbox"
+        tabindex="0"
         onclick={(e) => {
             if (editable && !editing) {
                 e.stopPropagation();
                 handleFocus();
             }
         }}
+        onkeydown={handleKeydown}
         onfocus={handleFocus}
         oninput={handleInput}
         class="h-full w-full outline-none text-text {editable && !editing
