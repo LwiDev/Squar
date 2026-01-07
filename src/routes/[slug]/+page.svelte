@@ -12,6 +12,7 @@
     import type { PageData } from "./$types";
     import { DEFAULT_BLOCK_SIZE } from "$lib/constants/blockSizes";
     import logo from "$lib/assets/images/logos/logo.png";
+    import { t } from "svelte-i18n";
 
     let { data }: { data: PageData } = $props();
     const { page, isOwner, user } = $derived(data);
@@ -60,6 +61,7 @@
     let showTitleSettingsModal = $state(false);
 
     let lastPageId = $state(untrack(() => page.id));
+    let fileInputImage: HTMLInputElement;
 
     let autoSaveTimeout: ReturnType<typeof setTimeout>;
 
@@ -112,6 +114,51 @@
             data: blockData,
         };
         updateLayout([...layout, newBlock]);
+    }
+
+    async function handleImageSelect(e: Event) {
+        const target = e.target as HTMLInputElement;
+        const file = target.files?.[0];
+        if (!file) return;
+
+        // Reset input to allow selecting same file again
+        target.value = "";
+
+        // Only accept images and GIFs
+        if (!file.type.startsWith("image/")) {
+            alert($t("blocks.image.error_type"));
+            return;
+        }
+
+        // Check file size (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert($t("blocks.image.error_size"));
+            return;
+        }
+
+        uploading = true;
+
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error("Upload failed");
+            }
+
+            const data = await response.json();
+            addBlock("image", { imageUrl: data.url, filename: data.filename });
+        } catch (error) {
+            console.error(error);
+            alert($t("blocks.image.error_failed"));
+        } finally {
+            uploading = false;
+        }
     }
 
     function handleAddLink(
@@ -483,11 +530,19 @@
         onUpdate={(size) => (titleSize = size)}
     />
 
+    <input
+        type="file"
+        accept="image/*"
+        bind:this={fileInputImage}
+        onchange={handleImageSelect}
+        class="hidden"
+    />
+
     <EditorToolbar
         onAddHeading={() => addBlock("heading")}
         onAddText={() => addBlock("text")}
         onAddLink={() => (showAddLinkDialog = true)}
-        onAddImage={() => addBlock("image")}
+        onAddImage={() => fileInputImage.click()}
         onAddVideo={() => addBlock("video")}
         onUndo={handleUndo}
         onRedo={handleRedo}
