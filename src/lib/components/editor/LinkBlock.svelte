@@ -2,18 +2,22 @@
     import type { Block } from "$lib/types/models";
     import { ExternalLink } from "lucide-svelte";
     import { onMount } from "svelte";
+    import { slide, fade } from "svelte/transition";
 
     interface Props {
         block: Block;
         editable?: boolean;
+        editState?: { isEditing: boolean };
         onUpdate?: (data: any) => void;
     }
 
-    let { block, editable = true, onUpdate }: Props = $props();
+    let { block, editable = true, editState = undefined, onUpdate }: Props = $props();
+
+    const localEditState = $state({ isEditing: false });
+    const state = $derived(editState ?? localEditState);
 
     let editTitle = $state("");
     let editUrl = $state("");
-    let editing = $state(false);
     let containerRef = $state<HTMLDivElement>();
     let initialTitle = $state("");
     let initialUrl = $state("");
@@ -25,9 +29,9 @@
 
     // Use block data directly when not editing
     const title = $derived(
-        editing ? editTitle : block.data.title || "Link Title",
+        state.isEditing ? editTitle : block.data.title || "Link Title",
     );
-    const url = $derived(editing ? editUrl : block.data.url || "https://");
+    const url = $derived(state.isEditing ? editUrl : block.data.url || "https://");
     const iconSvg = $derived(block.data.iconSvg);
     const iconHex = $derived(block.data.iconHex);
     const favicon = $derived(block.data.socialData?.favicon);
@@ -55,7 +59,7 @@
 
     function startEditing() {
         if (!editable) return;
-        editing = true;
+        state.isEditing = true;
         editTitle = block.data.title || "Link Title";
         editUrl = block.data.url || "https://";
         initialTitle = editTitle;
@@ -67,7 +71,7 @@
         if (editTitle !== initialTitle || editUrl !== initialUrl) {
             onUpdate?.({ title: editTitle, url: editUrl });
         }
-        editing = false;
+        state.isEditing = false;
     }
 
     onMount(() => {
@@ -75,7 +79,7 @@
 
         function handleClickOutside(e: MouseEvent) {
             if (
-                editing &&
+                state.isEditing &&
                 containerRef &&
                 !containerRef.contains(e.target as Node)
             ) {
@@ -89,27 +93,42 @@
     });
 </script>
 
-{#if editing}
-    <div bind:this={containerRef} class="h-full w-full p-4 space-y-2">
-        <input
-            type="text"
-            value={editTitle}
-            oninput={(e) => {
-                editTitle = e.currentTarget.value;
-            }}
-            placeholder="Link title"
-            class="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:border-accent"
-            use:autofocus
-        />
-        <input
-            type="url"
-            value={editUrl}
-            oninput={(e) => {
-                editUrl = e.currentTarget.value;
-            }}
-            placeholder="https://example.com"
-            class="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:border-accent"
-        />
+{#if state.isEditing}
+    <div
+        bind:this={containerRef}
+        class="h-auto w-full p-4 space-y-4 flex flex-col justify-center"
+        transition:slide={{ duration: 300, axis: 'y' }}
+    >
+        <div class="space-y-1">
+            <label class="text-xs font-medium text-muted uppercase" for="link-title">Title</label>
+            <input
+                id="link-title"
+                type="text"
+                value={editTitle}
+                oninput={(e) => {
+                    editTitle = e.currentTarget.value;
+                }}
+                placeholder="Link title"
+                class="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:border-accent bg-background"
+                use:autofocus
+            />
+        </div>
+        <div class="space-y-1">
+            <label class="text-xs font-medium text-muted uppercase" for="link-url">URL</label>
+            <input
+                id="link-url"
+                type="url"
+                value={editUrl}
+                oninput={(e) => {
+                    editUrl = e.currentTarget.value;
+                }}
+                placeholder="https://example.com"
+                class="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:border-accent bg-background"
+            />
+        </div>
+        <div class="text-xs text-muted pt-2 text-center">
+            Click outside to save
+        </div>
     </div>
 {:else if isSquareMode}
     <!-- Square mode (w=1 or 4x4): Vertical centered layout with icon on top, title below -->
@@ -119,7 +138,9 @@
         rel={editable ? undefined : "noopener noreferrer"}
         onclick={editable ? startEditing : undefined}
         class="h-full w-full p-4 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-border/30 transition-colors"
+        transition:fade={{ duration: 200 }}
     >
+
         {#if iconSvg && iconHex}
             <div
                 class="w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0 flex items-center justify-center rounded-lg"
@@ -154,6 +175,7 @@
         rel={editable ? undefined : "noopener noreferrer"}
         onclick={editable ? startEditing : undefined}
         class="h-full w-full p-4 flex flex-col gap-3 cursor-pointer hover:bg-border/30 transition-colors text-left block"
+        transition:fade={{ duration: 200 }}
     >
         <div class="flex items-center gap-3">
             {#if iconSvg && iconHex}
@@ -207,6 +229,7 @@
         rel={editable ? undefined : "noopener noreferrer"}
         onclick={editable ? startEditing : undefined}
         class="h-full w-full p-4 flex flex-col gap-3 cursor-pointer hover:bg-border/30 transition-colors text-left block"
+        transition:fade={{ duration: 200 }}
     >
         <div class="flex items-center gap-3">
             {#if iconSvg && iconHex}
@@ -262,6 +285,7 @@
         rel={editable ? undefined : "noopener noreferrer"}
         onclick={editable ? startEditing : undefined}
         class="h-full w-full p-4 flex items-center gap-3 cursor-pointer hover:bg-border/30 transition-colors text-left block"
+        transition:fade={{ duration: 200 }}
     >
         {#if iconSvg && iconHex}
             <div

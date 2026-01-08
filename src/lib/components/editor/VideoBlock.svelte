@@ -1,197 +1,256 @@
 <script lang="ts">
-	import type { Block } from '$lib/types/models';
-	import { Input } from '$lib/components/ui';
-	import { parseVideoUrl } from '$lib/utils/videoParser';
-	import { Video, Upload, Link as LinkIcon } from 'lucide-svelte';
-    import { t } from 'svelte-i18n';
+    import type { Block } from "$lib/types/models";
+    import { Input } from "$lib/components/ui";
+    import { parseVideoUrl } from "$lib/utils/videoParser";
+    import { Video, Upload, Link as LinkIcon } from "lucide-svelte";
+    import { t } from "svelte-i18n";
+    import { slide, fade } from "svelte/transition";
 
-	interface Props {
-		block: Block;
-		editable?: boolean;
-		onUpdate?: (data: any) => void;
-	}
+    interface Props {
+        block: Block;
+        editable?: boolean;
+        editState?: { isEditing: boolean };
+        onUpdate?: (data: any) => void;
+    }
 
-	let { block, editable = true, onUpdate }: Props = $props();
+    let { block, editable = true, editState = undefined, onUpdate }: Props = $props();
 
-	let url = $state(block.data.url || '');
-	let videoUrl = $state(block.data.videoUrl || '');
-	let sourceType = $state<'upload' | 'link'>(block.data.sourceType || 'link');
-	let editing = $state(editable && !block.data.url && !block.data.videoUrl);
-	let uploading = $state(false);
-	let fileInput: HTMLInputElement;
+    const localEditState = $state({ isEditing: false });
+    const state = $derived(editState ?? localEditState);
 
-	const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
-	const videoInfo = $derived(url ? parseVideoUrl(url) : null);
+    let url = $state(block.data.url || "");
+    let videoUrl = $state(block.data.videoUrl || "");
+    let sourceType = $state<"upload" | "link">(block.data.sourceType || "link");
+    let uploading = $state(false);
+    let fileInput: HTMLInputElement;
 
-	async function handleFileSelect(e: Event) {
-		if (!editable) return;
+    $effect(() => {
+        url = block.data.url || "";
+        videoUrl = block.data.videoUrl || "";
+        sourceType = block.data.sourceType || "link";
+        // Auto-edit for new blocks managed by parent editState if passed, or local logic
+        if (editable && !url && !videoUrl && !state.isEditing) {
+             // If we want auto-edit on creation, the parent should likely handle it via the initial state
+             // But for now, let's respect the state passed down
+        }
+    });
 
-		const target = e.target as HTMLInputElement;
-		const file = target.files?.[0];
-		if (!file) return;
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+    const videoInfo = $derived(url ? parseVideoUrl(url) : null);
+    
+    // ...
 
-		// Only accept videos
-		if (!file.type.startsWith('video/')) {
-			alert($t('blocks.video.error_type'));
-			return;
-		}
+    async function handleFileSelect(e: Event) {
+        if (!editable) return;
 
-		// Check file size
-		if (file.size > MAX_FILE_SIZE) {
-			alert($t('blocks.video.error_size'));
-			return;
-		}
+        const target = e.target as HTMLInputElement;
+        const file = target.files?.[0];
+        if (!file) return;
 
-		uploading = true;
+        // Only accept videos
+        if (!file.type.startsWith("video/")) {
+            alert($t("blocks.video.error_type"));
+            return;
+        }
 
-		try {
-			const formData = new FormData();
-			formData.append('file', file);
+        // Check file size
+        if (file.size > MAX_FILE_SIZE) {
+            alert($t("blocks.video.error_size"));
+            return;
+        }
 
-			const response = await fetch('/api/upload', {
-				method: 'POST',
-				body: formData
-			});
+        uploading = true;
 
-			if (!response.ok) {
-				throw new Error('Upload failed');
-			}
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
 
-			const data = await response.json();
-			videoUrl = data.url;
-			onUpdate?.({ videoUrl: data.url, filename: data.filename, sourceType: 'upload' });
-			editing = false;
-		} catch (error) {
-			alert($t('blocks.video.error_failed'));
-		} finally {
-			uploading = false;
-		}
-	}
+            const response = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            });
 
-	function handleSaveUrl() {
-		if (videoInfo) {
-			onUpdate?.({
-				url,
-				platform: videoInfo.platform,
-				videoId: videoInfo.videoId,
-				embedUrl: videoInfo.embedUrl,
-				sourceType: 'link'
-			});
-			editing = false;
-		}
-	}
+            if (!response.ok) {
+                throw new Error("Upload failed");
+            }
 
-	function handleEdit() {
-		if (!editable) return;
-		editing = true;
-	}
+            const data = await response.json();
+            videoUrl = data.url;
+            onUpdate?.({
+                videoUrl: data.url,
+                filename: data.filename,
+                sourceType: "upload",
+            });
+            state.isEditing = false;
+        } catch (error) {
+            alert($t("blocks.video.error_failed"));
+        } finally {
+            uploading = false;
+        }
+    }
+
+    function handleSaveUrl() {
+        if (videoInfo) {
+            onUpdate?.({
+                url,
+                platform: videoInfo.platform,
+                videoId: videoInfo.videoId,
+                embedUrl: videoInfo.embedUrl,
+                sourceType: "link",
+            });
+            state.isEditing = false;
+        }
+    }
+
+    function handleEdit() {
+        if (!editable) return;
+        state.isEditing = true;
+    }
 </script>
 
 <input
-	type="file"
-	accept="video/*"
-	bind:this={fileInput}
-	onchange={handleFileSelect}
-	class="hidden"
+    type="file"
+    accept="video/*"
+    bind:this={fileInput}
+    onchange={handleFileSelect}
+    class="hidden"
 />
 
-<div class="h-full w-full p-4 flex flex-col gap-3">
-	{#if editing}
-		<div class="flex flex-col gap-3">
-			<!-- Source type selection -->
-			<div class="flex gap-2">
-				<button
-					onclick={() => (sourceType = 'upload')}
-					class="flex-1 px-3 py-2 rounded border-2 transition-colors {sourceType === 'upload'
-						? 'border-accent bg-accent/10 text-accent'
-						: 'border-border hover:border-text'}"
-				>
-					<Upload size={16} class="inline mr-2" />
-					{$t('blocks.video.upload_tab')}
-				</button>
-				<button
-					onclick={() => (sourceType = 'link')}
-					class="flex-1 px-3 py-2 rounded border-2 transition-colors {sourceType === 'link'
-						? 'border-accent bg-accent/10 text-accent'
-						: 'border-border hover:border-text'}"
-				>
-					<LinkIcon size={16} class="inline mr-2" />
-					{$t('blocks.video.link_tab')}
-				</button>
-			</div>
+<div class="min-h-full h-auto w-full p-4 flex flex-col gap-3">
+    {#if state.isEditing}
+        <div class="flex flex-col gap-3" transition:slide={{ duration: 300, axis: 'y' }}>
+            <!-- Source type selection -->
+            <div class="flex gap-2">
+                <button
+                    onclick={() => (sourceType = "upload")}
+                    class="flex-1 px-3 py-2 rounded border-2 transition-colors {sourceType ===
+                    'upload'
+                        ? 'border-accent bg-accent/10 text-accent'
+                        : 'border-border hover:border-text'}"
+                >
+                    <Upload size={16} class="inline mr-2" />
+                    {$t("blocks.video.upload_tab")}
+                </button>
+                <button
+                    onclick={() => (sourceType = "link")}
+                    class="flex-1 px-3 py-2 rounded border-2 transition-colors {sourceType ===
+                    'link'
+                        ? 'border-accent bg-accent/10 text-accent'
+                        : 'border-border hover:border-text'}"
+                >
+                    <LinkIcon size={16} class="inline mr-2" />
+                    {$t("blocks.video.link_tab")}
+                </button>
+            </div>
 
-			{#if sourceType === 'upload'}
-				<button
-					onclick={() => fileInput.click()}
-					disabled={uploading}
-					class="py-8 border-2 border-dashed border-border hover:border-accent rounded transition-colors flex flex-col items-center gap-2"
-				>
-					{#if uploading}
-						<p class="text-sm text-muted">{$t('blocks.video.uploading')}</p>
-					{:else}
-						<Upload size={32} class="text-muted" />
-						<p class="text-sm text-muted">{$t('blocks.video.add')}</p>
-						<p class="text-xs text-muted">{$t('blocks.video.max_size_help')}</p>
-					{/if}
-				</button>
-			{:else}
-				<div class="flex flex-col gap-2">
-					<label class="text-sm font-medium" for="video-url">{$t('blocks.video.url_label')}</label>
-					<Input
-						id="video-url"
-						bind:value={url}
-						placeholder="https://youtube.com/watch?v=..."
-						onkeydown={(e) => {
-							if (e.key === 'Enter') {
-								handleSaveUrl();
-							}
-						}}
-					/>
-					<p class="text-xs text-muted">{$t('blocks.video.url_help')}</p>
-					{#if url && !videoInfo}
-						<p class="text-xs text-red-500">{$t('blocks.video.url_invalid')}</p>
-					{/if}
-					<button
-						onclick={handleSaveUrl}
-						disabled={!videoInfo}
-						class="px-3 py-1.5 bg-accent text-white rounded text-sm hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed"
-					>
-						{$t('common.save')}
-					</button>
-				</div>
-			{/if}
-		</div>
-	{:else if videoUrl}
-		<!-- Uploaded video -->
-		<div class="h-full w-full flex flex-col gap-2" ondblclick={editable ? handleEdit : undefined} role="none">
-			<video src={videoUrl} class="w-full h-full rounded object-contain" controls loop muted autoplay>
+            {#if sourceType === "upload"}
+                <button
+                    onclick={() => fileInput.click()}
+                    disabled={uploading}
+                    class="py-8 border-2 border-dashed border-border hover:border-accent rounded transition-colors flex flex-col items-center gap-2"
+                >
+                    {#if uploading}
+                        <p class="text-sm text-muted">
+                            {$t("blocks.video.uploading")}
+                        </p>
+                    {:else}
+                        <Upload size={32} class="text-muted" />
+                        <p class="text-sm text-muted">
+                            {$t("blocks.video.add")}
+                        </p>
+                        <p class="text-xs text-muted">
+                            {$t("blocks.video.max_size_help")}
+                        </p>
+                    {/if}
+                </button>
+            {:else}
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium" for="video-url"
+                        >{$t("blocks.video.url_label")}</label
+                    >
+                    <Input
+                        id="video-url"
+                        bind:value={url}
+                        placeholder="https://youtube.com/watch?v=..."
+                        onkeydown={(e) => {
+                            if (e.key === "Enter") {
+                                handleSaveUrl();
+                            }
+                        }}
+                    />
+                    <p class="text-xs text-muted">
+                        {$t("blocks.video.url_help")}
+                    </p>
+                    {#if url && !videoInfo}
+                        <p class="text-xs text-red-500">
+                            {$t("blocks.video.url_invalid")}
+                        </p>
+                    {/if}
+                    <button
+                        onclick={handleSaveUrl}
+                        disabled={!videoInfo}
+                        class="px-3 py-1.5 bg-accent text-white rounded text-sm hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {$t("common.save")}
+                    </button>
+                </div>
+            {/if}
+        </div>
+    {:else if videoUrl}
+        <!-- Uploaded video -->
+        <div
+            class="h-full w-full flex flex-col gap-2"
+            ondblclick={editable ? handleEdit : undefined}
+            role="none"
+            transition:fade={{ duration: 200 }}
+        >
+            <video
+                src={videoUrl}
+                class="w-full h-full rounded object-contain"
+                controls
+                loop
+                muted
+                autoplay
+            >
                 <track kind="captions" />
             </video>
-			{#if editable}
-				<p class="text-xs text-muted text-center">{$t('blocks.video.edit_hint_upload')}</p>
-			{/if}
-		</div>
-	{:else if videoInfo}
-		<!-- External video -->
-		<div class="h-full w-full flex flex-col gap-2" ondblclick={editable ? handleEdit : undefined} role="none">
-			<iframe
-				src={videoInfo.embedUrl}
-				title="Video"
-				frameborder="0"
-				allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-				allowfullscreen
-				class="w-full h-full rounded"
-			></iframe>
-			{#if editable}
-				<p class="text-xs text-muted text-center">
-					{$t('blocks.video.edit_hint_link', { platform: videoInfo.platform })}
-				</p>
-			{/if}
-		</div>
-	{:else}
-		<div class="h-full w-full flex flex-col items-center justify-center gap-2 text-muted">
-			<Video size={32} />
-			<p class="text-sm">{$t('blocks.video.add')}</p>
-		</div>
-	{/if}
+            {#if editable}
+                <p class="text-xs text-muted text-center">
+                    {$t("blocks.video.edit_hint_upload")}
+                </p>
+            {/if}
+        </div>
+    {:else if videoInfo}
+        <!-- External video -->
+        <div
+            class="h-full w-full flex flex-col gap-2"
+            ondblclick={editable ? handleEdit : undefined}
+            role="none"
+            transition:fade={{ duration: 200 }}
+        >
+            <iframe
+                src={videoInfo.embedUrl}
+                title="Video"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                class="w-full h-full rounded"
+            ></iframe>
+            {#if editable}
+                <p class="text-xs text-muted text-center">
+                    {$t("blocks.video.edit_hint_link", {
+                        platform: videoInfo.platform,
+                    })}
+                </p>
+            {/if}
+        </div>
+    {:else}
+        <div
+            class="h-full w-full flex flex-col items-center justify-center gap-2 text-muted"
+            transition:fade={{ duration: 200 }}
+        >
+            <Video size={32} />
+            <p class="text-sm">{$t("blocks.video.add")}</p>
+        </div>
+    {/if}
 </div>

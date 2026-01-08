@@ -232,6 +232,8 @@
           : editable
             ? 'cursor-grab z-0'
             : 'z-0'}"
+    role="group"
+    aria-label="Content Block"
     onmousedown={editable ? handleDragStart : undefined}
 >
     <!-- Delete button (only in editable mode when selected) -->

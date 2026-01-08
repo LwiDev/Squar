@@ -6,6 +6,7 @@
     interface Props {
         block: Block;
         editable?: boolean;
+        editState?: { isEditing: boolean };
         onUpdate?: (data: any) => void;
         onDelete?: () => void;
         onResize?: (w: number, h: number) => void;
@@ -14,19 +15,22 @@
     let {
         block,
         editable = true,
+        editState = undefined,
         onUpdate,
         onDelete,
         onResize,
     }: Props = $props();
 
-    let editing = $state(false);
+    const localEditState = $state({ isEditing: false });
+    const state = $derived(editState ?? localEditState);
+
     let containerRef: HTMLDivElement;
     let editableRef: HTMLDivElement;
     let initialText = $state("");
 
     // Sync content when block data changes
     $effect(() => {
-        if (editableRef && !editing && block.data.text !== undefined) {
+        if (editableRef && !state.isEditing && block.data.text !== undefined) {
             editableRef.textContent = block.data.text;
         }
     });
@@ -45,12 +49,12 @@
             // Properly blur the element
             editableRef.blur();
         }
-        editing = false;
+        state.isEditing = false;
     }
 
     function handleFocus() {
         if (!editable) return;
-        editing = true;
+        state.isEditing = true;
         if (editableRef) {
             const currentText = editableRef.textContent?.trim() || "";
             initialText = currentText;
@@ -73,7 +77,11 @@
     }
 
     function handleKeydown(e: KeyboardEvent) {
-        if (!editing && editable && (e.key === "Enter" || e.key === " ")) {
+        if (
+            !state.isEditing &&
+            editable &&
+            (e.key === "Enter" || e.key === " ")
+        ) {
             e.preventDefault();
             handleFocus();
         }
@@ -84,7 +92,7 @@
 
         function handleClickOutside(e: MouseEvent) {
             if (
-                editing &&
+                state.isEditing &&
                 containerRef &&
                 !containerRef.contains(e.target as Node)
             ) {
@@ -101,11 +109,11 @@
 <div bind:this={containerRef} class="h-full w-full p-4">
     <div
         bind:this={editableRef}
-        contenteditable={editable && editing}
+        contenteditable={editable && state.isEditing}
         role="textbox"
         tabindex="0"
         onclick={(e) => {
-            if (editable && !editing) {
+            if (editable && !state.isEditing) {
                 e.stopPropagation();
                 handleFocus();
             }
@@ -113,9 +121,10 @@
         onkeydown={handleKeydown}
         onfocus={handleFocus}
         oninput={handleInput}
-        class="h-full w-full outline-none text-text {editable && !editing
+        class="h-full w-full outline-none text-text {editable &&
+        !state.isEditing
             ? 'cursor-grab'
-            : editing
+            : state.isEditing
               ? 'cursor-text'
               : ''}"
     >

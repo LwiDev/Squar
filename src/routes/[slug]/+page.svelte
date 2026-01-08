@@ -61,7 +61,7 @@
     let showTitleSettingsModal = $state(false);
 
     let lastPageId = $state(untrack(() => page.id));
-    let fileInputImage: HTMLInputElement;
+    let fileInputImage = $state<HTMLInputElement>();
 
     let autoSaveTimeout: ReturnType<typeof setTimeout>;
 
