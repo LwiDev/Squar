@@ -9,6 +9,7 @@
 
     let isMenuOpen = $state(false);
     let activeSection = $state("");
+    let showNavButton = $state(false);
 
     $effect(() => {
         if (isMenuOpen) {
@@ -44,6 +45,26 @@
 
         return () => {
             observers.forEach((o) => o?.disconnect());
+        };
+    });
+
+    $effect(() => {
+        const heroCTA = document.getElementById("hero-cta");
+        if (!heroCTA) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    showNavButton = !entry.isIntersecting;
+                });
+            },
+            { threshold: 0, rootMargin: "0px" },
+        );
+
+        observer.observe(heroCTA);
+
+        return () => {
+            observer.disconnect();
         };
     });
 
@@ -103,33 +124,48 @@
                     active={activeSection === "features"}
                 />
             </nav>
-            <div class="hidden md:flex items-center">
-                {#if $page.data.user && $page.data.page?.slug}
-                    <a href="/{$page.data.page.slug}">
-                        <Button variant="primary" size="sm" class="h-8 text-xs"
-                            >{$t("landing.nav.my_squar")}</Button
-                        >
-                    </a>
-                {:else if $page.data.user}
-                    <Button
-                        variant="primary"
-                        size="sm"
-                        class="h-8 text-xs"
-                        disabled>{$t("landing.nav.my_squar")}</Button
-                    >
-                {:else}
-                    <Button
-                        size="sm"
-                        onclick={() => goto("/signup")}
-                        class="h-8 text-xs px-6 font-bold tracking-wide"
-                    >
-                        {$t("common.join_squar")}
-                    </Button>
-                {/if}
-            </div>
         </div>
-        <div class="md:hidden">
-            <IconButton icon={Menu} onclick={() => (isMenuOpen = true)} />
+        <div class="flex items-center gap-4">
+            <div
+                class="hidden md:flex items-center overflow-hidden transition-all duration-500 linear {showNavButton
+                    ? 'opacity-100 max-w-[200px]'
+                    : 'opacity-0 max-w-0 pointer-events-none'}"
+            >
+                <div
+                    class="whitespace-nowrap transition-transform duration-500 linear {showNavButton
+                        ? 'translate-x-0'
+                        : '-translate-x-4'}"
+                >
+                    {#if $page.data.user && $page.data.page?.slug}
+                        <a href="/{$page.data.page.slug}">
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                class="h-8 text-xs"
+                                >{$t("landing.nav.my_squar")}</Button
+                            >
+                        </a>
+                    {:else if $page.data.user}
+                        <Button
+                            variant="primary"
+                            size="sm"
+                            class="h-8 text-xs"
+                            disabled>{$t("landing.nav.my_squar")}</Button
+                        >
+                    {:else}
+                        <Button
+                            size="sm"
+                            onclick={() => goto("/signup")}
+                            class="h-8 text-xs px-6 font-bold tracking-wide"
+                        >
+                            {$t("common.join_squar")}
+                        </Button>
+                    {/if}
+                </div>
+            </div>
+            <div class="md:hidden">
+                <IconButton icon={Menu} onclick={() => (isMenuOpen = true)} />
+            </div>
         </div>
     </div>
 </FloatingBar>

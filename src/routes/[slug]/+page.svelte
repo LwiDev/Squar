@@ -4,8 +4,7 @@
     import PageHeader from "$lib/components/unified/PageHeader.svelte";
     import EditorToolbar from "$lib/components/editor/EditorToolbar.svelte";
     import AddLinkDialog from "$lib/components/editor/AddLinkDialog.svelte";
-    import ProfilePhotoModal from "$lib/components/editor/ProfilePhotoModal.svelte";
-    import TitleSettingsModal from "$lib/components/editor/TitleSettingsModal.svelte";
+    import PageHeaderSettingsModal from "$lib/components/editor/PageHeaderSettingsModal.svelte";
     import { HistoryManager } from "$lib/stores/history.svelte";
     import { nanoid } from "nanoid";
     import type { Block, PageSettings } from "$lib/types/models";
@@ -57,8 +56,7 @@
 
     // Modal states
     let showAddLinkDialog = $state(false);
-    let showProfilePhotoModal = $state(false);
-    let showTitleSettingsModal = $state(false);
+    let showPageHeaderSettingsModal = $state(false);
 
     let lastPageId = $state(untrack(() => page.id));
     let fileInputImage = $state<HTMLInputElement>();
@@ -194,6 +192,21 @@
     function handleSettingsUpdate(newSettings: PageSettings) {
         title = newSettings.title;
         theme = newSettings.theme;
+        if (newSettings.profilePhoto) {
+            profilePhoto = { ...profilePhoto, ...newSettings.profilePhoto };
+        }
+    }
+
+    function handlePageHeaderSettingsUpdate(updates: {
+        profilePhoto?: PageSettings["profilePhoto"];
+        titleSize?: PageSettings["titleSize"];
+    }) {
+        if (updates.profilePhoto) {
+            profilePhoto = { ...profilePhoto, ...updates.profilePhoto };
+        }
+        if (updates.titleSize) {
+            titleSize = updates.titleSize;
+        }
     }
 
     // Profile photo handlers
@@ -460,9 +473,7 @@
         <!-- Profile Section -->
         <aside class={layoutConfig.profileWrapper}>
             {#if layoutConfig.isSidebar}
-                <div
-                    class="bg-background border-2 border-border rounded-2xl p-8 shadow-sm"
-                >
+                <div class="py-4">
                     <PageHeader
                         {editable}
                         bind:title
@@ -473,9 +484,7 @@
                         userEmail={user?.email}
                         onTitleUpdate={(t) => (title = t)}
                         onDescriptionUpdate={(d) => (description = d)}
-                        onPhotoClick={() => (showProfilePhotoModal = true)}
-                        onTitleSettingsClick={() =>
-                            (showTitleSettingsModal = true)}
+                        onHeaderSettingsClick={() => (showPageHeaderSettingsModal = true)}
                     />
                 </div>
             {:else}
@@ -489,8 +498,7 @@
                     userEmail={user?.email}
                     onTitleUpdate={(t) => (title = t)}
                     onDescriptionUpdate={(d) => (description = d)}
-                    onPhotoClick={() => (showProfilePhotoModal = true)}
-                    onTitleSettingsClick={() => (showTitleSettingsModal = true)}
+                    onHeaderSettingsClick={() => (showPageHeaderSettingsModal = true)}
                 />
             {/if}
         </aside>
@@ -513,21 +521,15 @@
         onAdd={handleAddLink}
     />
 
-    <ProfilePhotoModal
-        bind:open={showProfilePhotoModal}
+    <PageHeaderSettingsModal
+        bind:open={showPageHeaderSettingsModal}
         {profilePhoto}
-        onClose={() => (showProfilePhotoModal = false)}
-        onUpdate={(p) => (profilePhoto = p)}
-        onUpload={handlePhotoUpload}
-        onRemove={handlePhotoRemove}
-        {uploading}
-    />
-
-    <TitleSettingsModal
-        bind:open={showTitleSettingsModal}
         {titleSize}
-        onClose={() => (showTitleSettingsModal = false)}
-        onUpdate={(size) => (titleSize = size)}
+        onClose={() => (showPageHeaderSettingsModal = false)}
+        onUpdate={handlePageHeaderSettingsUpdate}
+        onPhotoUpload={handlePhotoUpload}
+        onPhotoRemove={handlePhotoRemove}
+        {uploading}
     />
 
     <input
@@ -549,7 +551,7 @@
         onPublish={handlePublish}
         onSlugChange={handleSlugChange}
         onPreviewToggle={() => (previewMode = !previewMode)}
-        pageSettings={{ ...page.settings, title, theme }}
+        pageSettings={{ ...page.settings, title, theme, profilePhoto }}
         onSettingsUpdate={handleSettingsUpdate}
         canUndo={history?.canUndo ?? false}
         canRedo={history?.canRedo ?? false}

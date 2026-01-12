@@ -206,6 +206,7 @@
         </p>
 
         <div
+            id="hero-cta"
             class="flex flex-col sm:flex-row items-center justify-center gap-4 fade-in stagger-4"
             class:visible={heroVisible}
         >

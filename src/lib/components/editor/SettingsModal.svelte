@@ -13,30 +13,19 @@
 
     let { open = $bindable(), onClose, settings, onUpdate }: Props = $props();
 
-    let localSettings = $state(untrack(() => ({ ...settings })));
+    let localTheme = $state(untrack(() => settings.theme || "light"));
 
     // Reset local state when modal opens
     $effect(() => {
         if (open) {
             untrack(() => {
-                localSettings = { ...settings };
-
-                // Ensure profilePhoto object exists
-                if (!localSettings.profilePhoto) {
-                    localSettings.profilePhoto = {
-                        position: "left",
-                        size: "medium",
-                        shape: "circle",
-                        visibility: "letter",
-                        layout: "vertical",
-                    };
-                }
+                localTheme = settings.theme || "light";
             });
         }
     });
 
     function handleSave() {
-        onUpdate(localSettings);
+        onUpdate({ ...settings, theme: localTheme });
         onClose();
     }
 
@@ -72,25 +61,6 @@
             border: "#1e3a5f",
         },
     ] as const;
-
-    const currentPosition = $derived(localSettings.profilePhoto?.position || "left");
-    const currentLayout = $derived(
-        localSettings.profilePhoto?.layout || "vertical",
-    );
-    const isSidebar = $derived(
-        currentPosition === "left" || currentPosition === "right",
-    );
-
-    function updatePhotoSettings(
-        updates: Partial<NonNullable<PageSettings["profilePhoto"]>>,
-    ) {
-        if (localSettings.profilePhoto) {
-            localSettings.profilePhoto = {
-                ...localSettings.profilePhoto,
-                ...updates,
-            } as NonNullable<PageSettings["profilePhoto"]>;
-        }
-    }
 </script>
 
 <Modal bind:open {onClose} title={$t("editor.settings_modal.title")}>
@@ -104,9 +74,9 @@
                 {#each themes as theme}
                     <button
                         class="group relative aspect-square rounded-lg border-2 transition-all overflow-hidden"
-                        class:border-accent={localSettings.theme === theme.id}
-                        class:border-border={localSettings.theme !== theme.id}
-                        onclick={() => (localSettings.theme = theme.id)}
+                        class:border-accent={localTheme === theme.id}
+                        class:border-border={localTheme !== theme.id}
+                        onclick={() => (localTheme = theme.id)}
                         title={$t(theme.key)}
                     >
                         <div
@@ -131,92 +101,10 @@
             </div>
             <p class="text-xs text-muted">
                 {$t("editor.settings_modal.selected")}: {$t(
-                    themes.find((t) => t.id === localSettings.theme)?.key ||
+                    themes.find((t) => t.id === localTheme)?.key ||
                         "editor.settings_modal.themes.light",
                 )}
             </p>
-        </div>
-
-        <div class="h-px bg-border"></div>
-
-        <!-- Position -->
-        <div class="space-y-3">
-            <span class="block text-sm font-medium text-text"
-                >{$t("editor.profile_modal.position_label")}</span
-            >
-            <div class="grid grid-cols-3 gap-2">
-                <button
-                    class="px-3 py-2 text-sm rounded border-2 transition-colors whitespace-nowrap {currentPosition ===
-                    'left'
-                        ? 'border-accent bg-accent/10 text-accent'
-                        : 'border-border hover:border-text'}"
-                    onclick={() => updatePhotoSettings({ position: "left" })}
-                >
-                    {$t("editor.profile_modal.position_left")}
-                </button>
-                <button
-                    class="px-3 py-2 text-sm rounded border-2 transition-colors whitespace-nowrap {currentPosition ===
-                    'center'
-                        ? 'border-accent bg-accent/10 text-accent'
-                        : 'border-border hover:border-text'}"
-                    onclick={() => updatePhotoSettings({ position: "center" })}
-                >
-                    {$t("editor.profile_modal.position_center")}
-                </button>
-                <button
-                    class="px-3 py-2 text-sm rounded border-2 transition-colors whitespace-nowrap {currentPosition ===
-                    'right'
-                        ? 'border-accent bg-accent/10 text-accent'
-                        : 'border-border hover:border-text'}"
-                    onclick={() => updatePhotoSettings({ position: "right" })}
-                >
-                    {$t("editor.profile_modal.position_right")}
-                </button>
-            </div>
-        </div>
-
-        <!-- Header Layout -->
-        <div class="space-y-3">
-            <span class="block text-sm font-medium text-text"
-                >{$t('editor.profile_modal.layout_label')}</span
-            >
-            <div class="grid grid-cols-3 gap-2">
-                <button
-                    class="px-3 py-2 text-sm rounded border-2 transition-colors {currentLayout === 'vertical'
-                        ? 'border-accent bg-accent/10 text-accent'
-                        : 'border-border hover:border-text'}"
-                    onclick={() => updatePhotoSettings({ layout: "vertical" })}
-                >
-                    <div class="font-medium">{$t('editor.profile_modal.layout_vertical')}</div>
-                    <div class="text-xs text-muted mt-0.5">
-                        {$t('editor.profile_modal.layout_vertical_desc')}
-                    </div>
-                </button>
-                <button
-                    class="px-3 py-2 text-sm rounded border-2 transition-colors {currentLayout === 'horizontal-left'
-                        ? 'border-accent bg-accent/10 text-accent'
-                        : 'border-border hover:border-text'}"
-                    onclick={() =>
-                        updatePhotoSettings({ layout: "horizontal-left" })}
-                >
-                    <div class="font-medium">{$t('editor.profile_modal.layout_photo_left')}</div>
-                    <div class="text-xs text-muted mt-0.5">
-                        {$t('editor.profile_modal.layout_photo_left_desc')}
-                    </div>
-                </button>
-                <button
-                    class="px-3 py-2 text-sm rounded border-2 transition-colors {currentLayout === 'horizontal-right'
-                        ? 'border-accent bg-accent/10 text-accent'
-                        : 'border-border hover:border-text'}"
-                    onclick={() =>
-                        updatePhotoSettings({ layout: "horizontal-right" })}
-                >
-                    <div class="font-medium">{$t('editor.profile_modal.layout_photo_right')}</div>
-                    <div class="text-xs text-muted mt-0.5">
-                        {$t('editor.profile_modal.layout_photo_right_desc')}
-                    </div>
-                </button>
-            </div>
         </div>
 
         <!-- Actions -->
