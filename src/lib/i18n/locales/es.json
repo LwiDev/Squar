@@ -113,13 +113,14 @@
       "publish": "Publicar",
       "unpublish": "Despublicar"
     },
-        "menu": {
-            "change_username": "Cambiar nombre de usuario",
-            "settings": "Configuración",
-            "language": "Idioma",
-            "home": "Inicio",
-            "logout": "Cerrar sesión"
-        },    "username_modal": {
+    "menu": {
+      "change_username": "Cambiar nombre de usuario",
+      "settings": "Configuración",
+      "language": "Idioma",
+      "home": "Inicio",
+      "logout": "Cerrar sesión"
+    },
+    "username_modal": {
       "title": "Cambiar nombre de usuario",
       "label": "Nombre de usuario",
       "help": "Solo letras minúsculas, números y guiones. Mínimo 3 caracteres.",
@@ -127,11 +128,12 @@
       "error_invalid": "El nombre de usuario solo puede contener letras minúsculas, números y guiones",
       "saving": "Guardando..."
     },
-        "settings_modal": {
-            "title": "Configuración de la página",
-            "theme": "Tema",
-            "language": "Idioma",
-            "selected": "Seleccionado",      "save": "Guardar cambios",
+    "settings_modal": {
+      "title": "Configuración de la página",
+      "theme": "Tema",
+      "language": "Idioma",
+      "selected": "Seleccionado",
+      "save": "Guardar cambios",
       "themes": {
         "light": "Claro",
         "cream": "Crema",
@@ -150,8 +152,8 @@
       }
     },
     "profile_modal": {
-      "title": "Configuración de la foto de perfil",
-      "photo_label": "Foto",
+      "title": "Configuración del perfil",
+      "photo_label": "Foto de perfil",
       "change_photo": "Cambiar foto",
       "upload_photo": "Subir foto",
       "uploading": "Subiendo...",
@@ -163,7 +165,8 @@
       "position_left": "Barra lateral izquierda",
       "position_center": "Centro",
       "position_right": "Barra lateral derecha",
-      "layout_label": "Diseño del encabezado",
+      "layout_section": "Disposición",
+      "layout_label": "Diseño",
       "layout_vertical": "Vertical",
       "layout_vertical_desc": "Foto arriba",
       "layout_photo_left": "Foto a la izquierda",
@@ -178,49 +181,53 @@
         "rounded": "Redondeado"
       }
     },
+    "header": {
+      "title_placeholder": "Mi página",
+      "description_placeholder": "Añadir una descripción..."
+    },
     "link_modal": {
       "title": "Añadir enlace",
       "url_label": "URL",
       "adding": "Añadiendo..."
     },
-        "share": {
-            "title": "Mi página SQUAR está en vivo → {url}",
-            "copied": "¡Enlace copiado al portapapeles!"
-        },
-            "grid": {
-                "empty_title": "Añade tu primer bloque",
-                "empty_desc": "Utiliza la barra de herramientas en la parte inferior para añadir texto, enlaces o imágenes a tu página"
-            },
-            "blocks": {
-                "heading": {
-                    "placeholder": "Encabezado"
-                },
-                "text": {
-                    "placeholder": "Haz clic para editar"
-                },
-                "image": {
-                    "uploading": "Subiendo...",
-                    "add": "Haz clic para añadir imagen o GIF",
-                    "max_size": "Máx 10 MB",
-                    "error_type": "Solo se permiten imágenes y GIFs",
-                    "error_size": "El tamaño del archivo debe ser inferior a 10 MB",
-                    "error_failed": "Error al subir la imagen"
-                },
-                "video": {
-                    "uploading": "Subiendo...",
-                    "add": "Haz clic para añadir video",
-                    "upload_tab": "Subir video",
-                    "link_tab": "Enlace de video",
-                    "url_label": "URL del video",
-                    "url_help": "Soporta YouTube, Vimeo y Loom",
-                    "url_invalid": "URL de video inválida",
-                    "max_size_help": "Máx 10 MB • MP4, WebM, MOV",
-                    "edit_hint_upload": "Doble clic para editar • Subido",
-                    "edit_hint_link": "Doble clic para editar • {platform}",
-                    "error_type": "Solo se permiten archivos de video",
-                    "error_size": "El tamaño del video debe ser inferior a 10 MB",
-                    "error_failed": "Error al subir el video"
-                }
-            }
-          }
-        }
+    "share": {
+      "title": "Mi página SQUAR está en vivo → {url}",
+      "copied": "¡Enlace copiado al portapapeles!"
+    },
+    "grid": {
+      "empty_title": "Añade tu primer bloque",
+      "empty_desc": "Utiliza la barra de herramientas en la parte inferior para añadir texto, enlaces o imágenes a tu página"
+    }
+  },
+  "blocks": {
+    "heading": {
+      "placeholder": "Encabezado..."
+    },
+    "text": {
+      "placeholder": "Escribe algo..."
+    },
+    "image": {
+      "uploading": "Subiendo...",
+      "add": "Haz clic para añadir imagen o GIF",
+      "max_size": "Máx 10 MB",
+      "error_type": "Solo se permiten imágenes y GIFs",
+      "error_size": "El tamaño del archivo debe ser inferior a 10 MB",
+      "error_failed": "Error al subir la imagen"
+    },
+    "video": {
+      "uploading": "Subiendo...",
+      "add": "Haz clic para añadir video",
+      "upload_tab": "Subir video",
+      "link_tab": "Enlace de video",
+      "url_label": "URL del video",
+      "url_help": "Soporta YouTube, Vimeo y Loom",
+      "url_invalid": "URL de video inválida",
+      "max_size_help": "Máx 10 MB • MP4, WebM, MOV",
+      "edit_hint_upload": "Doble clic para editar • Subido",
+      "edit_hint_link": "Doble clic para editar • {platform}",
+      "error_type": "Solo se permiten archivos de video",
+      "error_size": "El tamaño del video debe ser inferior a 10 MB",
+      "error_failed": "Error al subir el video"
+    }
+  }
+}

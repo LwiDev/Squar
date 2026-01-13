@@ -116,9 +116,9 @@
     class="hidden"
 />
 
-<div class="min-h-full h-auto w-full p-4 flex flex-col gap-3">
+<div class="h-full w-full">
     {#if state.isEditing}
-        <div class="flex flex-col gap-3" transition:slide={{ duration: 300, axis: 'y' }}>
+        <div class="p-4 flex flex-col gap-3" transition:slide={{ duration: 300, axis: 'y' }}>
             <!-- Source type selection -->
             <div class="flex gap-2">
                 <button
@@ -199,58 +199,106 @@
     {:else if videoUrl}
         <!-- Uploaded video -->
         <div
-            class="h-full w-full flex flex-col gap-2"
-            ondblclick={editable ? handleEdit : undefined}
-            role="none"
+            class="h-full w-full flex flex-col"
             transition:fade={{ duration: 200 }}
         >
-            <video
-                src={videoUrl}
-                class="w-full h-full rounded object-contain"
-                controls
-                loop
-                muted
-                autoplay
-            >
-                <track kind="captions" />
-            </video>
             {#if editable}
-                <p class="text-xs text-muted text-center">
-                    {$t("blocks.video.edit_hint_upload")}
-                </p>
+                <button
+                    onclick={() => {
+                        state.isEditing = true;
+                        fileInput.click();
+                    }}
+                    class="h-full w-full group relative overflow-hidden bg-secondary/50"
+                >
+                    <video
+                        src={videoUrl}
+                        class="w-full h-full object-contain"
+                        loop
+                        muted
+                        autoplay
+                    >
+                        <track kind="captions" />
+                    </video>
+                    <div
+                        class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                    >
+                        <Upload size={24} class="text-white" />
+                    </div>
+                </button>
+            {:else}
+                <div class="h-full w-full overflow-hidden bg-secondary/50">
+                    <video
+                        src={videoUrl}
+                        class="w-full h-full object-contain"
+                        controls
+                        loop
+                        muted
+                        autoplay
+                    >
+                        <track kind="captions" />
+                    </video>
+                </div>
             {/if}
         </div>
     {:else if videoInfo}
         <!-- External video -->
         <div
-            class="h-full w-full flex flex-col gap-2"
-            ondblclick={editable ? handleEdit : undefined}
-            role="none"
+            class="h-full w-full flex flex-col"
             transition:fade={{ duration: 200 }}
         >
-            <iframe
-                src={videoInfo.embedUrl}
-                title="Video"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen
-                class="w-full h-full rounded"
-            ></iframe>
             {#if editable}
-                <p class="text-xs text-muted text-center">
-                    {$t("blocks.video.edit_hint_link", {
-                        platform: videoInfo.platform,
-                    })}
-                </p>
+                <button
+                    onclick={() => {
+                        state.isEditing = true;
+                        fileInput.click();
+                    }}
+                    class="h-full w-full group relative overflow-hidden bg-secondary/50 aspect-video"
+                >
+                    <iframe
+                        src={videoInfo.embedUrl}
+                        title="Video"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        class="w-full h-full pointer-events-none"
+                    ></iframe>
+                    <div
+                        class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                    >
+                        <Upload size={24} class="text-white" />
+                    </div>
+                </button>
+            {:else}
+                <div class="h-full w-full overflow-hidden bg-secondary/50 aspect-video">
+                    <iframe
+                        src={videoInfo.embedUrl}
+                        title="Video"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                        class="w-full h-full"
+                    ></iframe>
+                </div>
             {/if}
         </div>
-    {:else}
-        <div
-            class="h-full w-full flex flex-col items-center justify-center gap-2 text-muted"
+    {:else if editable}
+        <button
+            onclick={() => {
+                 state.isEditing = true;
+                 fileInput.click();
+            }}
+            disabled={uploading}
+            class="h-full w-full flex flex-col items-center justify-center bg-border/20 hover:bg-border/30 transition-colors py-12"
             transition:fade={{ duration: 200 }}
         >
-            <Video size={32} />
-            <p class="text-sm">{$t("blocks.video.add")}</p>
-        </div>
+            {#if uploading}
+                <p class="text-sm text-muted">{$t("blocks.video.uploading")}</p>
+            {:else}
+                <Video size={32} class="text-muted mb-2" />
+                <p class="text-sm text-muted">{$t("blocks.video.add")}</p>
+                <p class="text-xs text-muted mt-1">
+                    {$t("blocks.video.max_size_help")}
+                </p>
+            {/if}
+        </button>
     {/if}
 </div>

@@ -2,6 +2,7 @@
     import ProfilePhotoPreview from "$lib/components/editor/ProfilePhotoPreview.svelte";
     import type { PageSettings } from "$lib/types/models";
     import { Settings } from "lucide-svelte";
+    import { t } from "svelte-i18n";
 
     interface Props {
         editable: boolean;
@@ -54,6 +55,17 @@
               : "text-4xl md:text-5xl",
     );
 
+    // Check if profile photo is shown
+    const showProfilePhoto = $derived(
+        currentProfilePhoto.visibility !== "hidden",
+    );
+
+    // Check if in sidebar mode
+    const isSidebar = $derived(
+        currentProfilePhoto.position === "left" ||
+            currentProfilePhoto.position === "right",
+    );
+
     const descriptionClasses = $derived(
         isSidebar
             ? currentTitleSize === "small"
@@ -66,17 +78,6 @@
               : currentTitleSize === "medium"
                 ? "text-base md:text-lg"
                 : "text-lg md:text-xl",
-    );
-
-    // Check if profile photo is shown
-    const showProfilePhoto = $derived(
-        currentProfilePhoto.visibility !== "hidden",
-    );
-
-    // Check if in sidebar mode
-    const isSidebar = $derived(
-        currentProfilePhoto.position === "left" ||
-            currentProfilePhoto.position === "right",
     );
 </script>
 
@@ -136,7 +137,7 @@
                         tabindex="0"
                         class="{titleClasses} font-heading font-bold border-0 bg-transparent rounded-md focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none truncate"
                         style="padding: 0.125rem; margin: -0.125rem;"
-                        data-placeholder="My Page"
+                        data-placeholder={$t("editor.header.title_placeholder")}
                         oninput={(e) => {
                             title = e.currentTarget.innerText;
                         }}
@@ -152,7 +153,7 @@
                             tabindex="0"
                             class="{descriptionClasses} text-muted border-0 bg-transparent rounded-md focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none line-clamp-2"
                             style="padding: 0.125rem; margin: -0.125rem;"
-                            data-placeholder="Add a description..."
+                            data-placeholder={$t("editor.header.description_placeholder")}
                             oninput={(e) => {
                                 description = e.currentTarget.innerText;
                             }}
@@ -216,7 +217,7 @@
                                 tabindex="0"
                                 class="{titleClasses} font-heading font-bold border-0 bg-transparent rounded-lg focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none"
                                 style="padding: 0.5rem; margin: -0.5rem;"
-                                data-placeholder="My Page"
+                                data-placeholder={$t("editor.header.title_placeholder")}
                                 oninput={(e) => {
                                     title = e.currentTarget.innerText;
                                 }}
@@ -232,7 +233,7 @@
                                     tabindex="0"
                                     class="{descriptionClasses} text-muted border-0 bg-transparent rounded-lg focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none w-full"
                                     style="padding: 0.5rem; margin: -0.5rem;"
-                                    data-placeholder="Add a description..."
+                                    data-placeholder={$t("editor.header.description_placeholder")}
                                     oninput={(e) => {
                                         description = e.currentTarget.innerText;
                                     }}
@@ -288,7 +289,7 @@
                                     tabindex="0"
                                     class="{titleClasses} font-heading font-bold border-0 bg-transparent rounded-lg focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none"
                                     style="padding: 0.5rem; margin: -0.5rem;"
-                                    data-placeholder="My Page"
+                                    data-placeholder={$t("editor.header.title_placeholder")}
                                     oninput={(e) => {
                                         title = e.currentTarget.innerText;
                                     }}
@@ -305,7 +306,7 @@
                                     tabindex="0"
                                     class="{descriptionClasses} text-muted border-0 bg-transparent rounded-lg focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none"
                                     style="padding: 0.5rem; margin: -0.5rem;"
-                                    data-placeholder="Add a description..."
+                                    data-placeholder={$t("editor.header.description_placeholder")}
                                     oninput={(e) => {
                                         description = e.currentTarget.innerText;
                                     }}
@@ -344,7 +345,7 @@
                                     tabindex="0"
                                     class="{titleClasses} font-heading font-bold border-0 bg-transparent rounded-lg focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none"
                                     style="padding: 0.5rem; margin: -0.5rem;"
-                                    data-placeholder="My Page"
+                                    data-placeholder={$t("editor.header.title_placeholder")}
                                     oninput={(e) => {
                                         title = e.currentTarget.innerText;
                                     }}
@@ -369,7 +370,7 @@
                                     tabindex="0"
                                     class="{descriptionClasses} text-muted border-0 bg-transparent rounded-lg focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none"
                                     style="padding: 0.5rem; margin: -0.5rem;"
-                                    data-placeholder="Add a description..."
+                                    data-placeholder={$t("editor.header.description_placeholder")}
                                     oninput={(e) => {
                                         description = e.currentTarget.innerText;
                                     }}

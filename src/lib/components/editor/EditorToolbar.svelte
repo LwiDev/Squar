@@ -193,19 +193,17 @@
     adaptive={true}
     saving={autoSaving}
 >
-    <div
-        class="flex items-center justify-between w-full h-12 px-1 sm:px-2 gap-2"
-    >
+    <div class="flex items-center justify-between w-full h-12 sm:px-2 gap-2">
         <!-- LEFT: User -->
         <div class="flex items-center gap-2 sm:gap-3 shrink-0">
             <!-- Menu -->
             <div class="relative">
                 <button
                     onclick={() => (showMenu = !showMenu)}
-                    class="flex items-center gap-1 sm:gap-2 px-1 py-1.5 rounded hover:bg-border/50 transition-colors"
+                    class="flex items-center gap-1 sm:gap-2 px-1 sm:px-2 py-1.5 rounded hover:bg-border/50 transition-colors"
                 >
                     <div
-                        class="h-8 w-8 min-w-[32px] rounded-full bg-accent text-white flex items-center justify-center font-bold text-sm"
+                        class="h-8 w-8 min-w-8 rounded-full bg-accent text-white flex items-center justify-center font-bold text-sm"
                     >
                         {firstLetter}
                     </div>

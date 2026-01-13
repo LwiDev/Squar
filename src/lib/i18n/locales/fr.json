@@ -113,13 +113,14 @@
       "publish": "Publier",
       "unpublish": "Dépublier"
     },
-        "menu": {
-            "change_username": "Changer le nom d'utilisateur",
-            "settings": "Paramètres",
-            "language": "Langue",
-            "home": "Accueil",
-            "logout": "Déconnexion"
-        },    "username_modal": {
+    "menu": {
+      "change_username": "Changer le nom d'utilisateur",
+      "settings": "Paramètres",
+      "language": "Langue",
+      "home": "Accueil",
+      "logout": "Déconnexion"
+    },
+    "username_modal": {
       "title": "Changer le nom d'utilisateur",
       "label": "Nom d'utilisateur",
       "help": "Lettres minuscules, chiffres et tirets uniquement. Minimum 3 caractères.",
@@ -127,11 +128,12 @@
       "error_invalid": "Le nom d'utilisateur ne peut contenir que des lettres minuscules, des chiffres et des tirets",
       "saving": "Enregistrement..."
     },
-        "settings_modal": {
-            "title": "Paramètres de la page",
-            "theme": "Thème",
-            "language": "Langue",
-            "selected": "Sélectionné",      "save": "Enregistrer les modifications",
+    "settings_modal": {
+      "title": "Paramètres de la page",
+      "theme": "Thème",
+      "language": "Langue",
+      "selected": "Sélectionné",
+      "save": "Enregistrer les modifications",
       "themes": {
         "light": "Clair",
         "cream": "Crème",
@@ -150,8 +152,8 @@
       }
     },
     "profile_modal": {
-      "title": "Paramètres de la photo de profil",
-      "photo_label": "Photo",
+      "title": "Paramètres du profil",
+      "photo_label": "Photo de profil",
       "change_photo": "Changer la photo",
       "upload_photo": "Télécharger une photo",
       "uploading": "Téléchargement...",
@@ -160,10 +162,11 @@
       "display_letter": "Lettre",
       "display_hidden": "Caché",
       "position_label": "Position",
-      "position_left": "Barre latérale gauche",
+      "position_left": "Sidebar gauche",
       "position_center": "Centre",
-      "position_right": "Barre latérale droite",
-      "layout_label": "Mise en page de l'en-tête",
+      "position_right": "Sidebar droite",
+      "layout_section": "Disposition",
+      "layout_label": "Mise en page",
       "layout_vertical": "Vertical",
       "layout_vertical_desc": "Photo en haut",
       "layout_photo_left": "Photo à gauche",
@@ -178,6 +181,10 @@
         "rounded": "Arrondi"
       }
     },
+    "header": {
+      "title_placeholder": "Ma Page",
+      "description_placeholder": "Ajouter une description..."
+    },
     "link_modal": {
       "title": "Ajouter un lien",
       "url_label": "URL",
@@ -190,37 +197,37 @@
     "grid": {
       "empty_title": "Ajoutez votre premier bloc",
       "empty_desc": "Utilisez la barre d'outils en bas pour ajouter du texte, des liens ou des images à votre page"
+    }
+  },
+  "blocks": {
+    "heading": {
+      "placeholder": "Titre..."
     },
-    "blocks": {
-      "heading": {
-        "placeholder": "Titre"
-      },
-      "text": {
-        "placeholder": "Cliquez pour modifier"
-      },
-      "image": {
-        "uploading": "Téléchargement...",
-        "add": "Ajouter une image ou un GIF",
-        "max_size": "Max 10 Mo",
-        "error_type": "Seules les images et les GIFs sont autorisés",
-        "error_size": "La taille du fichier doit être inférieure à 10 Mo",
-        "error_failed": "Échec du téléchargement de l'image"
-      },
-      "video": {
-        "uploading": "Téléchargement...",
-        "add": "Ajouter une vidéo",
-        "upload_tab": "Télécharger une vidéo",
-        "link_tab": "Lien vidéo",
-        "url_label": "URL de la vidéo",
-        "url_help": "Supporte YouTube, Vimeo et Loom",
-        "url_invalid": "URL de vidéo invalide",
-        "max_size_help": "Max 10 Mo • MP4, WebM, MOV",
-        "edit_hint_upload": "Double-cliquez pour modifier • Téléchargée",
-        "edit_hint_link": "Double-cliquez pour modifier • {platform}",
-        "error_type": "Seuls les fichiers vidéo sont autorisés",
-        "error_size": "La taille de la vidéo doit être inférieure à 10 Mo",
-        "error_failed": "Échec du téléchargement de la vidéo"
-      }
+    "text": {
+      "placeholder": "Écrivez quelque chose..."
+    },
+    "image": {
+      "uploading": "Téléchargement...",
+      "add": "Ajouter une image ou un GIF",
+      "max_size": "Max 10 Mo",
+      "error_type": "Seules les images et les GIFs sont autorisés",
+      "error_size": "La taille du fichier doit être inférieure à 10 Mo",
+      "error_failed": "Échec du téléchargement de l'image"
+    },
+    "video": {
+      "uploading": "Téléchargement...",
+      "add": "Ajouter une vidéo",
+      "upload_tab": "Télécharger une vidéo",
+      "link_tab": "Lien vidéo",
+      "url_label": "URL de la vidéo",
+      "url_help": "Supporte YouTube, Vimeo et Loom",
+      "url_invalid": "URL de vidéo invalide",
+      "max_size_help": "Max 10 Mo • MP4, WebM, MOV",
+      "edit_hint_upload": "Double-cliquez pour modifier • Téléchargée",
+      "edit_hint_link": "Double-cliquez pour modifier • {platform}",
+      "error_type": "Seuls les fichiers vidéo sont autorisés",
+      "error_size": "La taille de la vidéo doit être inférieure à 10 Mo",
+      "error_failed": "Échec du téléchargement de la vidéo"
     }
   }
 }

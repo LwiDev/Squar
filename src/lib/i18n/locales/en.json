@@ -93,136 +93,141 @@
       "no_limits_desc": "Everything is free. No premium plans, no hidden costs, and no artificial limits on your creativity. Just you and your space."
     },
     "footer": {
-        "rights": "Built for the open web.",
-        "tagline": "Your page, your way."
+      "rights": "Built for the open web.",
+      "tagline": "Your page, your way."
     }
   },
   "editor": {
     "toolbar": {
-        "add_title": "Add Title",
-        "add_text": "Add Text",
-        "add_link": "Add Link",
-        "add_image": "Add Image or GIF",
-        "add_video": "Add Video",
-        "undo": "Undo (Cmd+Z)",
-        "redo": "Redo (Cmd+Shift+Z)",
-        "preview": "Preview",
-        "exit_preview": "Exit Preview",
-        "share": "Share your SQUAR",
-        "view": "View your SQUAR",
-        "publish": "Publish",
-        "unpublish": "Unpublish"
+      "add_title": "Add Title",
+      "add_text": "Add Text",
+      "add_link": "Add Link",
+      "add_image": "Add Image or GIF",
+      "add_video": "Add Video",
+      "undo": "Undo (Cmd+Z)",
+      "redo": "Redo (Cmd+Shift+Z)",
+      "preview": "Preview",
+      "exit_preview": "Exit Preview",
+      "share": "Share your SQUAR",
+      "view": "View your SQUAR",
+      "publish": "Publish",
+      "unpublish": "Unpublish"
     },
     "menu": {
-        "change_username": "Change username",
-        "settings": "Settings",
-        "language": "Language",
-        "home": "Home",
-        "logout": "Logout"
+      "change_username": "Change username",
+      "settings": "Settings",
+      "language": "Language",
+      "home": "Home",
+      "logout": "Logout"
     },
     "username_modal": {
-        "title": "Change username",
-        "label": "Username",
-        "help": "Lowercase letters, numbers, and hyphens only. Minimum 3 characters.",
-        "error_min_length": "Username must be at least 3 characters",
-        "error_invalid": "Username can only contain lowercase letters, numbers, and hyphens",
-        "saving": "Saving..."
+      "title": "Change username",
+      "label": "Username",
+      "help": "Lowercase letters, numbers, and hyphens only. Minimum 3 characters.",
+      "error_min_length": "Username must be at least 3 characters",
+      "error_invalid": "Username can only contain lowercase letters, numbers, and hyphens",
+      "saving": "Saving..."
     },
     "settings_modal": {
-        "title": "Page Settings",
-        "theme": "Theme",
-        "language": "Language",
-        "selected": "Selected",
-        "save": "Save Changes",
-        "themes": {
-            "light": "Light",
-            "cream": "Cream",
-            "dark": "Dark",
-            "slate": "Slate",
-            "midnight": "Midnight"
-        }
+      "title": "Page Settings",
+      "theme": "Theme",
+      "language": "Language",
+      "selected": "Selected",
+      "save": "Save Changes",
+      "themes": {
+        "light": "Light",
+        "cream": "Cream",
+        "dark": "Dark",
+        "slate": "Slate",
+        "midnight": "Midnight"
+      }
     },
     "title_modal": {
-        "title": "Title Settings",
-        "size": "Size",
-        "sizes": {
-            "small": "Small",
-            "medium": "Medium",
-            "large": "Large"
-        }
+      "title": "Title Settings",
+      "size": "Size",
+      "sizes": {
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large"
+      }
     },
     "profile_modal": {
-        "title": "Profile Photo Settings",
-        "photo_label": "Photo",
-        "change_photo": "Change Photo",
-        "upload_photo": "Upload Photo",
-        "uploading": "Uploading...",
-        "display_label": "Display",
-        "display_photo": "Photo",
-        "display_letter": "Letter",
-        "display_hidden": "Hidden",
-        "position_label": "Position",
-        "position_left": "Left Sidebar",
-        "position_center": "Center",
-        "position_right": "Right Sidebar",
-        "layout_label": "Header Layout",
-        "layout_vertical": "Vertical",
-        "layout_vertical_desc": "Photo on top",
-        "layout_photo_left": "Photo Left",
-        "layout_photo_left_desc": "Photo → Text",
-        "layout_photo_right": "Photo Right",
-        "layout_photo_right_desc": "Text → Photo",
-        "size_label": "Size",
-        "shape_label": "Shape",
-        "shapes": {
-            "circle": "Circle",
-            "square": "Square",
-            "rounded": "Rounded"
-        }
+      "title": "Profile Settings",
+      "photo_label": "Profile Photo",
+      "change_photo": "Change Photo",
+      "upload_photo": "Upload Photo",
+      "uploading": "Uploading...",
+      "display_label": "Display",
+      "display_photo": "Photo",
+      "display_letter": "Letter",
+      "display_hidden": "Hidden",
+      "position_label": "Position",
+      "position_left": "Left Sidebar",
+      "position_center": "Center",
+      "position_right": "Right Sidebar",
+      "layout_section": "Disposition",
+      "layout_label": "Layout",
+      "layout_vertical": "Vertical",
+      "layout_vertical_desc": "Photo on top",
+      "layout_photo_left": "Photo Left",
+      "layout_photo_left_desc": "Photo → Text",
+      "layout_photo_right": "Photo Right",
+      "layout_photo_right_desc": "Text → Photo",
+      "size_label": "Size",
+      "shape_label": "Shape",
+      "shapes": {
+        "circle": "Circle",
+        "square": "Square",
+        "rounded": "Rounded"
+      }
+    },
+    "header": {
+      "title_placeholder": "My Page",
+      "description_placeholder": "Add a description..."
     },
     "link_modal": {
-        "title": "Add Link",
-        "url_label": "URL",
-        "adding": "Adding..."
+      "title": "Add Link",
+      "url_label": "URL",
+      "adding": "Adding..."
     },
     "share": {
-        "title": "My SQUAR page is live → {url}",
-        "copied": "Link copied to clipboard!"
+      "title": "My SQUAR page is live → {url}",
+      "copied": "Link copied to clipboard!"
     },
     "grid": {
-        "empty_title": "Add your first block",
-        "empty_desc": "Use the toolbar at the bottom to add text, links, or images to your page"
+      "empty_title": "Add your first block",
+      "empty_desc": "Use the toolbar at the bottom to add text, links, or images to your page"
+    }
+  },
+  "blocks": {
+    "heading": {
+      "placeholder": "Heading..."
     },
-    "blocks": {
-        "heading": {
-            "placeholder": "Heading"
-        },
-        "text": {
-            "placeholder": "Click to edit"
-        },
-        "image": {
-            "uploading": "Uploading...",
-            "add": "Click to add image or GIF",
-            "max_size": "Max 10 MB",
-            "error_type": "Only images and GIFs are allowed",
-            "error_size": "File size must be less than 10 MB",
-            "error_failed": "Failed to upload image"
-        },
-        "video": {
-            "uploading": "Uploading...",
-            "add": "Click to add video",
-            "upload_tab": "Upload Video",
-            "link_tab": "Video Link",
-            "url_label": "Video URL",
-            "url_help": "Supports YouTube, Vimeo, and Loom",
-            "url_invalid": "Invalid video URL",
-            "max_size_help": "Max 10 MB • MP4, WebM, MOV",
-            "edit_hint_upload": "Double-click to edit • Uploaded",
-            "edit_hint_link": "Double-click to edit • {platform}",
-            "error_type": "Only video files are allowed",
-            "error_size": "Video size must be less than 10 MB",
-            "error_failed": "Failed to upload video"
-        }
+    "text": {
+      "placeholder": "Type something..."
+    },
+    "image": {
+      "uploading": "Uploading...",
+      "add": "Click to add image or GIF",
+      "max_size": "Max 10 MB",
+      "error_type": "Only images and GIFs are allowed",
+      "error_size": "File size must be less than 10 MB",
+      "error_failed": "Failed to upload image"
+    },
+    "video": {
+      "uploading": "Uploading...",
+      "add": "Add video",
+      "upload_tab": "Upload Video",
+      "link_tab": "Video Link",
+      "url_label": "Video URL",
+      "url_help": "Supports YouTube, Vimeo and Loom",
+      "url_invalid": "Invalid video URL",
+      "max_size_help": "Max 10 MB • MP4, WebM, MOV",
+      "edit_hint_upload": "Double-click to edit • Uploaded",
+      "edit_hint_link": "Double-click to edit • {platform}",
+      "error_type": "Only video files are allowed",
+      "error_size": "Video size must be less than 10 MB",
+      "error_failed": "Failed to upload video"
     }
   }
 }

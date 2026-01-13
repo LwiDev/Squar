@@ -60,6 +60,7 @@
 
     let lastPageId = $state(untrack(() => page.id));
     let fileInputImage = $state<HTMLInputElement>();
+    let fileInputVideo = $state<HTMLInputElement>();
 
     let autoSaveTimeout: ReturnType<typeof setTimeout>;
 
@@ -154,6 +155,55 @@
         } catch (error) {
             console.error(error);
             alert($t("blocks.image.error_failed"));
+        } finally {
+            uploading = false;
+        }
+    }
+
+    async function handleVideoSelect(e: Event) {
+        const target = e.target as HTMLInputElement;
+        const file = target.files?.[0];
+        if (!file) return;
+
+        // Reset input to allow selecting same file again
+        target.value = "";
+
+        // Only accept videos
+        if (!file.type.startsWith("video/")) {
+            alert($t("blocks.video.error_type"));
+            return;
+        }
+
+        // Check file size (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert($t("blocks.video.error_size"));
+            return;
+        }
+
+        uploading = true;
+
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error("Upload failed");
+            }
+
+            const data = await response.json();
+            addBlock("video", {
+                videoUrl: data.url,
+                filename: data.filename,
+                sourceType: "upload",
+            });
+        } catch (error) {
+            console.error(error);
+            alert($t("blocks.video.error_failed"));
         } finally {
             uploading = false;
         }
@@ -543,12 +593,20 @@
         class="hidden"
     />
 
+    <input
+        type="file"
+        accept="video/*"
+        bind:this={fileInputVideo}
+        onchange={handleVideoSelect}
+        class="hidden"
+    />
+
     <EditorToolbar
         onAddHeading={() => addBlock("heading")}
         onAddText={() => addBlock("text")}
         onAddLink={() => (showAddLinkDialog = true)}
         onAddImage={() => fileInputImage.click()}
-        onAddVideo={() => addBlock("video")}
+        onAddVideo={() => fileInputVideo.click()}
         onUndo={handleUndo}
         onRedo={handleRedo}
         onPublish={handlePublish}
