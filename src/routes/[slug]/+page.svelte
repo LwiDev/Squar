@@ -484,7 +484,10 @@
                         userEmail={user?.email}
                         onTitleUpdate={(t) => (title = t)}
                         onDescriptionUpdate={(d) => (description = d)}
-                        onHeaderSettingsClick={() => (showPageHeaderSettingsModal = true)}
+                        onHeaderSettingsClick={() =>
+                            (showPageHeaderSettingsModal = true)}
+                        onPhotoUpload={handlePhotoUpload}
+                        {uploading}
                     />
                 </div>
             {:else}

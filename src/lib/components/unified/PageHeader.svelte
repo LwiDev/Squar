@@ -14,6 +14,8 @@
         onTitleUpdate?: (title: string) => void;
         onDescriptionUpdate?: (description: string) => void;
         onHeaderSettingsClick?: () => void;
+        onPhotoUpload?: (file: File) => void;
+        uploading?: boolean;
     }
 
     let {
@@ -27,6 +29,8 @@
         onTitleUpdate,
         onDescriptionUpdate,
         onHeaderSettingsClick,
+        onPhotoUpload,
+        uploading = false,
     }: Props = $props();
 
     // Default profile photo settings
@@ -50,6 +54,20 @@
               : "text-4xl md:text-5xl",
     );
 
+    const descriptionClasses = $derived(
+        isSidebar
+            ? currentTitleSize === "small"
+                ? "text-[10px]"
+                : currentTitleSize === "medium"
+                  ? "text-xs"
+                  : "text-sm"
+            : currentTitleSize === "small"
+              ? "text-sm md:text-base"
+              : currentTitleSize === "medium"
+                ? "text-base md:text-lg"
+                : "text-lg md:text-xl",
+    );
+
     // Check if profile photo is shown
     const showProfilePhoto = $derived(
         currentProfilePhoto.visibility !== "hidden",
@@ -68,7 +86,7 @@
         {#if editable && onHeaderSettingsClick}
             <button
                 onclick={onHeaderSettingsClick}
-                class="absolute top-0 right-0 p-1.5 text-muted hover:text-text bg-background/80 backdrop-blur-sm border border-border rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                class="absolute top-0 -right-3 p-1.5 text-muted hover:text-text bg-background/80 backdrop-blur-sm border border-border rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity z-10"
                 title="Header Settings"
             >
                 <Settings size={14} />
@@ -84,7 +102,7 @@
         >
             <!-- Profile Photo -->
             <div class="shrink-0 {currentLayout === 'vertical' ? 'mb-4' : ''}">
-                {#if showProfilePhoto}
+                {#if showProfilePhoto || editable}
                     <div class="flex justify-center">
                         <ProfilePhotoPreview
                             photoUrl={"url" in currentProfilePhoto
@@ -95,6 +113,9 @@
                             shape={currentProfilePhoto.shape}
                             {username}
                             {userEmail}
+                            {editable}
+                            onUpload={onPhotoUpload}
+                            {uploading}
                         />
                     </div>
                 {/if}
@@ -129,7 +150,7 @@
                             contenteditable="true"
                             role="textbox"
                             tabindex="0"
-                            class="text-xs text-muted border-0 bg-transparent rounded-md focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none line-clamp-2"
+                            class="{descriptionClasses} text-muted border-0 bg-transparent rounded-md focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none line-clamp-2"
                             style="padding: 0.125rem; margin: -0.125rem;"
                             data-placeholder="Add a description..."
                             oninput={(e) => {
@@ -145,7 +166,7 @@
                         {title}
                     </h1>
                     {#if description}
-                        <p class="text-xs text-muted line-clamp-3">
+                        <p class="{descriptionClasses} text-muted line-clamp-3">
                             {description}
                         </p>
                     {/if}
@@ -160,7 +181,7 @@
             {#if editable && onHeaderSettingsClick}
                 <button
                     onclick={onHeaderSettingsClick}
-                    class="absolute top-4 right-4 p-1.5 text-muted hover:text-text bg-background/80 backdrop-blur-sm border border-border rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                    class="absolute top-5 right-1 p-1.5 text-muted hover:text-text bg-background/80 backdrop-blur-sm border border-border rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity z-10"
                     title="Header Settings"
                 >
                     <Settings size={14} />
@@ -170,7 +191,7 @@
                 <!-- VERTICAL: Photo on top, text below (original) -->
                 <div class="flex flex-col items-center text-center gap-4">
                     <!-- Profile Photo -->
-                    {#if showProfilePhoto}
+                    {#if showProfilePhoto || editable}
                         <ProfilePhotoPreview
                             photoUrl={"url" in currentProfilePhoto
                                 ? currentProfilePhoto.url
@@ -180,6 +201,9 @@
                             shape={currentProfilePhoto.shape}
                             {username}
                             {userEmail}
+                            {editable}
+                            onUpload={onPhotoUpload}
+                            {uploading}
                         />
                     {/if}
 
@@ -206,7 +230,7 @@
                                     contenteditable="true"
                                     role="textbox"
                                     tabindex="0"
-                                    class="text-base text-muted border-0 bg-transparent rounded-lg focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none w-full"
+                                    class="{descriptionClasses} text-muted border-0 bg-transparent rounded-lg focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none w-full"
                                     style="padding: 0.5rem; margin: -0.5rem;"
                                     data-placeholder="Add a description..."
                                     oninput={(e) => {
@@ -223,7 +247,7 @@
                                 {title}
                             </h1>
                             {#if description}
-                                <p class="text-base text-muted">
+                                <p class="{descriptionClasses} text-muted">
                                     {description}
                                 </p>
                             {/if}
@@ -237,32 +261,20 @@
                 >
                     <!-- Profile Photo -->
                     <div class="shrink-0">
-                        {#if showProfilePhoto}
-                            <button
-                                onclick={editable ? onPhotoClick : undefined}
-                                class="{editable
-                                    ? 'cursor-pointer hover:opacity-80 transition-opacity'
-                                    : 'cursor-default'} outline-none"
-                                disabled={!editable}
-                            >
-                                <ProfilePhotoPreview
-                                    photoUrl={"url" in currentProfilePhoto
-                                        ? currentProfilePhoto.url
-                                        : undefined}
-                                    visibility={currentProfilePhoto.visibility}
-                                    size={currentProfilePhoto.size}
-                                    shape={currentProfilePhoto.shape}
-                                    {username}
-                                    {userEmail}
-                                />
-                            </button>
-                        {:else if editable}
-                            <button
-                                onclick={onPhotoClick}
-                                class="w-24 h-24 rounded-full flex items-center justify-center text-3xl text-muted hover:text-text hover:bg-border/20 transition-colors"
-                            >
-                                +
-                            </button>
+                        {#if showProfilePhoto || editable}
+                            <ProfilePhotoPreview
+                                photoUrl={"url" in currentProfilePhoto
+                                    ? currentProfilePhoto.url
+                                    : undefined}
+                                visibility={currentProfilePhoto.visibility}
+                                size={currentProfilePhoto.size}
+                                shape={currentProfilePhoto.shape}
+                                {username}
+                                {userEmail}
+                                {editable}
+                                onUpload={onPhotoUpload}
+                                {uploading}
+                            />
                         {/if}
                     </div>
 
@@ -291,7 +303,7 @@
                                     contenteditable="true"
                                     role="textbox"
                                     tabindex="0"
-                                    class="text-lg text-muted border-0 bg-transparent rounded-lg focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none"
+                                    class="{descriptionClasses} text-muted border-0 bg-transparent rounded-lg focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none"
                                     style="padding: 0.5rem; margin: -0.5rem;"
                                     data-placeholder="Add a description..."
                                     oninput={(e) => {
@@ -308,7 +320,7 @@
                                 {title}
                             </h1>
                             {#if description}
-                                <p class="text-base text-muted">
+                                <p class="{descriptionClasses} text-muted">
                                     {description}
                                 </p>
                             {/if}
@@ -355,7 +367,7 @@
                                     contenteditable="true"
                                     role="textbox"
                                     tabindex="0"
-                                    class="text-lg text-muted border-0 bg-transparent rounded-lg focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none"
+                                    class="{descriptionClasses} text-muted border-0 bg-transparent rounded-lg focus:outline-none focus:ring-0 hover:bg-border/20 transition-colors cursor-text empty:before:content-[attr(data-placeholder)] empty:before:text-muted/50 outline-none"
                                     style="padding: 0.5rem; margin: -0.5rem;"
                                     data-placeholder="Add a description..."
                                     oninput={(e) => {
@@ -372,7 +384,7 @@
                                 {title}
                             </h1>
                             {#if description}
-                                <p class="text-base text-muted">
+                                <p class="{descriptionClasses} text-muted">
                                     {description}
                                 </p>
                             {/if}
@@ -381,32 +393,20 @@
 
                     <!-- Profile Photo -->
                     <div class="shrink-0 order-1 md:order-2">
-                        {#if showProfilePhoto}
-                            <button
-                                onclick={editable ? onPhotoClick : undefined}
-                                class="{editable
-                                    ? 'cursor-pointer hover:opacity-80 transition-opacity'
-                                    : 'cursor-default'} outline-none"
-                                disabled={!editable}
-                            >
-                                <ProfilePhotoPreview
-                                    photoUrl={"url" in currentProfilePhoto
-                                        ? currentProfilePhoto.url
-                                        : undefined}
-                                    visibility={currentProfilePhoto.visibility}
-                                    size={currentProfilePhoto.size}
-                                    shape={currentProfilePhoto.shape}
-                                    {username}
-                                    {userEmail}
-                                />
-                            </button>
-                        {:else if editable}
-                            <button
-                                onclick={onPhotoClick}
-                                class="w-24 h-24 rounded-full flex items-center justify-center text-3xl text-muted hover:text-text hover:bg-border/20 transition-colors"
-                            >
-                                +
-                            </button>
+                        {#if showProfilePhoto || editable}
+                            <ProfilePhotoPreview
+                                photoUrl={"url" in currentProfilePhoto
+                                    ? currentProfilePhoto.url
+                                    : undefined}
+                                visibility={currentProfilePhoto.visibility}
+                                size={currentProfilePhoto.size}
+                                shape={currentProfilePhoto.shape}
+                                {username}
+                                {userEmail}
+                                {editable}
+                                onUpload={onPhotoUpload}
+                                {uploading}
+                            />
                         {/if}
                     </div>
                 </div>
